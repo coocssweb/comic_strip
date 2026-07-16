@@ -42,7 +42,7 @@
 #### 全局 / 跨页面状态（MobX）
 
 - 跨页面共享的业务状态（用户信息、登录态、阅读进度、收藏列表、钱包余额等）必须使用 MobX store 管理。
-- store 文件集中放在 `store/` 目录下，按业务领域拆分，例如 `store/user.js`、`store/order.js`、`store/reader.js`。
+- store 文件集中放在 `stores/` 目录下，按业务领域拆分，例如 `stores/user.js`、`stores/order.js`、`stores/reader.js`。
 - 每个 store 使用 `observable`、`action` 定义状态和修改方法；禁止在 store 外直接修改 observable 属性。
 - 页面通过 `createStoreBindings(this, { store, fields, actions })` 绑定 store（在 `onLoad` 中创建，`onUnload` 中调用 `destroyStoreBindings` 清理）。
 - 组件通过 `storeBindingsBehavior` behavior 绑定 store，在组件 JS 的 `storeBindings` 配置项中声明 `fields` 和 `actions`。

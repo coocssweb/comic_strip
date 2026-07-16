@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="header">
+    <text class="title">MobX Store 演示</text>
+    <text class="subtitle">Page 级绑定 + Component 级绑定</text>
+  </view>
+
+  <!-- Page 级绑定演示 -->
+  <view class="section">
+    <text class="section-title">Page 级绑定</text>
+    <view class="counter-display">
+      <text class="count">{{count}}</text>
+      <text class="parity">{{isEven ? '偶数' : '奇数'}}</text>
+    </view>
+    <view class="actions">
+      <button class="btn btn-default" bind:tap="decrement">-1</button>
+      <button class="btn btn-default" bind:tap="reset">重置</button>
+      <button class="btn btn-primary" bind:tap="increment">+1</button>
+    </view>
+  </view>
+
+  <!-- Component 级绑定演示：与 Page 操作同一个 store，数据自动同步 -->
+  <view class="section">
+    <text class="section-title">Component 级绑定</text>
+    <text class="section-desc">下方组件绑定同一个 store，数据自动同步</text>
+    <counter />
+  </view>
+</view>

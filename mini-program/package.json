@@ -1,0 +1,9 @@
+{
+  "name": "comic-strip-miniprogram",
+  "version": "1.0.0",
+  "description": "漫画条小程序端",
+  "dependencies": {
+    "mobx-miniprogram": "^4.13.2",
+    "mobx-miniprogram-bindings": "^2.1.5"
+  }
+}

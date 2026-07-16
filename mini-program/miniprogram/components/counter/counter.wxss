@@ -1,0 +1,49 @@
+.counter-card {
+  background-color: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-md);
+}
+
+.label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.counter-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  padding: var(--spacing-sm) 0;
+}
+
+.count {
+  font-size: 64rpx;
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+.parity {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-left: var(--spacing-sm);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+.btn {
+  min-width: 140rpx;
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-card);
+  color: var(--color-text);
+  line-height: 64rpx;
+  padding: 0 var(--spacing-md);
+}

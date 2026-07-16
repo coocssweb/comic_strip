@@ -1,0 +1,23 @@
+{
+  "description": "漫画条小程序",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": true,
+    "packNpmManually": true,
+    "packNpmRelationList": [
+      {
+        "packageJsonPath": "./package.json",
+        "miniprogramNpmDistDir": "./miniprogram/"
+      }
+    ]
+  },
+  "compileType": "miniprogram",
+  "libVersion": "2.11.0",
+  "appid": "touristappid",
+  "projectname": "comic-strip-miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "condition": {}
+}
