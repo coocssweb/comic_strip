@@ -1,0 +1,7 @@
+interface:
+  display_name: "Code Refactoring"
+  short_description: "Diagnose and plan safe code refactors before implementation."
+  default_prompt: "Use $code-refactoring to diagnose and plan a safe refactor."
+
+policy:
+  allow_implicit_invocation: true
