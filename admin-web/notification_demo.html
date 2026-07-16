@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>消息通知模块交互演示 Demo</title>
+  <!-- 引入 Google Fonts 提升排版 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- 引入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          boxShadow: {
+            'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+            'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+            'premium': '0 20px 40px -15px rgba(0,0,0,0.1)',
+            'premium-dark': '0 20px 40px -15px rgba(0,0,0,0.5)',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- 引入 Lucide Icons (用于各种图标) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* 自定义动画与样式 */
+    @keyframes bell-ring {
+
+      0%,
+      100% {
+        transform: rotate(0);
+      }
+
+      15% {
+        transform: rotate(15deg);
+      }
+
+      30% {
+        transform: rotate(-10deg);
+      }
+
+      45% {
+        transform: rotate(8deg);
+      }
+
+      60% {
+        transform: rotate(-6deg);
+      }
+
+      75% {
+        transform: rotate(4deg);
+      }
+
+      90% {
+        transform: rotate(-2deg);
+      }
+    }
+
+    .animate-bell-ring {
+      animation: bell-ring 0.8s ease-in-out;
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.5;
+      }
+
+      50% {
+        transform: scale(1.1);
+        opacity: 0.3;
+      }
+
+      100% {
+        transform: scale(1.3);
+        opacity: 0;
+      }
+    }
+
+    .animate-pulse-ring {
+      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .dark .glass-effect {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  </style>
+</head>
+
+<body
+  class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen font-sans overflow-x-hidden transition-colors duration-300">
+
+  <!-- 模拟系统主体布局 -->
+  <div class="flex h-screen overflow-hidden">
+    <!-- 模拟左侧侧边栏 -->
+    <aside
+      class="w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hidden md:flex flex-col justify-between shrink-0">
+      <div>
+        <div class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center px-6 gap-3">
+          <div
+            class="h-8 w-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-sm shadow-md shadow-indigo-500/20">
+            XH</div>
+          <div>
+            <h1 class="text-sm font-extrabold tracking-tight">天天种草</h1>
+            <p class="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">管理后台</p>
+          </div>
+        </div>
+        <nav class="mt-6 px-4 space-y-1">
+          <a href="#"
+            class="flex items-center gap-3 py-3 px-4 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            <i data-lucide="users" class="h-4 w-4"></i>用户管理
+          </a>
+          <a href="#"
+            class="flex items-center gap-3 py-3 px-4 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            <i data-lucide="shield-alert" class="h-4 w-4"></i>发布者管理
+          </a>
+          <a href="#"
+            class="flex items-center gap-3 py-3 px-4 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            <i data-lucide="layers" class="h-4 w-4"></i>媒体管理
+          </a>
+          <a href="#"
+            class="flex items-center gap-3 py-3 px-4 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            <i data-lucide="award" class="h-4 w-4"></i>任务管理
+          </a>
+          <!-- 当前两个关键审核菜单 -->
+          <a href="#"
+            class="flex items-center gap-3 py-3 px-4 text-xs font-bold rounded-xl bg-slate-100 dark:bg-slate-850 text-indigo-600 dark:text-indigo-400 border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+            <i data-lucide="check-square" class="h-4 w-4 text-indigo-500"></i>任务审核
+            <span
+              class="ml-auto bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold px-2 py-0.5 rounded-full"
+              id="task-badge">0</span>
+          </a>
+          <a href="#"
+            class="flex items-center gap-3 py-3 px-4 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+            <i data-lucide="banknote" class="h-4 w-4"></i>提现打款
+            <span
+              class="ml-auto bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full"
+              id="withdrawal-badge">0</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+        <button id="theme-toggle"
+          class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-all">
+          <i data-lucide="moon" class="h-4 w-4 text-indigo-500 dark:text-indigo-400 dark:hidden"></i>
+          <i data-lucide="sun" class="h-4 w-4 text-amber-500 hidden dark:block"></i>
+          <span>切换外观</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- 模拟主显示区 -->
+    <main class="flex-1 overflow-y-auto flex flex-col">
+      <!-- 模拟顶部导航 -->
+      <header
+        class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-8 z-10 shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-slate-400 dark:text-slate-500">主页</span>
+          <span class="text-xs font-bold text-slate-400 dark:text-slate-500">/</span>
+          <span class="text-xs font-bold text-slate-800 dark:text-slate-200">消息通知配置与演示</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <div
+            class="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-850 flex items-center justify-center font-bold text-sm text-indigo-600 dark:text-indigo-400 border border-slate-200/50 dark:border-slate-800/50 shadow-inner">
+            OP
+          </div>
+          <span class="text-xs font-bold">系统管理员</span>
+        </div>
+      </header>
+
+      <!-- 演示操作台 & 页面内容 -->
+      <div class="p-8 max-w-4xl mx-auto w-full flex-1 space-y-8 pb-32">
+        <!-- 头部说明 -->
+        <div class="space-y-2">
+          <span
+            class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Notification
+            Interactive Demo</span>
+          <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl">消息通知模块交互演示</h2>
+          <p class="text-slate-500 dark:text-slate-400 text-sm max-w-2xl">
+            本 Demo 专门为您展示即将开发的<b>“消息通知模块”</b>的完整前端视觉与交互流程。通过下方的模拟面板，您可以自由触发新通知并体验完整的处理回路。
+          </p>
+        </div>
+
+        <!-- 模拟控制控制台 -->
+        <div
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
+          <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/60 pb-4">
+            <div
+              class="h-8 w-8 rounded-lg bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+              <i data-lucide="sliders" class="h-4 w-4"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold">控制台：模拟发送消息</h3>
+              <p class="text-xs text-slate-400 dark:text-slate-500">模拟后台收到推送并触发声音与右下角铃铛的过程</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- 模拟任务审核 -->
+            <div
+              class="border border-slate-200/60 dark:border-slate-800 p-4 rounded-xl space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all bg-slate-50/50 dark:bg-slate-900/30">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">新任务审核</span>
+                <span
+                  class="bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full">任务流</span>
+              </div>
+              <p class="text-xs text-slate-400 dark:text-slate-500">模拟达人提交了任务审核申请，需管理员处理</p>
+              <button onclick="triggerNewMessage('task')"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-md shadow-blue-500/10 hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                模拟推送 1 条任务审核
+              </button>
+            </div>
+
+            <!-- 模拟打款处理 -->
+            <div
+              class="border border-slate-200/60 dark:border-slate-800 p-4 rounded-xl space-y-4 hover:border-slate-300 dark:hover:border-slate-700 transition-all bg-slate-50/50 dark:bg-slate-900/30">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">新提现打款</span>
+                <span
+                  class="bg-amber-100 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 text-[10px] font-bold px-2 py-0.5 rounded-full">资金流</span>
+              </div>
+              <p class="text-xs text-slate-400 dark:text-slate-500">模拟达人发起了提现申请，需打款审核与确认</p>
+              <button onclick="triggerNewMessage('withdrawal')"
+                class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg shadow-md shadow-amber-500/10 hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                模拟推送 1 条提现审核
+              </button>
+            </div>
+          </div>
+
+          <!-- 音效调试 -->
+          <div
+            class="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 dark:border-slate-800/60 pt-4 text-xs font-bold">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-500 dark:text-slate-400">消息声音提示:</span>
+              <button id="sound-toggle" onclick="toggleSound()"
+                class="flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-all">
+                <i data-lucide="volume-2" class="h-3.5 w-3.5"></i>
+                <span>已开启</span>
+              </button>
+            </div>
+            <button onclick="playAlertSound()"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1.5 transition-colors">
+              <i data-lucide="play" class="h-3.5 w-3.5"></i>
+              测试铃声
+            </button>
+            <button onclick="resetDemo()"
+              class="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 flex items-center gap-1.5 transition-colors ml-auto">
+              <i data-lucide="rotate-ccw" class="h-3.5 w-3.5"></i>
+              重置 Demo 状态
+            </button>
+          </div>
+        </div>
+
+        <!-- 交互规则说明卡片 -->
+        <div
+          class="bg-gradient-to-r from-indigo-50/50 to-purple-50/50 dark:from-slate-900 dark:to-indigo-950/20 border border-indigo-100/50 dark:border-slate-800/80 rounded-2xl p-6 space-y-4">
+          <h4 class="text-sm font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-2">
+            <i data-lucide="info" class="h-4 w-4 text-indigo-500"></i>消息流转状态机说明
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div
+              class="bg-white/80 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/30 shadow-sm space-y-1">
+              <div class="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-bold mb-1">
+                <span class="h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                <span>1. 待处理 (Pending)</span>
+              </div>
+              <p class="text-slate-400 dark:text-slate-500 leading-relaxed">后台新推送的消息，右下角铃铛触发振动并浮现，附带提示音，红点数量+1。</p>
+            </div>
+            <div
+              class="bg-white/80 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/30 shadow-sm space-y-1">
+              <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-bold mb-1">
+                <i data-lucide="eye" class="h-3.5 w-3.5"></i>
+                <span>2. 已查看 (Viewed)</span>
+              </div>
+              <p class="text-slate-400 dark:text-slate-500 leading-relaxed">点击打开了审核详情，或点击了“已读”。红点数字递减。此时铃铛仍显示。</p>
+            </div>
+            <div
+              class="bg-white/80 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/30 shadow-sm space-y-1">
+              <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold mb-1">
+                <i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>
+                <span>3. 已处理 (Processed)</span>
+              </div>
+              <p class="text-slate-400 dark:text-slate-500 leading-relaxed">
+                管理员在详情弹窗中完成了“同意/拒绝/打款/驳回”操作。该项置灰。当所有消息均处理完，铃铛自动隐藏。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== 核心消息组件 (右下角铃铛及面板) ==================== -->
+  <div id="bell-widget"
+    class="fixed bottom-6 right-6 z-50 transition-all duration-500 transform scale-0 translate-y-10 opacity-0 pointer-events-none">
+
+    <!-- 铃铛呼吸光效圈 -->
+    <div id="bell-glow"
+      class="absolute inset-0 rounded-full bg-indigo-500/25 dark:bg-indigo-400/30 scale-110 pointer-events-none animate-pulse-ring">
+    </div>
+
+    <!-- 消息列表面板 (从右下角展开) -->
+    <div id="notification-panel"
+      class="absolute bottom-18 right-0 w-96 max-w-[calc(100vw-2rem)] glass-effect rounded-2xl shadow-premium dark:shadow-premium-dark transition-all duration-300 transform scale-95 translate-y-4 opacity-0 pointer-events-none border border-slate-200/80 dark:border-slate-800/80 overflow-hidden flex flex-col max-h-[480px]">
+      <!-- 面板头部 -->
+      <div
+        class="px-5 py-4 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50 shrink-0">
+        <div class="flex items-center gap-2">
+          <i data-lucide="bell" class="h-4 w-4 text-indigo-500"></i>
+          <span class="text-sm font-extrabold tracking-tight">消息通知列表</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="markAllRead()"
+            class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors flex items-center gap-1">
+            <i data-lucide="check-check" class="h-3.5 w-3.5"></i>
+            全部标为已读
+          </button>
+        </div>
+      </div>
+
+      <!-- 面板滚动列表区 -->
+      <div id="notification-list" class="overflow-y-auto flex-1 p-3 space-y-2 max-h-[360px]">
+        <!-- 动态生成消息项目 -->
+      </div>
+
+      <!-- 面板脚部 -->
+      <div
+        class="px-5 py-3 border-t border-slate-200/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-900/30 text-center shrink-0">
+        <p class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">仅显示待处理与已查看的业务通知</p>
+      </div>
+    </div>
+
+    <!-- 触发铃铛按钮 -->
+    <button onclick="togglePanel()" id="bell-btn"
+      class="relative flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105 active:scale-95 transition-all outline-none border border-indigo-400/20 pointer-events-auto">
+      <i data-lucide="bell" id="bell-icon" class="h-6 w-6"></i>
+      <!-- 红色数字Badge -->
+      <span id="bell-badge"
+        class="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-extrabold text-white border-2 border-white dark:border-slate-950 animate-bounce">0</span>
+    </button>
+  </div>
+
+  <!-- ==================== 全局业务处理弹窗 (选项B) ==================== -->
+  <div id="modal-backdrop"
+    class="fixed inset-0 z-[100] bg-slate-950/40 backdrop-blur-sm flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+    <!-- 弹窗容器 -->
+    <div id="audit-modal"
+      class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg mx-4 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-premium dark:shadow-premium-dark transform scale-95 opacity-0 transition-all duration-300 flex flex-col">
+      <!-- 弹窗头部 -->
+      <div id="modal-header-bg" class="px-6 py-4 flex items-center justify-between text-white shrink-0">
+        <div class="flex items-center gap-2">
+          <i data-lucide="file-check-2" id="modal-title-icon" class="h-5 w-5"></i>
+          <span class="font-extrabold text-sm tracking-tight" id="modal-title">审核详情</span>
+        </div>
+        <button onclick="closeAuditModal()"
+          class="p-1 rounded-lg hover:bg-white/10 text-white/80 hover:text-white transition-colors">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+
+      <!-- 弹窗内容 (根据类型渲染) -->
+      <div id="modal-body" class="p-6 space-y-4 overflow-y-auto max-h-[60vh] text-sm leading-relaxed">
+        <!-- 动态装填 -->
+      </div>
+
+      <!-- 弹窗底部操作栏 -->
+      <div
+        class="px-6 py-4 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-end gap-3 shrink-0">
+        <button onclick="closeAuditModal()"
+          class="px-4 py-2 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold rounded-xl transition-colors">
+          取消
+        </button>
+        <!-- 核心业务按钮 -->
+        <button id="modal-btn-reject"
+          class="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/60 text-xs font-bold rounded-xl transition-colors">
+          驳回
+        </button>
+        <button id="modal-btn-approve"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-500/10 hover:shadow-lg transition-all">
+          通过审核
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== JS 业务逻辑交互控制 ==================== -->
+  <script>
+    // 模拟的初始通知数据库
+    let mockNotifications = [
+      {
+        id: 'msg-01',
+        type: 'task',
+        title: '达人「爱吃香菜」提交了任务审核',
+        desc: '任务：小红书潮玩推广发单，提交截图等待核对。',
+        time: '5分钟前',
+        status: 'pending', // pending(待处理) | viewed(已查看) | processed(已处理)
+        details: {
+          creator: '爱吃香菜',
+          platform: '小红书',
+          taskName: '萌趣盲盒小红书开箱推广',
+          unitPrice: '15.00 元',
+          subTime: '2026-06-17 16:30:12',
+          screenshot: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80'
+        }
+      },
+      {
+        id: 'msg-02',
+        type: 'withdrawal',
+        title: '达人「大卫阿伯特」发起了提现申请',
+        desc: '提现金额 200.00 元，打款至支付宝：david1991@alipay.com',
+        time: '12分钟前',
+        status: 'pending',
+        details: {
+          creator: '大卫阿伯特',
+          amount: '200.00 元',
+          channel: '支付宝打款',
+          account: 'david1991@alipay.com',
+          accountName: '张大卫',
+          subTime: '2026-06-17 16:23:45'
+        }
+      }
+    ];
+
+    // 配置参数
+    let soundEnabled = true;
+    let activeAuditId = null;
+
+    // Web Audio API 音效发生器
+    function playAlertSound() {
+      if (!soundEnabled) return;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // 双音阶电子提醒声 (清新悦耳)
+        const playTone = (frequency, startTime, duration) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sine'; // 正弦波
+          osc.frequency.setValueAtTime(frequency, startTime);
+
+          gain.gain.setValueAtTime(0.08, startTime);
+          // 声音淡出
+          gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(startTime);
+          osc.stop(startTime + duration);
+        };
+
+        // 播放第一个音调 (高音)
+        playTone(660, audioCtx.currentTime, 0.12);
+        // 播放第二个音调 (更高音，相差0.08秒)
+        playTone(880, audioCtx.currentTime + 0.08, 0.25);
+      } catch (e) {
+        console.warn('声音播放失败，通常因用户尚未交互造成浏览器拦截: ', e);
+      }
+    }
+
+    // 初始化渲染
+    function init() {
+      // 初始化图标
+      lucide.createIcons();
+      updateWidgetState();
+      renderList();
+    }
+
+    // 切换声音开关
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById('sound-toggle');
+      if (soundEnabled) {
+        btn.innerHTML = `<i data-lucide="volume-2" class="h-3.5 w-3.5"></i><span>已开启</span>`;
+        btn.className = "flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition-all";
+      } else {
+        btn.innerHTML = `<i data-lucide="volume-x" class="h-3.5 w-3.5"></i><span>已关闭</span>`;
+        btn.className = "flex items-center gap-2 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-800 bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition-all";
+      }
+      lucide.createIcons();
+    }
+
+    // 主题切换
+    const themeBtn = document.getElementById('theme-toggle');
+    themeBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // 过滤出需要显示的消息 (排除已处理的消息)
+    function getActiveMessages() {
+      return mockNotifications.filter(msg => msg.status !== 'processed');
+    }
+
+    // 统计未读(pending)数量
+    function getPendingCount() {
+      return mockNotifications.filter(msg => msg.status === 'pending').length;
+    }
+
+    // 触发新消息通知
+    function triggerNewMessage(type) {
+      const id = 'msg-' + Date.now();
+      let newMsg = {};
+
+      if (type === 'task') {
+        const creators = ['大白兔', '小丸子', '影帝王', '辣妹子', '科技狂人'];
+        const randomCreator = creators[Math.floor(Math.random() * creators.length)];
+        newMsg = {
+          id: id,
+          type: 'task',
+          title: `达人「${randomCreator}」提交了任务审核`,
+          desc: `任务：抖音探店短视频推广，提交截图等待核对。`,
+          time: '刚刚',
+          status: 'pending',
+          details: {
+            creator: randomCreator,
+            platform: '抖音',
+            taskName: '线下臻选牛排探店宣传',
+            unitPrice: '45.00 元',
+            subTime: new Date().toLocaleString(),
+            screenshot: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80'
+          }
+        };
+      } else {
+        const creators = ['林克', '塞尔达', '马里奥', '皮卡丘'];
+        const randomCreator = creators[Math.floor(Math.random() * creators.length)];
+        const money = (Math.random() * 500 + 50).toFixed(2);
+        newMsg = {
+          id: id,
+          type: 'withdrawal',
+          title: `达人「${randomCreator}」发起了提现申请`,
+          desc: `提现金额 ${money} 元，请管理员处理打款。`,
+          time: '刚刚',
+          status: 'pending',
+          details: {
+            creator: randomCreator,
+            amount: `${money} 元`,
+            channel: '银行卡打款',
+            account: '622202******987654',
+            accountName: `上海 ${randomCreator} 实业`,
+            subTime: new Date().toLocaleString()
+          }
+        };
+      }
+
+      mockNotifications.unshift(newMsg);
+
+      // 声音提示
+      playAlertSound();
+
+      // 更新小红点和铃铛动画
+      updateWidgetState(true);
+      renderList();
+    }
+
+    // 更新右下角挂件状态
+    function updateWidgetState(ringBell = false) {
+      const activeMsgs = getActiveMessages();
+      const pendingCount = getPendingCount();
+      const widget = document.getElementById('bell-widget');
+      const badge = document.getElementById('bell-badge');
+      const glow = document.getElementById('bell-glow');
+      const bellBtn = document.getElementById('bell-btn');
+
+      // 更新导航栏上的小Badge
+      const taskCount = mockNotifications.filter(msg => msg.type === 'task' && msg.status !== 'processed').length;
+      const withdrawalCount = mockNotifications.filter(msg => msg.type === 'withdrawal' && msg.status !== 'processed').length;
+      document.getElementById('task-badge').innerText = taskCount;
+      document.getElementById('withdrawal-badge').innerText = withdrawalCount;
+
+      // 如果没有活动的消息 (即所有消息都处理为 processed)，则隐藏铃铛
+      if (activeMsgs.length === 0) {
+        widget.classList.add('scale-0', 'translate-y-10', 'opacity-0', 'pointer-events-none');
+        widget.classList.remove('scale-100', 'translate-y-0', 'opacity-100', 'pointer-events-auto');
+        // 隐藏面板
+        closePanel();
+        return;
+      } else {
+        // 显示铃铛
+        widget.classList.remove('scale-0', 'translate-y-10', 'opacity-0', 'pointer-events-none');
+        widget.classList.add('scale-100', 'translate-y-0', 'opacity-100', 'pointer-events-auto');
+      }
+
+      // 更新 Badge 数字
+      if (pendingCount > 0) {
+        badge.style.display = 'flex';
+        badge.innerText = pendingCount;
+        glow.style.display = 'block';
+      } else {
+        badge.style.display = 'none';
+        glow.style.display = 'none';
+      }
+
+      // 强力抖动铃铛按钮
+      if (ringBell) {
+        bellBtn.classList.add('animate-bell-ring');
+        setTimeout(() => {
+          bellBtn.classList.remove('animate-bell-ring');
+        }, 800);
+      }
+    }
+
+    // 渲染消息面板的列表
+    function renderList() {
+      const activeMsgs = getActiveMessages();
+      const listContainer = document.getElementById('notification-list');
+
+      if (activeMsgs.length === 0) {
+        listContainer.innerHTML = `
+          <div class="py-8 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
+            <i data-lucide="bell-off" class="h-8 w-8 mb-2 stroke-1"></i>
+            <span class="text-xs">当前没有新的待处理消息</span>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      listContainer.innerHTML = activeMsgs.map(msg => {
+        const isPending = msg.status === 'pending';
+        const typeBg = msg.type === 'task' ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400' : 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400';
+        const typeIcon = msg.type === 'task' ? 'check-square' : 'banknote';
+
+        return `
+          <div id="item-${msg.id}" onclick="handleMessageClick('${msg.id}')" class="p-3 rounded-xl border transition-all duration-200 cursor-pointer flex gap-3 group relative overflow-hidden
+            ${isPending
+            ? 'bg-white dark:bg-slate-900 border-indigo-200 dark:border-indigo-900/60 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-800'
+            : 'bg-white/40 dark:bg-slate-900/40 border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-900'
+          }"
+          >
+            <!-- 标记小红点 (呼吸动画) -->
+            ${isPending ? `<span class="absolute top-3 right-3 h-2 w-2 rounded-full bg-red-500"></span>` : ''}
+
+            <!-- 消息图标 -->
+            <div class="h-9 w-9 rounded-lg ${typeBg} flex items-center justify-center shrink-0">
+              <i data-lucide="${typeIcon}" class="h-4 w-4"></i>
+            </div>
+
+            <!-- 消息主体 -->
+            <div class="flex-1 min-w-0 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500">${msg.time}</span>
+              </div>
+              <h5 class="text-xs font-bold ${isPending ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'} truncate pr-4">${msg.title}</h5>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal truncate">${msg.desc}</p>
+              
+              <!-- 按钮交互区 -->
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md
+                  ${isPending
+            ? 'bg-red-50 dark:bg-red-950/50 text-red-500 dark:text-red-400'
+            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+          }"
+                >
+                  ${isPending ? '待处理' : '已查看'}
+                </span>
+                
+                <button onclick="event.stopPropagation(); openAuditModal('${msg.id}')" class="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-0.5 bg-indigo-50 dark:bg-indigo-950 px-2 py-0.8 rounded-md group-hover:scale-105 transition-all">
+                  打开处理
+                  <i data-lucide="arrow-right" class="h-3 w-3"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // 展开/收起消息面板
+    function togglePanel() {
+      const panel = document.getElementById('notification-panel');
+      const isClosed = panel.classList.contains('pointer-events-none');
+      if (isClosed) {
+        // 打开
+        panel.classList.remove('pointer-events-none', 'scale-95', 'translate-y-4', 'opacity-0');
+        panel.classList.add('pointer-events-auto', 'scale-100', 'translate-y-0', 'opacity-100');
+        // 将所有待处理消息标识为已查看，除了在控制表中模拟状态时
+      } else {
+        closePanel();
+      }
+    }
+
+    function closePanel() {
+      const panel = document.getElementById('notification-panel');
+      panel.classList.add('pointer-events-none', 'scale-95', 'translate-y-4', 'opacity-0');
+      panel.classList.remove('pointer-events-auto', 'scale-100', 'translate-y-0', 'opacity-100');
+    }
+
+    // 全部标为已读
+    function markAllRead() {
+      mockNotifications.forEach(msg => {
+        if (msg.status === 'pending') {
+          msg.status = 'viewed';
+        }
+      });
+      updateWidgetState();
+      renderList();
+    }
+
+    // 点击消息项将其变成“已查看”
+    function handleMessageClick(id) {
+      const msg = mockNotifications.find(m => m.id === id);
+      if (msg && msg.status === 'pending') {
+        msg.status = 'viewed';
+        updateWidgetState();
+        renderList();
+      }
+    }
+
+    // 重置全部状态
+    function resetDemo() {
+      mockNotifications = [
+        {
+          id: 'msg-01',
+          type: 'task',
+          title: '达人「爱吃香菜」提交了任务审核',
+          desc: '任务：小红书潮玩推广发单，提交截图等待核对。',
+          time: '5分钟前',
+          status: 'pending',
+          details: {
+            creator: '爱吃香菜',
+            platform: '小红书',
+            taskName: '萌趣盲盒小红书开箱推广',
+            unitPrice: '15.00 元',
+            subTime: '2026-06-17 16:30:12',
+            screenshot: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80'
+          }
+        },
+        {
+          id: 'msg-02',
+          type: 'withdrawal',
+          title: '达人「大卫阿伯特」发起了提现申请',
+          desc: '提现金额 200.00 元，打款至支付宝：david1991@alipay.com',
+          time: '12分钟前',
+          status: 'pending',
+          details: {
+            creator: '大卫阿伯特',
+            amount: '200.00 元',
+            channel: '支付宝打款',
+            account: 'david1991@alipay.com',
+            accountName: '张大卫',
+            subTime: '2026-06-17 16:23:45'
+          }
+        }
+      ];
+      closePanel();
+      closeAuditModal();
+      updateWidgetState();
+      renderList();
+    }
+
+    // ==================== 选项B：弹窗逻辑 ====================
+    function openAuditModal(id) {
+      activeAuditId = id;
+      const msg = mockNotifications.find(m => m.id === id);
+      if (!msg) return;
+
+      // 1. 将状态更改为“已查看” (Requirement 2.5)
+      if (msg.status === 'pending') {
+        msg.status = 'viewed';
+        updateWidgetState();
+        renderList();
+      }
+
+      // 收起消息面板以防阻挡视线
+      closePanel();
+
+      const backdrop = document.getElementById('modal-backdrop');
+      const modal = document.getElementById('audit-modal');
+      const headerBg = document.getElementById('modal-header-bg');
+      const titleIcon = document.getElementById('modal-title-icon');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+
+      const btnApprove = document.getElementById('modal-btn-approve');
+      const btnReject = document.getElementById('modal-btn-reject');
+
+      // 区分类型渲染弹窗 UI
+      if (msg.type === 'task') {
+        headerBg.className = "px-6 py-4 flex items-center justify-between text-white shrink-0 bg-blue-600 dark:bg-blue-700";
+        titleIcon.setAttribute('data-lucide', 'file-check-2');
+        title.innerText = '待审核任务详情';
+
+        body.innerHTML = `
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">申请达人</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200">${msg.details.creator}</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">发布平台</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                <i data-lucide="link" class="h-3.5 w-3.5 text-blue-500"></i>${msg.details.platform}
+              </p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">任务名称</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200">${msg.details.taskName}</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">推广单价</p>
+              <p class="font-extrabold text-blue-600 dark:text-blue-400">${msg.details.unitPrice}</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">提交时间</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200">${msg.details.subTime}</p>
+            </div>
+          </div>
+          <div class="border-t border-slate-100 dark:border-slate-800/80 pt-4 space-y-2">
+            <p class="text-[11px] text-slate-400 dark:text-slate-500">达人提交的审核截图</p>
+            <div class="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+              <img src="${msg.details.screenshot}" alt="审核截图" class="w-full h-40 object-cover group-hover:scale-105 transition-all">
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span class="text-white text-xs font-bold flex items-center gap-1">
+                  <i data-lucide="maximize-2" class="h-4 w-4"></i>点击查看大图
+                </span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        btnApprove.innerText = '通过审核';
+        btnApprove.onclick = () => handleProcessResult('approved');
+        btnReject.innerText = '驳回申请';
+        btnReject.onclick = () => handleProcessResult('rejected');
+      } else {
+        headerBg.className = "px-6 py-4 flex items-center justify-between text-white shrink-0 bg-amber-500 dark:bg-amber-600";
+        titleIcon.setAttribute('data-lucide', 'banknote');
+        title.innerText = '提现打款处理';
+
+        body.innerHTML = `
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">申请达人</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200">${msg.details.creator}</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">申请打款通道</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+                <i data-lucide="wallet" class="h-3.5 w-3.5 text-amber-500"></i>${msg.details.channel}
+              </p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">收款账户 (银行卡/支付宝)</p>
+              <p class="font-extrabold text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 p-2.5 rounded-lg border border-slate-200/50 dark:border-slate-800/50 select-all font-mono">${msg.details.account}</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">收款人姓名</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200">${msg.details.accountName}</p>
+            </div>
+            <div>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">提交时间</p>
+              <p class="font-bold text-slate-800 dark:text-slate-200">${msg.details.subTime}</p>
+            </div>
+          </div>
+          <div class="border-t border-slate-100 dark:border-slate-800/80 pt-4 bg-amber-50/50 dark:bg-amber-950/20 p-4 rounded-xl space-y-2 border border-amber-100/50 dark:border-amber-900/30">
+            <div class="flex gap-2">
+              <i data-lucide="alert-triangle" class="h-4 w-4 text-amber-500 shrink-0 mt-0.5"></i>
+              <div class="space-y-1">
+                <p class="text-xs font-bold text-amber-900 dark:text-amber-300">打款操作警告</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-normal">
+                  请确认您已通过线下通道（支付宝直转/网银转账）向上述账户完成了金额为 <b class="text-amber-600 dark:text-amber-400">${msg.details.amount}</b> 的汇款。点击下方“确认已打款”后将无法撤销！
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+
+        btnApprove.innerText = '确认已打款';
+        btnApprove.onclick = () => handleProcessResult('paid');
+        btnReject.innerText = '拒绝并驳回';
+        btnReject.onclick = () => handleProcessResult('rejected');
+      }
+
+      lucide.createIcons();
+
+      // 显示弹窗动画
+      backdrop.classList.remove('pointer-events-none', 'opacity-0');
+      modal.classList.remove('scale-95', 'opacity-0');
+      backdrop.classList.add('pointer-events-auto', 'opacity-100');
+      modal.classList.add('scale-100', 'opacity-100');
+    }
+
+    function closeAuditModal() {
+      const backdrop = document.getElementById('modal-backdrop');
+      const modal = document.getElementById('audit-modal');
+
+      backdrop.classList.add('pointer-events-none', 'opacity-0');
+      modal.classList.add('scale-95', 'opacity-0');
+      backdrop.classList.remove('pointer-events-auto', 'opacity-100');
+      modal.classList.remove('scale-100', 'opacity-100');
+      activeAuditId = null;
+    }
+
+    // 模拟处理结果 (同意/驳回/打款)
+    function handleProcessResult(resultType) {
+      if (!activeAuditId) return;
+      const msg = mockNotifications.find(m => m.id === activeAuditId);
+      if (msg) {
+        // 标记为“已处理” (Requirement 2.6)
+        msg.status = 'processed';
+
+        // 显示成功的动画气泡提示
+        const alertTip = document.createElement('div');
+        alertTip.className = "fixed top-24 left-1/2 -translate-x-1/2 z-[200] bg-emerald-600 text-white font-bold text-xs px-6 py-3 rounded-full shadow-lg flex items-center gap-2 animate-bounce";
+        alertTip.innerHTML = `<i data-lucide="check" class="h-4 w-4"></i>处理成功！该通知已流转为“已处理”`;
+        document.body.appendChild(alertTip);
+        lucide.createIcons();
+        setTimeout(() => {
+          alertTip.remove();
+        }, 2500);
+
+        closeAuditModal();
+        updateWidgetState();
+        renderList();
+      }
+    }
+
+    // 页面装载初始化
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+
+</html>

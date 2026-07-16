@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>天天种草平台管理端 - 过滤按钮样式优化演示</title>
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            google: {
+              green: '#01875f',
+              greenHover: '#00704e',
+              greenBg: '#e6f4ea',
+              gray: '#5f6368',
+              black: '#202124',
+              border: '#dadce0',
+              bg: '#f8f9fa'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafd;
+    }
+
+    .pill-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .pill-btn:active {
+      transform: scale(0.96);
+    }
+
+    .refresh-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .refresh-btn:active {
+      transform: scale(0.96);
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spinning {
+      animation: spin 1s linear infinite;
+    }
+  </style>
+</head>
+
+<body class="p-6 md:p-12 text-[#202124]">
+
+  <div class="max-w-6xl mx-auto space-y-12">
+    <!-- Header -->
+    <div class="border-b border-[#dadce0] pb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-2">
+          <i data-lucide="sliders-horizontal" class="text-google-green h-8 w-8"></i>
+          过滤按钮样式与布局优化方案
+        </h1>
+        <p class="text-sm text-google-gray mt-2 font-medium">
+          响应您的反馈：<strong>已移除搜索框</strong>，并且我们设计了 <strong>三种不同的精美过滤按钮样式</strong> 供您挑选。
+        </p>
+      </div>
+      <div
+        class="flex items-center gap-2 bg-google-greenBg border border-emerald-100 rounded-full px-4 py-2 text-xs font-bold text-google-green">
+        <i data-lucide="sparkles" class="h-4 w-4"></i>
+        样式更新版演示
+      </div>
+    </div>
+
+    <!-- Intro Card -->
+    <div class="bg-white border border-[#dadce0] rounded-2xl p-6 shadow-sm">
+      <h2 class="text-base font-bold text-slate-900 flex items-center gap-1.5 mb-2">
+        <i data-lucide="palette" class="text-google-green h-5 w-5"></i>
+        过滤按钮优化方案（对比与挑选）
+      </h2>
+      <p class="text-xs text-google-gray leading-relaxed font-semibold">
+        我们把以前各页面割裂的过滤组件进行了规范提炼。以下是专门针对过滤按钮设计的 3 种极具品质的方案，<strong>均已移除搜索框</strong>，并包含点击的高亮微交互，请挑选最符合您品味的一款。
+      </p>
+    </div>
+
+    <!-- MAIN DESIGN DEMO SECTION -->
+    <div class="grid gap-8">
+
+      <!-- Option 1: Segmented Control Group -->
+      <div
+        class="bg-white border border-[#dadce0] hover:border-google-green/40 transition-all rounded-2xl p-6 relative overflow-hidden">
+        <div class="absolute top-4 right-4 bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">
+          样式方案一
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-base font-black text-slate-900">轻量级滑块分段控制 (Segmented Control)</h3>
+            <p class="text-xs text-google-gray mt-1 font-medium">将选项整体包裹在浅灰色轨道中，通过轻柔的白底卡片代表选中状态，整体性极强，干净现代。</p>
+          </div>
+
+          <div class="py-4 px-4 bg-slate-50 rounded-xl">
+            <!-- Style A Pill Group -->
+            <div
+              class="flex flex-wrap gap-1 bg-[#eec_no_bg_but_here_use_slate_100] bg-slate-200/60 p-1 rounded-xl w-fit">
+              <button onclick="toggleStyleA(this)"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold pill-btn bg-white text-google-green shadow-sm">
+                全部
+              </button>
+              <button onclick="toggleStyleA(this)"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold pill-btn text-google-gray hover:text-slate-800">
+                待激活 / 已暂停
+              </button>
+              <button onclick="toggleStyleA(this)"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold pill-btn text-google-gray hover:text-slate-800">
+                已激活 / 进行中
+              </button>
+              <button onclick="toggleStyleA(this)"
+                class="px-4 py-1.5 rounded-lg text-xs font-bold pill-btn text-google-gray hover:text-slate-800">
+                已禁用 / 已结束
+              </button>
+            </div>
+          </div>
+
+          <div class="text-xs font-semibold text-slate-500 space-y-1.5 pt-2 border-t border-slate-100">
+            <span class="text-google-green font-bold block mb-1">设计亮点：</span>
+            <p class="flex items-center gap-1.5"><i data-lucide="check" class="h-3.5 w-3.5 text-google-green"></i>
+              边缘平滑过度，无刺眼高饱和色块。</p>
+            <p class="flex items-center gap-1.5"><i data-lucide="check" class="h-3.5 w-3.5 text-google-green"></i>
+              选项被封装成一个优雅的单体，点击时具备微微的弹性微缩动画。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 2: Elegant Material 3 Chips (推荐) -->
+      <div
+        class="bg-white border border-google-green/30 ring-2 ring-google-green/5 rounded-2xl p-6 relative overflow-hidden">
+        <div
+          class="absolute top-4 right-4 bg-google-greenBg text-google-green border border-emerald-100 px-2 py-0.5 rounded text-[10px] font-black uppercase">
+          样式方案二 (最契合 Material 3 - 推荐)
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-base font-black text-slate-900 flex items-center gap-1.5">
+              Material 3 精细滤片 (Filter Chips)
+              <span
+                class="text-xs font-semibold bg-emerald-50 text-google-green px-1.5 py-0.5 rounded text-[10px]">Highly
+                Recommended</span>
+            </h3>
+            <p class="text-xs text-google-gray mt-1 font-medium">
+              每个按钮都是独立的椭圆胶囊，带有精致的细边框。激活态为清爽的浅绿底、深绿字和绿边框；未激活态为纯白底、灰字、极细灰边框。这是目前公认最通透、视觉压力最小的现代设计。</p>
+          </div>
+
+          <div class="py-4 px-4 bg-emerald-50/10 border border-dashed border-emerald-100 rounded-xl">
+            <!-- Style B Chips -->
+            <div class="flex flex-wrap gap-2">
+              <button onclick="toggleStyleB(this)"
+                class="px-4 py-1.5 rounded-full text-xs font-bold pill-btn border border-emerald-200 bg-google-greenBg text-google-green shadow-sm">
+                全部状态
+              </button>
+              <button onclick="toggleStyleB(this)"
+                class="px-4 py-1.5 rounded-full text-xs font-semibold pill-btn border border-slate-200 bg-white text-google-gray hover:bg-slate-50 hover:text-slate-800">
+                待激活 / 已暂停
+              </button>
+              <button onclick="toggleStyleB(this)"
+                class="px-4 py-1.5 rounded-full text-xs font-semibold pill-btn border border-slate-200 bg-white text-google-gray hover:bg-slate-50 hover:text-slate-800">
+                已激活 / 进行中
+              </button>
+              <button onclick="toggleStyleB(this)"
+                class="px-4 py-1.5 rounded-full text-xs font-semibold pill-btn border border-slate-200 bg-white text-google-gray hover:bg-slate-50 hover:text-slate-800">
+                已禁用 / 已结束
+              </button>
+            </div>
+          </div>
+
+          <div class="text-xs font-semibold text-slate-500 space-y-1.5 pt-2 border-t border-slate-100">
+            <span class="text-google-green font-bold block mb-1">设计亮点：</span>
+            <p class="flex items-center gap-1.5"><i data-lucide="check" class="h-3.5 w-3.5 text-google-green"></i>
+              <strong>极高通透感</strong>：独立的滤片形式让行高与页面间隙极具呼吸感。</p>
+            <p class="flex items-center gap-1.5"><i data-lucide="check" class="h-3.5 w-3.5 text-google-green"></i>
+              <strong>微动效对齐</strong>：Hover 态轻微下沉或高亮，配合点击回缩，交互反馈极佳。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Option 3: Minimal Filled Capsule Pills -->
+      <div
+        class="bg-white border border-[#dadce0] hover:border-google-green/40 transition-all rounded-2xl p-6 relative overflow-hidden">
+        <div class="absolute top-4 right-4 bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">
+          样式方案三
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-base font-black text-slate-900">无边框极致纯色胶囊 (Filled Capsule)</h3>
+            <p class="text-xs text-google-gray mt-1 font-medium">去除了全部的边框，极度依赖底色区分。选中项使用纯正的谷歌绿加白字；未选中项为无边框的极轻度灰底灰字，Hover
+              时变深，视觉焦点极强。</p>
+          </div>
+
+          <div class="py-4 px-4 bg-slate-50 rounded-xl">
+            <!-- Style C Capsules -->
+            <div class="flex flex-wrap gap-2">
+              <button onclick="toggleStyleC(this)"
+                class="px-4 py-1.5 rounded-full text-xs font-bold pill-btn bg-google-green text-white shadow-sm">
+                全部
+              </button>
+              <button onclick="toggleStyleC(this)"
+                class="px-4 py-1.5 rounded-full text-xs font-semibold pill-btn bg-slate-100 text-google-gray hover:bg-slate-200 hover:text-slate-800">
+                待激活
+              </button>
+              <button onclick="toggleStyleC(this)"
+                class="px-4 py-1.5 rounded-full text-xs font-semibold pill-btn bg-slate-100 text-google-gray hover:bg-slate-200 hover:text-slate-800">
+                已激活
+              </button>
+              <button onclick="toggleStyleC(this)"
+                class="px-4 py-1.5 rounded-full text-xs font-semibold pill-btn bg-slate-100 text-google-gray hover:bg-slate-200 hover:text-slate-800">
+                已禁用
+              </button>
+            </div>
+          </div>
+
+          <div class="text-xs font-semibold text-slate-500 space-y-1.5 pt-2 border-t border-slate-100">
+            <span class="text-google-green font-bold block mb-1">设计亮点：</span>
+            <p class="flex items-center gap-1.5"><i data-lucide="check" class="h-3.5 w-3.5 text-google-green"></i>
+              极其简练，纯扁平化（Flat Design）的极致体现。</p>
+            <p class="flex items-center gap-1.5"><i data-lucide="check" class="h-3.5 w-3.5 text-google-green"></i>
+              绿底高对比度，能一瞬间将用户的眼球抓取到当前的激活筛选状态。</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- REFRESH BUTTON CONFORMANCE -->
+    <section class="bg-white border border-[#dadce0] rounded-2xl p-6 space-y-4">
+      <div>
+        <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
+          <i data-lucide="refresh-cw" class="text-google-green h-5 w-5"></i>
+          统一后的刷新列表按钮 (Option A)
+        </h3>
+        <p class="text-xs text-google-gray mt-1 font-medium">所有的页面刷新按钮将被规范为此样式。具备温和的边框和微交互加载状态：</p>
+      </div>
+
+      <div class="py-4 px-4 bg-slate-50 rounded-xl flex items-center gap-4">
+        <button id="demo-refresh-btn" onclick="triggerRefreshDemo()"
+          class="refresh-btn inline-flex h-9 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 shadow-sm hover:bg-[#f8fafd] hover:border-slate-300">
+          <i id="demo-refresh-icon" data-lucide="refresh-cw" class="h-3.5 w-3.5 text-google-green"></i>
+          <span id="demo-refresh-text">刷新列表</span>
+        </button>
+
+        <span id="demo-status-text"
+          class="text-[11px] font-semibold text-google-green transition-opacity opacity-0 flex items-center gap-1">
+          <i data-lucide="check-circle" class="h-3.5 w-3.5"></i>
+          数据刷新成功
+        </span>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Toggle logic for Style A (Segmented Control)
+    function toggleStyleA(button) {
+      const parent = button.parentElement;
+      const buttons = parent.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-white', 'text-google-green', 'shadow-sm');
+        btn.classList.add('text-google-gray', 'hover:text-slate-800');
+      });
+      button.classList.add('bg-white', 'text-google-green', 'shadow-sm');
+      button.classList.remove('text-google-gray', 'hover:text-slate-800');
+    }
+
+    // Toggle logic for Style B (Material 3 Filter Chips)
+    function toggleStyleB(button) {
+      const parent = button.parentElement;
+      const buttons = parent.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.className = "px-4 py-1.5 rounded-full text-xs font-semibold pill-btn border border-slate-200 bg-white text-google-gray hover:bg-slate-50 hover:text-slate-800";
+      });
+      button.className = "px-4 py-1.5 rounded-full text-xs font-bold pill-btn border border-emerald-200 bg-google-greenBg text-google-green shadow-sm";
+    }
+
+    // Toggle logic for Style C (Filled Capsule)
+    function toggleStyleC(button) {
+      const parent = button.parentElement;
+      const buttons = parent.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.className = "px-4 py-1.5 rounded-full text-xs font-semibold pill-btn bg-slate-100 text-google-gray hover:bg-slate-200 hover:text-slate-800";
+      });
+      button.className = "px-4 py-1.5 rounded-full text-xs font-bold pill-btn bg-google-green text-white shadow-sm";
+    }
+
+    // Refresh simulation
+    let isRefreshing = false;
+    function triggerRefreshDemo() {
+      if (isRefreshing) return;
+      isRefreshing = true;
+
+      const btn = document.getElementById('demo-refresh-btn');
+      const icon = document.getElementById('demo-refresh-icon');
+      const text = document.getElementById('demo-refresh-text');
+      const statusText = document.getElementById('demo-status-text');
+
+      icon.classList.add('spinning');
+      text.innerText = '正在载入...';
+      btn.disabled = true;
+      btn.classList.add('opacity-70', 'cursor-not-allowed');
+      statusText.classList.add('opacity-0');
+
+      setTimeout(() => {
+        icon.classList.remove('spinning');
+        text.innerText = '刷新列表';
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+
+        statusText.classList.remove('opacity-0');
+        statusText.classList.add('opacity-100');
+        isRefreshing = false;
+
+        setTimeout(() => {
+          statusText.classList.add('opacity-0');
+          statusText.classList.remove('opacity-100');
+        }, 1500);
+      }, 1200);
+    }
+  </script>
+</body>
+
+</html>

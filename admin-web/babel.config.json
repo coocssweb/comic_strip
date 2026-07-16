@@ -1,0 +1,6 @@
+{
+  "presets": [
+    ["@babel/preset-env", { "targets": "Safari >= 13, iOS >= 13" }],
+    ["@babel/preset-react", { "runtime": "automatic" }]
+  ]
+}
