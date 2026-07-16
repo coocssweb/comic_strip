@@ -19,6 +19,7 @@
 开发、修改或审查 mini-program 前，必须阅读并遵守：
 
 - `../.agents/rules/02_engineering_general.md`
+- `../.agents/rules/07_mini_program_style.md`（新增、修改或审查 WXML/WXSS 时）
 
 > `03_react_hooks.md`、`04_frontend_style.md`、`05_redux_data_flow.md`、`06_redux_state_placement.md` 为 admin-web（React）专用规则，不适用于本项目。
 
@@ -63,11 +64,8 @@
 
 ### 样式
 
-- 使用 rpx 作为主要尺寸单位，保证多机型适配。
-- 颜色、字号、间距等设计 token 集中定义在公共 WXSS 文件中，禁止在业务页面散落硬编码。
-- 组件样式隔离使用 `styleIsolation` 配置，默认 `isolated`；需要继承页面样式时显式声明并注释原因。
+- 样式规范的唯一来源为 `../.agents/rules/07_mini_program_style.md`，其中定义了 token、类名、组件边界、动态样式与审查要求。
 - WXSS 中 `background-image` 不支持本地路径，只能使用网络图片或 base64。
-- 禁止使用 `!important` 覆盖样式，除非第三方组件库强制要求（需注释说明）。
 
 ### 图片与静态资源
 
