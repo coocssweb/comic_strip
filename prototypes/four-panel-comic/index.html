@@ -3,49 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>四格漫画小程序 — 交互原型</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<title>四格漫画小程序 — 多邻国风交互原型</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Noto+Sans+SC:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
-/* ========== 设计 Token ========== */
+/* ========== 多邻国风格系统 Token ========== */
 :root {
-  /* 多邻国风格色彩体系 */
+  /* 官方色彩 */
   --duo-green: #58CC02;
   --duo-green-dark: #46A302;
-  --duo-green-light: #89E219;
+  --duo-green-light: #84D83E;
+  
   --duo-blue: #1CB0F6;
   --duo-blue-dark: #1899D6;
-  --duo-purple: #CE82FF;
-  --duo-purple-dark: #A855F7;
-  --duo-red: #FF4B4B;
-  --duo-red-dark: #EA2B2B;
+  
   --duo-orange: #FF9600;
   --duo-orange-dark: #E08600;
+  
   --duo-yellow: #FFC800;
+  --duo-yellow-dark: #E6B400;
+  
+  --duo-purple: #CE82FF;
+  --duo-purple-dark: #AA60EB;
+
+  --duo-red: #FF4B4B;
+  --duo-red-dark: #EA2B2B;
+
   --duo-pink: #FF86D0;
+  --duo-pink-dark: #E06BB3;
+
   --duo-teal: #2DD4BF;
+  --duo-teal-dark: #14B8A6;
 
-  /* 中性色 */
-  --bg-primary: #131F24;
-  --bg-secondary: #1A2C33;
-  --bg-card: #233A42;
-  --bg-card-hover: #2A4650;
+  /* 明亮主题中性色 */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F7F7F7;
+  --bg-card: #FFFFFF;
   --bg-overlay: rgba(0, 0, 0, 0.6);
-  --text-primary: #FFFFFF;
-  --text-secondary: #AFAFAF;
-  --text-tertiary: #777777;
-  --border-color: #3C5A65;
-  --border-thick: 3px;
-
-  /* 圆角 */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-full: 9999px;
-
-  /* 字体 */
-  --font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-
+  
+  --text-primary: #3C3C3C;
+  --text-secondary: #777777;
+  --text-tertiary: #AFAFAF;
+  
+  --border-color: #E5E5E5;
+  --border-thick: 2px;
+  --border-radius-card: 16px;
+  
   /* 手机模拟尺寸 */
   --phone-w: 375px;
   --phone-h: 812px;
@@ -54,8 +56,8 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: var(--font-family);
-  background: #0A0E11;
+  font-family: 'Outfit', 'Noto Sans SC', -apple-system, sans-serif;
+  background: #E5E5E5;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,7 +66,7 @@ body {
   overflow: hidden;
 }
 
-/* ========== 手机壳容器 ========== */
+/* ========== 手机容器 ========== */
 .phone-shell {
   width: var(--phone-w);
   height: var(--phone-h);
@@ -72,10 +74,8 @@ body {
   border-radius: 40px;
   overflow: hidden;
   position: relative;
-  box-shadow:
-    0 0 0 4px #1A2C33,
-    0 0 0 8px #0D1518,
-    0 20px 60px rgba(0,0,0,0.5);
+  border: 12px solid #3C3C3C;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
 }
 
 /* 状态栏 */
@@ -85,48 +85,42 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 700;
+  color: #3C3C3C;
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   z-index: 100;
+  background: #FFFFFF;
 }
-.status-bar .time { font-weight: 700; }
-.status-bar .icons { display: flex; gap: 5px; align-items: center; }
+.status-bar .icons { display: flex; gap: 6px; align-items: center; }
 
 /* ========== 页面容器 ========== */
 .page-container {
   position: absolute;
-  top: 0;
+  top: 44px;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 84px;
   overflow: hidden;
 }
 
 .page {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   display: none;
   flex-direction: column;
+  background: var(--bg-primary);
 }
 .page.active { display: flex; }
 
-/* ========== 底部 Tab 栏 ========== */
+/* ========== 底部 Tab 栏 (多邻国 3D 风格) ========== */
 .tab-bar {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0; left: 0; right: 0;
   height: 84px;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
+  background: #FFFFFF;
+  border-top: 2px solid var(--border-color);
   display: flex;
   justify-content: space-around;
   align-items: flex-start;
@@ -138,154 +132,441 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   cursor: pointer;
-  transition: transform 0.2s;
+  width: 60px;
+  transition: transform 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .tab-item:active { transform: scale(0.9); }
 
 .tab-icon {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  border-radius: var(--radius-sm);
-  transition: all 0.3s;
-}
-
-.tab-item.active .tab-icon {
-  background: var(--duo-green);
-  color: white;
-  box-shadow: 0 4px 12px rgba(88, 204, 2, 0.4);
-  border-bottom: var(--border-thick) solid var(--duo-green-dark);
+  font-size: 24px;
+  transition: transform 0.2s;
 }
 
 .tab-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 800;
+  color: #888888;
   letter-spacing: 0.5px;
 }
-.tab-item.active .tab-label { color: var(--duo-green); }
 
-/* ========== 首页 - 全屏沉浸式阅读 ========== */
-.home-page {
-  background: var(--bg-primary);
+/* 激活状态 */
+.tab-item.active .tab-icon {
+  transform: translateY(-2px) scale(1.1);
+}
+.tab-item.active .tab-label {
+  color: var(--duo-green);
 }
 
-.swipe-container {
+/* ========== 顶部 Header ========== */
+.app-header {
+  height: 48px;
+  border-bottom: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  flex-shrink: 0;
+  background: #FFFFFF;
+}
+.app-header-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 能量/打卡图标 (Duo 经典 Flame & Heart) */
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.stat-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.stat-badge.streak { color: var(--duo-orange); }
+.stat-badge.gems { color: var(--duo-blue); }
+
+/* ========== 首页 - Airbnb 风格列表 ========== */
+.home-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-secondary);
+}
+.home-scroll::-webkit-scrollbar { display: none; }
+
+/* 引导气泡 (Duo 🦉 说明) */
+.duo-bubble-card {
+  margin: 4px 16px 16px;
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 5px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.duo-mascot-mini {
+  font-size: 32px;
+  animation: bounce-mini 2s infinite;
+}
+@keyframes bounce-mini {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.duo-bubble-content {
+  flex: 1;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  position: relative;
+}
+.duo-bubble-content::before {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 84px;
+  left: -8px; top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 12px; height: 12px;
+  background: var(--bg-secondary);
+  border-left: 2px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* Airbnb 风格漫画卡片 */
+.feed-card {
+  margin: 0 16px 20px;
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 5px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 轮播图区域 */
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1/1;
+  background: #F0F0F0;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.carousel-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.carousel-slide {
+  min-width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  position: relative;
+  user-select: none;
+}
+
+/* 左右方向导航键 */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 4px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--text-primary);
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.carousel-wrapper:hover .carousel-btn { opacity: 1; }
+.carousel-btn.prev { left: 10px; }
+.carousel-btn.next { right: 10px; }
+.carousel-btn:active { transform: translateY(-50%) translateY(2px); border-bottom-width: 2px; }
+.carousel-btn:disabled { opacity: 0 !important; pointer-events: none; }
+
+/* 轮播指示点 */
+.carousel-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+  background: rgba(0,0,0,0.25);
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.6);
+  transition: all 0.2s;
+}
+.carousel-dot.active {
+  background: #FFFFFF;
+  transform: scale(1.2);
+}
+
+/* 收藏按钮 */
+.card-fav-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 4px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 15;
+  transition: transform 0.1s, background-color 0.2s;
+}
+.card-fav-btn:active { transform: translateY(2px); border-bottom-width: 2px; }
+.card-fav-btn.saved {
+  background: #FFF0F5;
+  border-color: var(--duo-pink);
+  border-bottom-color: var(--duo-pink-dark);
+}
+
+/* 卡片信息区 */
+.feed-info {
+  padding: 14px;
+  cursor: pointer;
+  background: #FFFFFF;
+}
+.feed-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.feed-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+.feed-rating {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--duo-orange);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.feed-tag {
+  font-size: 11px;
+  font-weight: 800;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+.feed-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.feed-footer {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+.feed-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 标签背景色 */
+.tag-green { background: var(--duo-green); border-bottom: 2px solid var(--duo-green-dark); }
+.tag-blue { background: var(--duo-blue); border-bottom: 2px solid var(--duo-blue-dark); }
+.tag-purple { background: var(--duo-purple); border-bottom: 2px solid var(--duo-purple-dark); }
+.tag-orange { background: var(--duo-orange); border-bottom: 2px solid var(--duo-orange-dark); }
+
+/* 四格背景渐变 */
+.bg-d-1 { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); }
+.bg-d-2 { background: linear-gradient(135deg, #E3F2FD, #BBDEFB); }
+.bg-d-3 { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); }
+.bg-d-4 { background: linear-gradient(135deg, #FFF3E0, #FFE0B2); }
+
+/* ========== 全屏阅读弹框 (page-container 模拟) ========== */
+.reader-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg-overlay);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+.reader-overlay.open { opacity: 1; pointer-events: auto; }
+
+.reader-modal {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #FFFFFF;
+  z-index: 310;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  flex-direction: column;
+}
+.reader-modal.open { transform: translateY(0); }
+
+/* 关闭按钮 */
+.reader-close-btn {
+  position: absolute;
+  top: 50px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 4px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-primary);
+  cursor: pointer;
+  z-index: 320;
+}
+.reader-close-btn:active { transform: translateY(2px); border-bottom-width: 2px; }
+
+/* 纵向滚动轨道 */
+.reader-swipe-area {
+  flex: 1;
+  position: relative;
   overflow: hidden;
   touch-action: pan-y;
+  background: #F7F7F7;
 }
 
-.swipe-track {
+.reader-track {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.comic-slide {
+.reader-slide {
   width: 100%;
-  height: calc(var(--phone-h) - 84px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px 20px;
+  padding: 100px 24px 44px;
   position: relative;
+  flex-shrink: 0;
 }
 
-/* 漫画标题区 */
-.comic-header {
+/* 顶部漫画名称 */
+.reader-header {
   position: absolute;
   top: 50px;
-  left: 20px;
-  right: 60px;
+  left: 72px;
+  right: 24px;
 }
-
-.comic-title {
+.reader-comic-title {
   font-size: 18px;
   font-weight: 900;
   color: var(--text-primary);
-  margin-bottom: 4px;
 }
-
-.comic-meta {
+.reader-comic-meta {
   font-size: 12px;
-  color: var(--text-secondary);
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.comic-tag {
-  background: var(--duo-purple);
-  color: white;
-  font-size: 10px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  border-bottom: 2px solid var(--duo-purple-dark);
+  color: var(--text-secondary);
 }
 
-/* 四格漫画展示区 */
+/* 核心四格漫画大图 */
 .comic-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  max-width: 335px;
+  max-width: 327px;
   aspect-ratio: 3/4;
-  border-radius: var(--radius-lg);
+  border-radius: 20px;
   overflow: hidden;
-  border: var(--border-thick) solid var(--border-color);
-  background: var(--bg-card);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  border: 4px solid var(--text-primary);
+  background: #FFFFFF;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
 }
-
 .comic-panel {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
+  font-size: 54px;
   position: relative;
-  overflow: hidden;
 }
-
 .comic-panel .panel-number {
   position: absolute;
-  top: 6px;
-  left: 8px;
+  top: 8px; left: 8px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  color: #FFFFFF;
   font-size: 11px;
   font-weight: 900;
-  color: white;
-  background: rgba(0,0,0,0.5);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 右侧浮动操作栏 */
+/* 右侧浮动菜单 */
 .action-sidebar {
   position: absolute;
   right: 12px;
-  bottom: 120px;
+  bottom: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  z-index: 50;
+  gap: 16px;
+  z-index: 315;
 }
 
 .action-btn {
@@ -294,67 +575,44 @@ body {
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  transition: transform 0.2s;
-  -webkit-tap-highlight-color: transparent;
 }
-.action-btn:active { transform: scale(0.85); }
-
-.action-btn .icon-circle {
-  width: 44px;
-  height: 44px;
+.action-btn .btn-circle {
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(10px);
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 5px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
-  border: 2px solid rgba(255,255,255,0.2);
-  transition: all 0.3s;
+  transition: all 0.15s;
 }
-
-.action-btn .action-count {
+.action-btn:active .btn-circle {
+  transform: translateY(3px);
+  border-bottom-width: 2px;
+}
+.action-btn .btn-label {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-secondary);
 }
 
-.action-btn.liked .icon-circle {
-  background: rgba(255, 75, 75, 0.3);
+/* 点赞与收藏的激活态 */
+.action-btn.liked .btn-circle {
+  background: #FFF0F0;
   border-color: var(--duo-red);
+  border-bottom-color: var(--duo-red-dark);
 }
-.action-btn.favorited .icon-circle {
-  background: rgba(255, 200, 0, 0.3);
+.action-btn.favorited .btn-circle {
+  background: #FFFDF0;
   border-color: var(--duo-yellow);
+  border-bottom-color: var(--duo-yellow-dark);
 }
 
-/* 滑动指示器 */
-.swipe-hint {
-  position: absolute;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  animation: bounce-up 2s infinite;
-  opacity: 0.6;
-}
-
-.swipe-hint span {
-  font-size: 10px;
-  color: var(--text-tertiary);
-  font-weight: 500;
-}
-
-@keyframes bounce-up {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-8px); }
-}
-
-/* 进度指示点 */
-.slide-dots {
+/* 左侧进度圆点 */
+.reader-dots {
   position: absolute;
   left: 12px;
   top: 50%;
@@ -362,1015 +620,728 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 50;
+  z-index: 315;
+}
+.reader-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  transition: all 0.2s;
+}
+.reader-dot.active {
+  height: 18px;
+  border-radius: 3px;
+  background: var(--duo-green);
 }
 
-.slide-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.3);
-  transition: all 0.3s;
+/* 双击爱心爆破动画 */
+.like-burst {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 96px;
+  pointer-events: none;
+  z-index: 330;
+  opacity: 0;
 }
-.slide-dot.active {
-  height: 16px;
-  border-radius: 2px;
-  background: var(--duo-green);
+.like-burst.animate {
+  animation: like-pop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes like-pop {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.3); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+}
+
+/* 上滑手势引导 */
+.swipe-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  animation: bounce-hint 2.5s infinite;
+  opacity: 0.6;
+  z-index: 315;
+}
+.swipe-hint span {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+@keyframes bounce-hint {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-6px); }
 }
 
 /* ========== 发现页 ========== */
 .discover-page {
-  background: var(--bg-primary);
-  padding-top: 44px;
+  background: var(--bg-secondary);
 }
-
 .discover-scroll {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 84px;
+  padding: 16px 0;
   -webkit-overflow-scrolling: touch;
 }
-
 .discover-scroll::-webkit-scrollbar { display: none; }
 
-.page-title {
-  font-size: 28px;
-  font-weight: 900;
-  padding: 16px 20px 4px;
-  color: var(--text-primary);
+.section-card {
+  margin: 0 16px 16px;
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 5px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  padding: 16px;
 }
-
-.page-subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-  padding: 0 20px 16px;
-}
-
-/* 月榜区域 */
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 20px;
+  margin-bottom: 12px;
 }
-
 .section-title {
   font-size: 16px;
   font-weight: 900;
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
-
 .section-badge {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   background: var(--duo-orange);
   color: white;
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+  border-radius: 8px;
   border-bottom: 2px solid var(--duo-orange-dark);
 }
-
 .section-more {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   color: var(--duo-blue);
   cursor: pointer;
 }
 
-/* 月榜横滑卡片 */
-.rank-scroll {
+/* 榜单横滑 */
+.rank-scroll-wrapper {
   display: flex;
   gap: 12px;
-  padding: 8px 20px 20px;
   overflow-x: auto;
+  padding-bottom: 4px;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x mandatory;
 }
-.rank-scroll::-webkit-scrollbar { display: none; }
+.rank-scroll-wrapper::-webkit-scrollbar { display: none; }
 
 .rank-card {
   flex-shrink: 0;
-  width: 140px;
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: var(--border-thick) solid var(--border-color);
-  border-bottom: 5px solid var(--border-color);
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.2s, border-color 0.3s;
-  scroll-snap-align: start;
-}
-.rank-card:active { transform: scale(0.96); }
-.rank-card:hover { border-color: var(--duo-green); }
-
-.rank-card-cover {
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
+  width: 110px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
   position: relative;
 }
-
-.rank-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 900;
-  color: white;
-}
-.rank-badge.gold { background: var(--duo-yellow); border-bottom: 2px solid #D4A800; }
-.rank-badge.silver { background: #A8B8C0; border-bottom: 2px solid #8A9AA2; }
-.rank-badge.bronze { background: var(--duo-orange); border-bottom: 2px solid #CC7A00; }
-
-.rank-card-info {
-  padding: 10px;
-}
-
-.rank-card-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.rank-card-stats {
-  font-size: 11px;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* 合集列表 */
-.collection-list {
-  padding: 0 20px;
-}
-
-.collection-item {
-  display: flex;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(60, 90, 101, 0.5);
-  cursor: pointer;
-  transition: background 0.2s;
-  border-radius: var(--radius-md);
-}
-.collection-item:active { background: rgba(255,255,255,0.05); }
-
-.collection-cover {
-  width: 72px;
-  height: 72px;
-  border-radius: var(--radius-md);
-  border: 2px solid var(--border-color);
+.rank-cover-mini {
+  width: 50px;
+  height: 50px;
+  margin: 8px auto;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 32px;
-  flex-shrink: 0;
-  background: var(--bg-card);
+  border-radius: 8px;
+}
+.rank-number-tag {
+  position: absolute;
+  top: 4px; left: 4px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  color: white;
+  font-size: 11px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rank-number-tag.gold { background: var(--duo-yellow); border-bottom: 2px solid var(--duo-yellow-dark); }
+.rank-number-tag.silver { background: #A0A0A0; border-bottom: 2px solid #808080; }
+.rank-number-tag.bronze { background: var(--duo-orange); border-bottom: 2px solid var(--duo-orange-dark); }
+
+.rank-card-title {
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank-card-hot {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
 }
 
-.collection-info {
+/* 合集列表 */
+.collection-row {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 2px solid var(--bg-secondary);
+  cursor: pointer;
+}
+.collection-row:last-child { border-bottom: none; }
+.collection-cover {
+  width: 60px; height: 60px;
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+.collection-meta {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-width: 0;
 }
-
 .collection-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 900;
 }
-
 .collection-desc {
   font-size: 12px;
   color: var(--text-secondary);
-  margin-bottom: 6px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
-
-.collection-stats {
-  display: flex;
-  gap: 12px;
+.collection-count {
   font-size: 11px;
-  color: var(--text-tertiary);
-}
-
-.collection-stat {
-  display: flex;
-  align-items: center;
-  gap: 3px;
+  font-weight: 800;
+  color: var(--duo-blue);
+  margin-top: 2px;
 }
 
 /* ========== 我的页面 ========== */
 .profile-page {
-  background: var(--bg-primary);
-  padding-top: 44px;
+  background: var(--bg-secondary);
 }
-
 .profile-scroll {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 84px;
+  padding: 16px 0;
   -webkit-overflow-scrolling: touch;
 }
 .profile-scroll::-webkit-scrollbar { display: none; }
 
-/* 用户信息头 */
-.profile-header {
-  padding: 20px;
+.user-card {
+  margin: 0 16px 16px;
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 5px solid var(--border-color);
+  border-radius: var(--border-radius-card);
+  padding: 20px 16px;
   display: flex;
   align-items: center;
   gap: 16px;
 }
-
-.avatar {
-  width: 64px;
-  height: 64px;
+.user-avatar {
+  width: 68px; height: 68px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--duo-green), var(--duo-blue));
+  background: #F1F1F1;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  border: var(--border-thick) solid var(--duo-green);
-  box-shadow: 0 4px 16px rgba(88, 204, 2, 0.3);
-  flex-shrink: 0;
+  font-size: 32px;
+  border: 3px solid var(--duo-green);
+  box-shadow: 0 4px 12px rgba(88, 204, 2, 0.25);
 }
+.user-info { flex: 1; }
+.user-name { font-size: 18px; font-weight: 900; }
+.user-id { font-size: 12px; color: var(--text-secondary); font-weight: 700; }
 
-.profile-info {
-  flex: 1;
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0 16px 16px;
 }
-
-.profile-name {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-
-.profile-id {
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-/* 统计数据条 */
-.stats-bar {
-  display: flex;
-  gap: 0;
-  padding: 0 20px;
-  margin-bottom: 20px;
-}
-
-.stat-item {
-  flex: 1;
+.stat-box {
+  background: #FFFFFF;
+  border: 2px solid var(--border-color);
+  border-bottom: 4px solid var(--border-color);
+  border-radius: 14px;
   text-align: center;
-  padding: 14px 0;
-  background: var(--bg-card);
-  border: 2px solid var(--border-color);
+  padding: 10px 4px;
   cursor: pointer;
-  transition: all 0.2s;
 }
-.stat-item:first-child {
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
-  border-right: none;
-}
-.stat-item:last-child {
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-  border-left: none;
-}
-.stat-item:nth-child(2) {
-  border-left: none;
-  border-right: none;
-}
-.stat-item:active { background: var(--bg-card-hover); }
+.stat-box:active { transform: translateY(2px); border-bottom-width: 2px; }
+.stat-num { font-size: 20px; font-weight: 900; color: var(--duo-green); }
+.stat-tag { font-size: 11px; font-weight: 800; color: var(--text-secondary); }
 
-.stat-number {
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--duo-green);
-  display: block;
-}
-
-.stat-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-top: 2px;
-}
-
-/* 功能菜单列表 */
-.menu-section {
-  padding: 0 20px;
-  margin-bottom: 16px;
-}
-
-.menu-section-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 8px 0;
-}
-
-.menu-list {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
+.menu-group {
+  margin: 0 16px 16px;
+  background: #FFFFFF;
   border: 2px solid var(--border-color);
+  border-bottom: 5px solid var(--border-color);
+  border-radius: var(--border-radius-card);
   overflow: hidden;
 }
-
-.menu-item {
+.menu-row {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
+  border-bottom: 2px solid var(--bg-secondary);
   cursor: pointer;
-  transition: background 0.2s;
-  border-bottom: 1px solid rgba(60, 90, 101, 0.3);
 }
-.menu-item:last-child { border-bottom: none; }
-.menu-item:active { background: var(--bg-card-hover); }
-
-.menu-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
+.menu-row:last-child { border-bottom: none; }
+.menu-row:active { background: var(--bg-secondary); }
+.menu-row-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
 }
+.menu-row-text { flex: 1; font-size: 14px; font-weight: 800; }
+.menu-row-arrow { font-size: 14px; color: var(--text-tertiary); font-weight: 900; }
 
-.menu-icon.green { background: rgba(88, 204, 2, 0.2); }
-.menu-icon.red { background: rgba(255, 75, 75, 0.2); }
-.menu-icon.yellow { background: rgba(255, 200, 0, 0.2); }
-.menu-icon.blue { background: rgba(28, 176, 246, 0.2); }
-.menu-icon.purple { background: rgba(206, 130, 255, 0.2); }
-
-.menu-text {
-  flex: 1;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.menu-arrow {
-  font-size: 14px;
-  color: var(--text-tertiary);
-}
-
-/* ========== 评论半屏面板 ========== */
-.comment-panel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 65%;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  z-index: 300;
-  display: flex;
-  flex-direction: column;
-  transform: translateY(100%);
-  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-}
-.comment-panel.open { transform: translateY(0); }
-
+/* ========== 评论面板 ========== */
 .comment-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: var(--bg-overlay);
-  z-index: 250;
+  z-index: 400;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s;
+  transition: opacity 0.3s;
 }
 .comment-overlay.open { opacity: 1; pointer-events: auto; }
 
-.comment-handle {
-  width: 40px;
-  height: 4px;
-  background: var(--border-color);
-  border-radius: 2px;
-  margin: 10px auto;
+.comment-panel {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 70%;
+  background: #FFFFFF;
+  border-radius: 24px 24px 0 0;
+  z-index: 410;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+  border-top: 3px solid #3C3C3C;
 }
+.comment-panel.open { transform: translateY(0); }
 
 .comment-header {
+  height: 56px;
+  border-bottom: 2px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 20px 12px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 0 20px;
 }
-
-.comment-title {
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.comment-close {
-  font-size: 20px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background 0.2s;
-}
-.comment-close:active { background: rgba(255,255,255,0.1); }
+.comment-title { font-size: 16px; font-weight: 900; }
+.comment-close-btn { font-size: 18px; font-weight: 900; color: var(--text-secondary); cursor: pointer; }
 
 .comment-list {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 20px;
+  padding: 16px 20px;
   -webkit-overflow-scrolling: touch;
 }
 .comment-list::-webkit-scrollbar { display: none; }
 
-.comment-item {
+.comment-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
 }
-
-.comment-avatar {
-  width: 32px;
-  height: 32px;
+.comment-user-avatar {
+  width: 32px; height: 32px;
   border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
+  background: #EEE;
   border: 2px solid var(--border-color);
-}
-
-.comment-body {
-  flex: 1;
-}
-
-.comment-user {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--duo-blue);
-  margin-bottom: 2px;
-}
-
-.comment-text {
+  display: flex; align-items: center; justify-content: center;
   font-size: 14px;
-  color: var(--text-primary);
-  line-height: 1.5;
-  margin-bottom: 4px;
 }
+.comment-details { flex: 1; }
+.comment-user-name { font-size: 12px; font-weight: 800; color: var(--duo-blue); }
+.comment-text-content { font-size: 13px; font-weight: 700; margin-top: 2px; line-height: 1.4; color: var(--text-primary); }
+.comment-timestamp { font-size: 10px; font-weight: 600; color: var(--text-tertiary); margin-top: 4px; }
 
-.comment-time {
-  font-size: 11px;
-  color: var(--text-tertiary);
-}
-
-/* 评论输入框 */
 .comment-input-bar {
+  padding: 12px 16px;
+  border-top: 2px solid var(--border-color);
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 20px;
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-card);
+  background: #FFFFFF;
 }
-
-.comment-input {
+.comment-input-box {
   flex: 1;
-  height: 36px;
-  background: var(--bg-primary);
+  height: 38px;
   border: 2px solid var(--border-color);
-  border-radius: var(--radius-full);
+  border-radius: 20px;
   padding: 0 16px;
   font-size: 13px;
-  color: var(--text-primary);
+  font-weight: 700;
   outline: none;
-  font-family: var(--font-family);
+  background: var(--bg-secondary);
 }
-.comment-input:focus { border-color: var(--duo-blue); }
-.comment-input::placeholder { color: var(--text-tertiary); }
-
-.comment-send {
-  width: 36px;
-  height: 36px;
+.comment-input-box:focus { border-color: var(--duo-blue); }
+.comment-send-btn {
+  width: 38px; height: 38px;
   background: var(--duo-green);
   border: none;
   border-radius: 50%;
-  border-bottom: var(--border-thick) solid var(--duo-green-dark);
+  border-bottom: 3px solid var(--duo-green-dark);
   color: white;
-  font-size: 16px;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.1s;
 }
-.comment-send:active { transform: scale(0.9); border-bottom-width: 1px; }
+.comment-send-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
 
 /* ========== 登录引导弹窗 ========== */
 .login-modal {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s;
 }
 .login-modal.open { opacity: 1; pointer-events: auto; }
-
-.login-modal-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--bg-overlay);
-}
-
+.login-modal-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-overlay); }
 .login-card {
   position: relative;
-  width: 300px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-xl);
-  border: var(--border-thick) solid var(--border-color);
-  border-bottom: 6px solid var(--border-color);
-  padding: 32px 24px 24px;
+  width: 290px;
+  background: #FFFFFF;
+  border: 3px solid #3C3C3C;
+  border-radius: 24px;
+  padding: 28px 20px;
   text-align: center;
   transform: scale(0.9);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 .login-modal.open .login-card { transform: scale(1); }
+.login-mascot { font-size: 64px; margin-bottom: 12px; }
+.login-title { font-size: 18px; font-weight: 900; margin-bottom: 8px; }
+.login-desc { font-size: 13px; font-weight: 700; color: var(--text-secondary); line-height: 1.4; margin-bottom: 24px; }
 
-.login-mascot {
-  font-size: 56px;
-  margin-bottom: 16px;
-  animation: mascot-wave 2s ease-in-out infinite;
-}
-@keyframes mascot-wave {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-10deg); }
-  75% { transform: rotate(10deg); }
-}
-
-.login-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-}
-
-.login-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 24px;
-  line-height: 1.5;
-}
-
-.login-btn {
+.login-btn-wx {
   width: 100%;
-  height: 48px;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: 16px;
-  font-weight: 900;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font-family);
-  transition: transform 0.1s;
-}
-.login-btn:active { transform: scale(0.97); }
-
-.login-btn-primary {
+  height: 46px;
   background: var(--duo-green);
-  color: white;
+  border: none;
+  border-radius: 12px;
   border-bottom: 4px solid var(--duo-green-dark);
-  margin-bottom: 10px;
+  color: white;
+  font-size: 15px;
+  font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  font-family: inherit;
 }
-.login-btn-primary:active { border-bottom-width: 2px; }
-
-.login-btn-secondary {
-  background: transparent;
-  color: var(--text-secondary);
+.login-btn-wx:active { transform: translateY(2px); border-bottom-width: 2px; }
+.login-btn-cancel {
+  width: 100%;
+  height: 46px;
+  background: #FFFFFF;
   border: 2px solid var(--border-color);
+  border-bottom: 4px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
 }
+.login-btn-cancel:active { transform: translateY(2px); border-bottom-width: 2px; }
 
-/* ========== 原型提示浮标 ========== */
-.proto-hint {
-  position: fixed;
-  top: 16px;
+/* ========== Toast ========== */
+.toast {
+  position: absolute;
+  bottom: 100px;
   left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #3C3C3C;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 10px 18px;
+  border-radius: var(--border-radius-card);
+  z-index: 600;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* 原型页眉说明标签 */
+.proto-tag {
+  position: fixed;
+  top: 12px; left: 50%;
   transform: translateX(-50%);
   background: var(--duo-blue);
   color: white;
   font-size: 11px;
-  font-weight: 700;
-  padding: 6px 16px;
-  border-radius: var(--radius-full);
+  font-weight: 900;
+  padding: 6px 14px;
+  border-radius: 20px;
   z-index: 9999;
-  white-space: nowrap;
   border-bottom: 2px solid var(--duo-blue-dark);
-  box-shadow: 0 4px 12px rgba(28, 176, 246, 0.3);
-}
-
-/* ========== 漫画面板背景色 ========== */
-.bg-green-soft { background: linear-gradient(135deg, #1a3a2a, #233A42); }
-.bg-blue-soft { background: linear-gradient(135deg, #1a2a3a, #233A42); }
-.bg-purple-soft { background: linear-gradient(135deg, #2a1a3a, #233A42); }
-.bg-pink-soft { background: linear-gradient(135deg, #3a1a2a, #233A42); }
-.bg-orange-soft { background: linear-gradient(135deg, #3a2a1a, #233A42); }
-.bg-teal-soft { background: linear-gradient(135deg, #1a3a3a, #233A42); }
-
-/* ========== 双击点赞动画 ========== */
-.like-burst {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 80px;
-  pointer-events: none;
-  z-index: 60;
-  opacity: 0;
-}
-.like-burst.animate {
-  animation: like-pop 0.8s ease-out forwards;
-}
-@keyframes like-pop {
-  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.3); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
-}
-
-/* ========== Toast 提示 ========== */
-.toast {
-  position: absolute;
-  bottom: 120px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: var(--radius-full);
-  border: 2px solid var(--border-color);
-  z-index: 400;
-  opacity: 0;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  box-shadow: 0 4px 10px rgba(28, 176, 246, 0.2);
 }
 </style>
 </head>
 <body>
 
-<div class="proto-hint">📱 交互原型 · 点击 Tab 切换页面 · 点击右侧按钮触发交互</div>
+<div class="proto-tag">🦉 多邻国风原型 · 卡片内直接左右拖拽或点击箭头滑动</div>
 
 <div class="phone-shell">
   <!-- 状态栏 -->
   <div class="status-bar">
-    <span class="time">10:21</span>
-    <div class="icons">
-      <span>📶</span>
-      <span>🔋</span>
+    <span class="time">11:20</span>
+    <div class="icons">📶 🔋</div>
+  </div>
+
+  <!-- 顶部 Header -->
+  <div class="app-header">
+    <div class="app-header-title">📋 每日漫画</div>
+    <div class="header-stats">
+      <div class="stat-badge streak">🔥 <span id="streakNum">0</span></div>
+      <div class="stat-badge gems">💎 <span id="gemsNum">10</span></div>
     </div>
   </div>
 
   <!-- 页面容器 -->
   <div class="page-container">
 
-    <!-- ===== 首页 - 今日四格 ===== -->
+    <!-- ===== 首页 - Airbnb 卡片流 ===== -->
     <div class="page home-page active" id="page-home">
-      <div class="swipe-container" id="swipeContainer">
-        <div class="swipe-track" id="swipeTrack">
-          <!-- 漫画 1 -->
-          <div class="comic-slide">
-            <div class="comic-header">
-              <div class="comic-title">猫猫の日常 #128</div>
-              <div class="comic-meta">
-                <span class="comic-tag">治愈</span>
-                <span>今天 09:00</span>
-              </div>
-            </div>
-            <div class="comic-grid">
-              <div class="comic-panel bg-green-soft">
-                <div class="panel-number">1</div>
-                🐱
-              </div>
-              <div class="comic-panel bg-blue-soft">
-                <div class="panel-number">2</div>
-                📦
-              </div>
-              <div class="comic-panel bg-purple-soft">
-                <div class="panel-number">3</div>
-                😸
-              </div>
-              <div class="comic-panel bg-pink-soft">
-                <div class="panel-number">4</div>
-                💤
-              </div>
-            </div>
-            <div class="like-burst" id="likeBurst1">❤️</div>
-          </div>
+      <div class="home-scroll">
+        <!-- 引导小气泡 -->
+        <div class="duo-bubble-card">
+          <div class="duo-mascot-mini">🦉</div>
+          <div class="duo-bubble-content">今天也要打卡看漫画哦！连续阅读可以获得钻石奖励！</div>
+        </div>
 
-          <!-- 漫画 2 -->
-          <div class="comic-slide">
-            <div class="comic-header">
-              <div class="comic-title">社恐日记 #45</div>
-              <div class="comic-meta">
-                <span class="comic-tag" style="background:var(--duo-blue);border-color:var(--duo-blue-dark);">搞笑</span>
-                <span>今天 08:30</span>
-              </div>
+        <!-- 漫画列表 (Airbnb 风格，左右可拖拽/可按箭头，点击打开全屏) -->
+        <!-- 卡片 1 -->
+        <div class="feed-card" data-comic-id="0">
+          <div class="carousel-wrapper" data-carousel-id="0">
+            <div class="carousel-track">
+              <div class="carousel-slide bg-d-1">🐱</div>
+              <div class="carousel-slide bg-d-2">📦</div>
+              <div class="carousel-slide bg-d-3">😸</div>
+              <div class="carousel-slide bg-d-4">💤</div>
             </div>
-            <div class="comic-grid">
-              <div class="comic-panel bg-orange-soft">
-                <div class="panel-number">1</div>
-                🙈
-              </div>
-              <div class="comic-panel bg-teal-soft">
-                <div class="panel-number">2</div>
-                🏃
-              </div>
-              <div class="comic-panel bg-pink-soft">
-                <div class="panel-number">3</div>
-                😅
-              </div>
-              <div class="comic-panel bg-purple-soft">
-                <div class="panel-number">4</div>
-                🛋️
-              </div>
+            <button class="carousel-btn prev" onclick="handleCarouselPrev(event, 0)">‹</button>
+            <button class="carousel-btn next" onclick="handleCarouselNext(event, 0)">›</button>
+            <div class="carousel-dots">
+              <div class="carousel-dot active"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
             </div>
-            <div class="like-burst" id="likeBurst2">❤️</div>
+            <button class="card-fav-btn" onclick="handleCardFavorite(event, this, 0)">🤍</button>
           </div>
-
-          <!-- 漫画 3 -->
-          <div class="comic-slide">
-            <div class="comic-header">
-              <div class="comic-title">打工人修炼手册 #89</div>
-              <div class="comic-meta">
-                <span class="comic-tag" style="background:var(--duo-orange);border-color:var(--duo-orange-dark);">职场</span>
-                <span>昨天 21:00</span>
-              </div>
+          <div class="feed-info" onclick="handleCardInfoClick(0)">
+            <div class="feed-info-header">
+              <span class="feed-title">猫猫の日常 #128</span>
+              <span class="feed-rating">⭐ 9.8</span>
             </div>
-            <div class="comic-grid">
-              <div class="comic-panel bg-blue-soft">
-                <div class="panel-number">1</div>
-                💼
-              </div>
-              <div class="comic-panel bg-orange-soft">
-                <div class="panel-number">2</div>
-                😤
-              </div>
-              <div class="comic-panel bg-green-soft">
-                <div class="panel-number">3</div>
-                ☕
-              </div>
-              <div class="comic-panel bg-teal-soft">
-                <div class="panel-number">4</div>
-                😌
-              </div>
+            <span class="feed-tag tag-green">治愈</span>
+            <div class="feed-desc">一只橘猫和纸箱不得不说的故事</div>
+            <div class="feed-footer">
+              <div class="feed-stat-item">❤️ 2.4k</div>
+              <div class="feed-stat-item">💬 128</div>
             </div>
-            <div class="like-burst" id="likeBurst3">❤️</div>
-          </div>
-
-          <!-- 漫画 4 -->
-          <div class="comic-slide">
-            <div class="comic-header">
-              <div class="comic-title">恋爱小事 #67</div>
-              <div class="comic-meta">
-                <span class="comic-tag" style="background:var(--duo-pink);border-color:#CC6BA6;">恋爱</span>
-                <span>昨天 18:00</span>
-              </div>
-            </div>
-            <div class="comic-grid">
-              <div class="comic-panel bg-pink-soft">
-                <div class="panel-number">1</div>
-                💕
-              </div>
-              <div class="comic-panel bg-purple-soft">
-                <div class="panel-number">2</div>
-                🤭
-              </div>
-              <div class="comic-panel bg-blue-soft">
-                <div class="panel-number">3</div>
-                🥰
-              </div>
-              <div class="comic-panel bg-green-soft">
-                <div class="panel-number">4</div>
-                🌟
-              </div>
-            </div>
-            <div class="like-burst" id="likeBurst4">❤️</div>
           </div>
         </div>
 
-        <!-- 左侧进度点 -->
-        <div class="slide-dots" id="slideDots">
-          <div class="slide-dot active"></div>
-          <div class="slide-dot"></div>
-          <div class="slide-dot"></div>
-          <div class="slide-dot"></div>
+        <!-- 卡片 2 -->
+        <div class="feed-card" data-comic-id="1">
+          <div class="carousel-wrapper" data-carousel-id="1">
+            <div class="carousel-track">
+              <div class="carousel-slide bg-d-4">🙈</div>
+              <div class="carousel-slide bg-d-2">🏃</div>
+              <div class="carousel-slide bg-d-3">😅</div>
+              <div class="carousel-slide bg-d-1">🛋️</div>
+            </div>
+            <button class="carousel-btn prev" onclick="handleCarouselPrev(event, 1)">‹</button>
+            <button class="carousel-btn next" onclick="handleCarouselNext(event, 1)">›</button>
+            <div class="carousel-dots">
+              <div class="carousel-dot active"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
+            </div>
+            <button class="card-fav-btn" onclick="handleCardFavorite(event, this, 1)">🤍</button>
+          </div>
+          <div class="feed-info" onclick="handleCardInfoClick(1)">
+            <div class="feed-info-header">
+              <span class="feed-title">社恐日记 #45</span>
+              <span class="feed-rating">⭐ 9.3</span>
+            </div>
+            <span class="feed-tag tag-blue">搞笑</span>
+            <div class="feed-desc">社恐星人的真实写照，看完秒懂</div>
+            <div class="feed-footer">
+              <div class="feed-stat-item">❤️ 1.8k</div>
+              <div class="feed-stat-item">💬 96</div>
+            </div>
+          </div>
         </div>
 
-        <!-- 右侧操作栏 -->
-        <div class="action-sidebar">
-          <div class="action-btn" id="btnLike" onclick="handleLike()">
-            <div class="icon-circle">❤️</div>
-            <span class="action-count">2.3k</span>
+        <!-- 卡片 3 -->
+        <div class="feed-card" data-comic-id="2">
+          <div class="carousel-wrapper" data-carousel-id="2">
+            <div class="carousel-track">
+              <div class="carousel-slide bg-d-2">💼</div>
+              <div class="carousel-slide bg-d-4">😤</div>
+              <div class="carousel-slide bg-d-1">☕</div>
+              <div class="carousel-slide bg-d-3">😌</div>
+            </div>
+            <button class="carousel-btn prev" onclick="handleCarouselPrev(event, 2)">‹</button>
+            <button class="carousel-btn next" onclick="handleCarouselNext(event, 2)">›</button>
+            <div class="carousel-dots">
+              <div class="carousel-dot active"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
+            </div>
+            <button class="card-fav-btn" onclick="handleCardFavorite(event, this, 2)">🤍</button>
           </div>
-          <div class="action-btn" id="btnFavorite" onclick="handleFavorite()">
-            <div class="icon-circle">⭐</div>
-            <span class="action-count">586</span>
-          </div>
-          <div class="action-btn" id="btnComment" onclick="handleComment()">
-            <div class="icon-circle">💬</div>
-            <span class="action-count">128</span>
-          </div>
-          <div class="action-btn" onclick="handleShare()">
-            <div class="icon-circle">↗️</div>
-            <span class="action-count">分享</span>
+          <div class="feed-info" onclick="handleCardInfoClick(2)">
+            <div class="feed-info-header">
+              <span class="feed-title">打工人修炼手册 #89</span>
+              <span class="feed-rating">⭐ 9.5</span>
+            </div>
+            <span class="feed-tag tag-orange">职场</span>
+            <div class="feed-desc">每天一杯冰美式，治愈职场不开心</div>
+            <div class="feed-footer">
+              <div class="feed-stat-item">❤️ 3.1k</div>
+              <div class="feed-stat-item">💬 204</div>
+            </div>
           </div>
         </div>
 
-        <!-- 滑动提示 -->
-        <div class="swipe-hint" id="swipeHint">
-          <span>↑</span>
-          <span>上滑看下一个</span>
+        <!-- 卡片 4 -->
+        <div class="feed-card" data-comic-id="3">
+          <div class="carousel-wrapper" data-carousel-id="3">
+            <div class="carousel-track">
+              <div class="carousel-slide bg-d-3">💕</div>
+              <div class="carousel-slide bg-d-1">🤭</div>
+              <div class="carousel-slide bg-d-2">🥰</div>
+              <div class="carousel-slide bg-d-4">🌟</div>
+            </div>
+            <button class="carousel-btn prev" onclick="handleCarouselPrev(event, 3)">‹</button>
+            <button class="carousel-btn next" onclick="handleCarouselNext(event, 3)">›</button>
+            <div class="carousel-dots">
+              <div class="carousel-dot active"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
+            </div>
+            <button class="card-fav-btn" onclick="handleCardFavorite(event, this, 3)">🤍</button>
+          </div>
+          <div class="feed-info" onclick="handleCardInfoClick(3)">
+            <div class="feed-info-header">
+              <span class="feed-title">恋爱小事 #67</span>
+              <span class="feed-rating">⭐ 9.9</span>
+            </div>
+            <span class="feed-tag tag-purple">恋爱</span>
+            <div class="feed-desc">甜甜的四格恋爱吐槽日常</div>
+            <div class="feed-footer">
+              <div class="feed-stat-item">❤️ 4.5k</div>
+              <div class="feed-stat-item">💬 312</div>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
 
     <!-- ===== 发现页 ===== -->
     <div class="page discover-page" id="page-discover">
       <div class="discover-scroll">
-        <div class="page-title">发现</div>
-        <div class="page-subtitle">探索更多有趣的四格漫画 ✨</div>
-
-        <!-- 月榜区域 -->
-        <div class="section-header">
-          <div class="section-title">🏆 月榜 <span class="section-badge">7月</span></div>
-          <span class="section-more">查看全部 →</span>
-        </div>
-
-        <div class="rank-scroll">
-          <div class="rank-card">
-            <div class="rank-card-cover bg-green-soft">
-              <div class="rank-badge gold">1</div>
-              🐱
-            </div>
-            <div class="rank-card-info">
+        <!-- 排行榜 Section -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">🏆 热度榜 <span class="section-badge">月榜</span></div>
+            <span class="section-more">更多 ›</span>
+          </div>
+          <div class="rank-scroll-wrapper">
+            <div class="rank-card" onclick="openReader(0)">
+              <div class="rank-number-tag gold">1</div>
+              <div class="rank-cover-mini bg-d-1">🐱</div>
               <div class="rank-card-title">猫猫の日常</div>
-              <div class="rank-card-stats">🔥 98.2k 热度</div>
+              <div class="rank-card-hot">🔥 98.2k</div>
             </div>
-          </div>
-          <div class="rank-card">
-            <div class="rank-card-cover bg-blue-soft">
-              <div class="rank-badge silver">2</div>
-              🙈
-            </div>
-            <div class="rank-card-info">
+            <div class="rank-card" onclick="openReader(1)">
+              <div class="rank-number-tag silver">2</div>
+              <div class="rank-cover-mini bg-d-4">🙈</div>
               <div class="rank-card-title">社恐日记</div>
-              <div class="rank-card-stats">🔥 76.5k 热度</div>
+              <div class="rank-card-hot">🔥 76.5k</div>
             </div>
-          </div>
-          <div class="rank-card">
-            <div class="rank-card-cover bg-orange-soft">
-              <div class="rank-badge bronze">3</div>
-              💼
+            <div class="rank-card" onclick="openReader(2)">
+              <div class="rank-number-tag bronze">3</div>
+              <div class="rank-cover-mini bg-d-2">💼</div>
+              <div class="rank-card-title">打工人</div>
+              <div class="rank-card-hot">🔥 61.3k</div>
             </div>
-            <div class="rank-card-info">
-              <div class="rank-card-title">打工人手册</div>
-              <div class="rank-card-stats">🔥 61.3k 热度</div>
-            </div>
-          </div>
-          <div class="rank-card">
-            <div class="rank-card-cover bg-pink-soft">
-              🍰
-            </div>
-            <div class="rank-card-info">
-              <div class="rank-card-title">甜品拟人</div>
-              <div class="rank-card-stats">🔥 45.1k 热度</div>
-            </div>
-          </div>
-          <div class="rank-card">
-            <div class="rank-card-cover bg-purple-soft">
-              🧙
-            </div>
-            <div class="rank-card-info">
-              <div class="rank-card-title">魔法小日子</div>
-              <div class="rank-card-stats">🔥 38.9k 热度</div>
+            <div class="rank-card" onclick="openReader(3)">
+              <div class="rank-cover-mini bg-d-3">💕</div>
+              <div class="rank-card-title">恋爱小事</div>
+              <div class="rank-card-hot">🔥 45.1k</div>
             </div>
           </div>
         </div>
 
-        <!-- 合集区域 -->
-        <div class="section-header">
-          <div class="section-title">📚 精选合集</div>
-          <span class="section-more">查看全部 →</span>
-        </div>
-
-        <div class="collection-list">
-          <div class="collection-item">
-            <div class="collection-cover bg-green-soft">🐱</div>
+        <!-- 精选合集 Section -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">📚 精选合集</div>
+            <span class="section-more">更多 ›</span>
+          </div>
+          <div class="collection-row" onclick="openReader(0)">
+            <div class="collection-cover bg-d-1">🐱</div>
             <div class="collection-info">
-              <div class="collection-name">猫猫の日常</div>
-              <div class="collection-desc">一只橘猫和铲屎官的爆笑日常，每天都有新花样</div>
-              <div class="collection-stats">
-                <span class="collection-stat">📖 128话</span>
-                <span class="collection-stat">❤️ 98.2k</span>
-                <span class="collection-stat">⭐ 23.1k</span>
-              </div>
+              <div class="collection-name">喵星人观察报告</div>
+              <div class="collection-desc">云养猫首选！关于猫咪的一切搞笑日常</div>
+              <div class="collection-count">128话 · 98.2k 推荐</div>
             </div>
           </div>
-          <div class="collection-item">
-            <div class="collection-cover bg-blue-soft">🙈</div>
+          <div class="collection-row" onclick="openReader(1)">
+            <div class="collection-cover bg-d-4">🙈</div>
             <div class="collection-info">
-              <div class="collection-name">社恐日记</div>
-              <div class="collection-desc">社恐星人的真实生活写照，看完你会说"这不就是我吗"</div>
-              <div class="collection-stats">
-                <span class="collection-stat">📖 45话</span>
-                <span class="collection-stat">❤️ 76.5k</span>
-                <span class="collection-stat">⭐ 18.3k</span>
-              </div>
+              <div class="collection-name">社恐避难所</div>
+              <div class="collection-desc">当代年轻人的日常心理防线大讨论</div>
+              <div class="collection-count">45话 · 76.5k 推荐</div>
             </div>
           </div>
-          <div class="collection-item">
-            <div class="collection-cover bg-orange-soft">💼</div>
+          <div class="collection-row" onclick="openReader(2)">
+            <div class="collection-cover bg-d-2">💼</div>
             <div class="collection-info">
-              <div class="collection-name">打工人修炼手册</div>
-              <div class="collection-desc">职场生存指南，笑着笑着就哭了</div>
-              <div class="collection-stats">
-                <span class="collection-stat">📖 89话</span>
-                <span class="collection-stat">❤️ 61.3k</span>
-                <span class="collection-stat">⭐ 15.7k</span>
-              </div>
-            </div>
-          </div>
-          <div class="collection-item">
-            <div class="collection-cover bg-pink-soft">💕</div>
-            <div class="collection-info">
-              <div class="collection-name">恋爱小事</div>
-              <div class="collection-desc">那些甜到掉牙的恋爱日常，单身勿入</div>
-              <div class="collection-stats">
-                <span class="collection-stat">📖 67话</span>
-                <span class="collection-stat">❤️ 52.8k</span>
-                <span class="collection-stat">⭐ 14.2k</span>
-              </div>
-            </div>
-          </div>
-          <div class="collection-item">
-            <div class="collection-cover bg-teal-soft">🍰</div>
-            <div class="collection-info">
-              <div class="collection-name">甜品拟人</div>
-              <div class="collection-desc">如果甜品们有了生命，它们会怎样生活？</div>
-              <div class="collection-stats">
-                <span class="collection-stat">📖 34话</span>
-                <span class="collection-stat">❤️ 45.1k</span>
-                <span class="collection-stat">⭐ 12.6k</span>
-              </div>
+              <div class="collection-name">职场摸鱼指南</div>
+              <div class="collection-desc">如何优雅地工作和偷懒？</div>
+              <div class="collection-count">89话 · 61.3k 推荐</div>
             </div>
           </div>
         </div>
@@ -1380,164 +1351,236 @@ body {
     <!-- ===== 我的页面 ===== -->
     <div class="page profile-page" id="page-profile">
       <div class="profile-scroll">
-        <div class="page-title">我的</div>
-
-        <!-- 游客状态 -->
+        <!-- 未登录状态 -->
         <div id="guestProfile">
-          <div class="profile-header">
-            <div class="avatar">👤</div>
-            <div class="profile-info">
-              <div class="profile-name" style="color: var(--text-secondary);">未登录</div>
-              <div class="profile-id" style="cursor:pointer;color:var(--duo-blue);" onclick="showLogin()">点击登录 →</div>
+          <div class="user-card" onclick="showLogin()">
+            <div class="user-avatar">👤</div>
+            <div class="user-info">
+              <div class="user-name">游客模式</div>
+              <div class="user-id" style="color: var(--duo-blue);">点击微信登录解锁功能 ›</div>
             </div>
           </div>
         </div>
 
         <!-- 已登录状态 -->
-        <div id="loggedProfile" style="display:none;">
-          <div class="profile-header">
-            <div class="avatar">🦊</div>
-            <div class="profile-info">
-              <div class="profile-name">小狐狸爱画画</div>
-              <div class="profile-id">ID: comic_fox_2026</div>
+        <div id="loggedProfile" style="display: none;">
+          <div class="user-card">
+            <div class="user-avatar">🦉</div>
+            <div class="user-info">
+              <div class="user-name">多邻国漫画粉</div>
+              <div class="user-id">ID: duo_comic_9527</div>
             </div>
           </div>
-
-          <div class="stats-bar">
-            <div class="stat-item">
-              <span class="stat-number">42</span>
-              <span class="stat-label">收藏</span>
+          <!-- 统计数据 -->
+          <div class="stats-grid">
+            <div class="stat-box" onclick="showToast('进入收藏夹')">
+              <div class="stat-num" id="myFavCount">0</div>
+              <div class="stat-tag">我的收藏</div>
             </div>
-            <div class="stat-item">
-              <span class="stat-number">186</span>
-              <span class="stat-label">点赞</span>
+            <div class="stat-box" onclick="showToast('进入我的点赞')">
+              <div class="stat-num">0</div>
+              <div class="stat-tag">我的点赞</div>
             </div>
-            <div class="stat-item">
-              <span class="stat-number">23</span>
-              <span class="stat-label">评论</span>
+            <div class="stat-box" onclick="showToast('进入我的评论')">
+              <div class="stat-num">0</div>
+              <div class="stat-tag">我的评论</div>
             </div>
           </div>
         </div>
 
         <!-- 功能菜单 -->
-        <div class="menu-section">
-          <div class="menu-section-title">我的内容</div>
-          <div class="menu-list">
-            <div class="menu-item" onclick="checkLogin('收藏')">
-              <div class="menu-icon yellow">⭐</div>
-              <span class="menu-text">我的收藏</span>
-              <span class="menu-arrow">›</span>
-            </div>
-            <div class="menu-item" onclick="checkLogin('点赞')">
-              <div class="menu-icon red">❤️</div>
-              <span class="menu-text">我的点赞</span>
-              <span class="menu-arrow">›</span>
-            </div>
-            <div class="menu-item" onclick="checkLogin('评论')">
-              <div class="menu-icon blue">💬</div>
-              <span class="menu-text">我的评论</span>
-              <span class="menu-arrow">›</span>
-            </div>
+        <div class="menu-group">
+          <div class="menu-row" onclick="checkLogin('收藏夹')">
+            <div class="menu-row-icon" style="background:#FFF9E6; color:var(--duo-yellow);">⭐</div>
+            <span class="menu-row-text">我的收藏</span>
+            <span class="menu-row-arrow">›</span>
+          </div>
+          <div class="menu-row" onclick="checkLogin('点赞历史')">
+            <div class="menu-row-icon" style="background:#FFEBEB; color:var(--duo-red);">❤️</div>
+            <span class="menu-row-text">我的点赞</span>
+            <span class="menu-row-arrow">›</span>
+          </div>
+          <div class="menu-row" onclick="checkLogin('评论历史')">
+            <div class="menu-row-icon" style="background:#EBF5FF; color:var(--duo-blue);">💬</div>
+            <span class="menu-row-text">我的评论</span>
+            <span class="menu-row-arrow">›</span>
           </div>
         </div>
 
-        <div class="menu-section">
-          <div class="menu-section-title">其他</div>
-          <div class="menu-list">
-            <div class="menu-item">
-              <div class="menu-icon purple">⚙️</div>
-              <span class="menu-text">设置</span>
-              <span class="menu-arrow">›</span>
-            </div>
-            <div class="menu-item">
-              <div class="menu-icon green">💡</div>
-              <span class="menu-text">意见反馈</span>
-              <span class="menu-arrow">›</span>
-            </div>
+        <div class="menu-group">
+          <div class="menu-row" onclick="showToast('打卡纪录规则：每天阅读满 10 秒打卡')">
+            <div class="menu-row-icon" style="background:#FFF0E6; color:var(--duo-orange);">🔥</div>
+            <span class="menu-row-text">连续打卡规则</span>
+            <span class="menu-row-arrow">›</span>
+          </div>
+          <div class="menu-row" onclick="showToast('设置页面暂未开放')">
+            <div class="menu-row-icon" style="background:#F3E5F5; color:var(--duo-purple);">⚙️</div>
+            <span class="menu-row-text">个人设置</span>
+            <span class="menu-row-arrow">›</span>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- 评论遮罩 -->
-  <div class="comment-overlay" id="commentOverlay" onclick="closeComment()"></div>
+  <!-- ===== 全屏阅读弹框 (PageContainer 模拟) ===== -->
+  <div class="reader-overlay" id="readerOverlay" onclick="closeReader()"></div>
+  <div class="reader-modal" id="readerModal">
+    <div class="reader-close-btn" onclick="closeReader()">✕</div>
+    
+    <div class="reader-swipe-area" id="readerSwipeArea">
+      <div class="reader-track" id="readerTrack">
+        <!-- 漫画 1 -->
+        <div class="reader-slide" data-slide-id="0">
+          <div class="reader-header">
+            <div class="reader-comic-title">猫猫の日常 #128</div>
+            <div class="reader-comic-meta">治愈 · 连续打卡+1</div>
+          </div>
+          <div class="comic-grid">
+            <div class="comic-panel bg-d-1"><div class="panel-number">1</div>🐱</div>
+            <div class="comic-panel bg-d-2"><div class="panel-number">2</div>📦</div>
+            <div class="comic-panel bg-d-3"><div class="panel-number">3</div>😸</div>
+            <div class="comic-panel bg-d-4"><div class="panel-number">4</div>💤</div>
+          </div>
+          <div class="like-burst" id="likeBurst0">❤️</div>
+        </div>
+        <!-- 漫画 2 -->
+        <div class="reader-slide" data-slide-id="1">
+          <div class="reader-header">
+            <div class="reader-comic-title">社恐日记 #45</div>
+            <div class="reader-comic-meta">搞笑 · 连续打卡+1</div>
+          </div>
+          <div class="comic-grid">
+            <div class="comic-panel bg-d-4"><div class="panel-number">1</div>🙈</div>
+            <div class="comic-panel bg-d-2"><div class="panel-number">2</div>🏃</div>
+            <div class="comic-panel bg-d-3"><div class="panel-number">3</div>😅</div>
+            <div class="comic-panel bg-d-1"><div class="panel-number">4</div>🛋️</div>
+          </div>
+          <div class="like-burst" id="likeBurst1">❤️</div>
+        </div>
+        <!-- 漫画 3 -->
+        <div class="reader-slide" data-slide-id="2">
+          <div class="reader-header">
+            <div class="reader-comic-title">打工人修炼手册 #89</div>
+            <div class="reader-comic-meta">职场 · 连续打卡+1</div>
+          </div>
+          <div class="comic-grid">
+            <div class="comic-panel bg-d-2"><div class="panel-number">1</div>💼</div>
+            <div class="comic-panel bg-d-4"><div class="panel-number">2</div>😤</div>
+            <div class="comic-panel bg-d-1"><div class="panel-number">3</div>☕</div>
+            <div class="comic-panel bg-d-3"><div class="panel-number">4</div>😌</div>
+          </div>
+          <div class="like-burst" id="likeBurst2">❤️</div>
+        </div>
+        <!-- 漫画 4 -->
+        <div class="reader-slide" data-slide-id="3">
+          <div class="reader-header">
+            <div class="reader-comic-title">恋爱小事 #67</div>
+            <div class="reader-comic-meta">恋爱 · 连续打卡+1</div>
+          </div>
+          <div class="comic-grid">
+            <div class="comic-panel bg-d-3"><div class="panel-number">1</div>💕</div>
+            <div class="comic-panel bg-d-1"><div class="panel-number">2</div>🤭</div>
+            <div class="comic-panel bg-d-2"><div class="panel-number">3</div>🥰</div>
+            <div class="comic-panel bg-d-4"><div class="panel-number">4</div>🌟</div>
+          </div>
+          <div class="like-burst" id="likeBurst3">❤️</div>
+        </div>
+      </div>
 
-  <!-- 评论面板 -->
+      <!-- 左侧进度圆点 -->
+      <div class="reader-dots">
+        <div class="reader-dot active"></div>
+        <div class="reader-dot"></div>
+        <div class="reader-dot"></div>
+        <div class="reader-dot"></div>
+      </div>
+
+      <!-- 右侧操作栏 (多邻国 3D 圆形按钮) -->
+      <div class="action-sidebar">
+        <div class="action-btn" id="btnLike" onclick="handleReaderLike(event)">
+          <div class="btn-circle">❤️</div>
+          <span class="btn-label">2.4k</span>
+        </div>
+        <div class="action-btn" id="btnFavorite" onclick="handleReaderFav(event)">
+          <div class="btn-circle">⭐</div>
+          <span class="btn-label">586</span>
+        </div>
+        <div class="action-btn" onclick="handleReaderComment(event)">
+          <div class="btn-circle">💬</div>
+          <span class="btn-label">128</span>
+        </div>
+        <div class="action-btn" onclick="handleReaderShare(event)">
+          <div class="btn-circle">↗️</div>
+          <span class="btn-label">分享</span>
+        </div>
+      </div>
+
+      <!-- 滑动引导 -->
+      <div class="swipe-hint" id="swipeHint">
+        <span>↑</span>
+        <span>上下滑动切换</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 评论面板 (半屏 drawer 模拟) ===== -->
+  <div class="comment-overlay" id="commentOverlay" onclick="closeComment()"></div>
   <div class="comment-panel" id="commentPanel">
-    <div class="comment-handle"></div>
     <div class="comment-header">
       <span class="comment-title">评论 (128)</span>
-      <div class="comment-close" onclick="closeComment()">✕</div>
+      <span class="comment-close-btn" onclick="closeComment()">✕</span>
     </div>
     <div class="comment-list">
-      <div class="comment-item">
-        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-blue), var(--duo-purple));">🐰</div>
-        <div class="comment-body">
-          <div class="comment-user">兔叽酱</div>
-          <div class="comment-text">啊啊啊好可爱！第四格绝了 🥹</div>
-          <div class="comment-time">2分钟前</div>
+      <div class="comment-row">
+        <div class="comment-user-avatar" style="background:#FFE6E6;">🐰</div>
+        <div class="comment-details">
+          <div class="comment-user-name">兔叽酱</div>
+          <div class="comment-text-content">太真实了，猫猫真的对任何纸箱都没有抵抗力 😹</div>
+          <div class="comment-timestamp">2分钟前</div>
         </div>
       </div>
-      <div class="comment-item">
-        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-green), var(--duo-teal));">🌵</div>
-        <div class="comment-body">
-          <div class="comment-user">仙人掌本掌</div>
-          <div class="comment-text">每天来这里补充元气，治愈了我的班味 ☕</div>
-          <div class="comment-time">15分钟前</div>
+      <div class="comment-row">
+        <div class="comment-user-avatar" style="background:#E6F5FF;">🌵</div>
+        <div class="comment-details">
+          <div class="comment-user-name">仙人掌本掌</div>
+          <div class="comment-text-content">四格的设计好棒，一下子就看完了，没有阅读负担！</div>
+          <div class="comment-timestamp">15分钟前</div>
         </div>
       </div>
-      <div class="comment-item">
-        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-orange), var(--duo-yellow));">🧸</div>
-        <div class="comment-body">
-          <div class="comment-user">小熊饼干</div>
-          <div class="comment-text">这不就是我家猫吗哈哈哈哈</div>
-          <div class="comment-time">32分钟前</div>
-        </div>
-      </div>
-      <div class="comment-item">
-        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-pink), var(--duo-purple));">🌸</div>
-        <div class="comment-body">
-          <div class="comment-user">樱花味汽水</div>
-          <div class="comment-text">催更催更！什么时候出下一话 🙏</div>
-          <div class="comment-time">1小时前</div>
-        </div>
-      </div>
-      <div class="comment-item">
-        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-red), var(--duo-orange));">🔥</div>
-        <div class="comment-body">
-          <div class="comment-user">火锅英雄</div>
-          <div class="comment-text">已收藏已点赞已转发，一条龙服务</div>
-          <div class="comment-time">2小时前</div>
+      <div class="comment-row">
+        <div class="comment-user-avatar" style="background:#FFF9E6;">🧸</div>
+        <div class="comment-details">
+          <div class="comment-user-name">小熊饼干</div>
+          <div class="comment-text-content">每天早上的快乐源泉 ☕️ 催更催更！</div>
+          <div class="comment-timestamp">1小时前</div>
         </div>
       </div>
     </div>
+    <!-- 评论输入 -->
     <div class="comment-input-bar">
-      <input class="comment-input" placeholder="说点什么..." onclick="checkLoginForComment()">
-      <button class="comment-send">➤</button>
+      <input class="comment-input-box" placeholder="说点好听的鼓励下作者吧..." onclick="checkCommentInputLogin()">
+      <button class="comment-send-btn">➤</button>
     </div>
   </div>
 
-  <!-- 登录弹窗 -->
+  <!-- ===== 登录弹窗 (Duo 🦉 mascot) ===== -->
   <div class="login-modal" id="loginModal">
     <div class="login-modal-bg" onclick="closeLogin()"></div>
     <div class="login-card">
       <div class="login-mascot">🦉</div>
-      <div class="login-title">登录后解锁更多乐趣</div>
-      <div class="login-desc" id="loginDesc">点赞、收藏、评论…<br>让你喜欢的漫画被更多人看到</div>
-      <button class="login-btn login-btn-primary" onclick="doLogin()">
-        <span>💬</span> 微信一键登录
-      </button>
-      <button class="login-btn login-btn-secondary" onclick="closeLogin()">
-        先看看再说
-      </button>
+      <div class="login-title">登录解锁全部功能</div>
+      <div class="login-desc" id="loginText">点赞、收藏、评论…<br>还能获得连续阅读打卡成就哦！</div>
+      <button class="login-btn-wx" onclick="doLogin()">💬 微信一键登录</button>
+      <button class="login-btn-cancel" onclick="closeLogin()">先随便看看</button>
     </div>
   </div>
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
-  <!-- 底部 Tab 栏 -->
+  <!-- Tab 栏 -->
   <div class="tab-bar">
     <div class="tab-item active" onclick="switchTab('home', this)">
       <div class="tab-icon">🏠</div>
@@ -1555,126 +1598,369 @@ body {
 </div>
 
 <script>
-// ===== 全局状态 =====
+// ===== 全局变量 =====
 let isLoggedIn = false;
-let currentSlide = 0;
-const totalSlides = 4;
-let touchStartY = 0;
-let touchEndY = 0;
+let streakDays = 0;
+let gemsCount = 10;
+let activeReaderIndex = 0;
 let isAnimating = false;
+let isReaderOpen = false;
+let mySavedCount = 0;
 
-// ===== Tab 切换 =====
+// 阅读时长计时器 (轨迹采集演示)
+let readerStartTime = 0;
+let readerTimer = null;
+
+// ===== 卡片轮播状态 =====
+const carouselStates = {};
+
+function initCarousels() {
+  document.querySelectorAll('.carousel-wrapper').forEach(wrapper => {
+    const id = parseInt(wrapper.dataset.carouselId);
+    carouselStates[id] = 0;
+    updateCarouselPosition(id, false);
+    setupSwipeAndDrag(wrapper, id);
+  });
+}
+
+function updateCarouselPosition(id, animate) {
+  const wrapper = document.querySelector(`[data-carousel-id="${id}"]`);
+  if (!wrapper) return;
+  const track = wrapper.querySelector('.carousel-track');
+  const index = carouselStates[id] || 0;
+  
+  track.style.transition = animate ? 'transform 0.3s ease-out' : 'none';
+  track.style.transform = `translateX(-${index * 100}%)`;
+  
+  // 更新小圆点
+  wrapper.querySelectorAll('.carousel-dot').forEach((dot, idx) => {
+    dot.classList.toggle('active', idx === index);
+  });
+  
+  // 禁用不必要的按键
+  wrapper.querySelector('.carousel-btn.prev').disabled = index === 0;
+  wrapper.querySelector('.carousel-btn.next').disabled = index === 3;
+}
+
+function handleCarouselPrev(e, id) {
+  e.stopPropagation();
+  if (carouselStates[id] > 0) {
+    carouselStates[id]--;
+    updateCarouselPosition(id, true);
+  }
+}
+
+function handleCarouselNext(e, id) {
+  e.stopPropagation();
+  if (carouselStates[id] < 3) {
+    carouselStates[id]++;
+    updateCarouselPosition(id, true);
+  }
+}
+
+// 适配拖拽与滑动 (区分滑动和点击操作以防误触)
+function setupSwipeAndDrag(wrapper, id) {
+  let startX = 0, startY = 0, isDown = false, moved = false;
+
+  // 触摸屏滑动
+  wrapper.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    isDown = true;
+    moved = false;
+  }, { passive: true });
+
+  wrapper.addEventListener('touchmove', (e) => {
+    if (!isDown) return;
+    const diffX = e.touches[0].clientX - startX;
+    const diffY = e.touches[0].clientY - startY;
+    if (Math.abs(diffX) > 10) moved = true;
+  }, { passive: true });
+
+  wrapper.addEventListener('touchend', (e) => {
+    if (!isDown) return;
+    isDown = false;
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const diffX = startX - endX;
+    const diffY = startY - endY;
+
+    if (moved && Math.abs(diffX) > 45) {
+      if (diffX > 0 && carouselStates[id] < 3) {
+        carouselStates[id]++;
+        updateCarouselPosition(id, true);
+      } else if (diffX < 0 && carouselStates[id] > 0) {
+        carouselStates[id]--;
+        updateCarouselPosition(id, true);
+      }
+    } else if (Math.abs(diffX) < 8 && Math.abs(diffY) < 8) {
+      // 点击事件触发
+      if (!e.target.closest('.carousel-btn') && !e.target.closest('.card-fav-btn')) {
+        handleCardInfoClick(id);
+      }
+    }
+  });
+
+  // 鼠标拖拽
+  wrapper.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.carousel-btn') || e.target.closest('.card-fav-btn')) return;
+    isDown = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    moved = false;
+    wrapper.style.cursor = 'grabbing';
+  });
+
+  wrapper.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    if (Math.abs(e.clientX - startX) > 5) moved = true;
+  });
+
+  wrapper.addEventListener('mouseup', (e) => {
+    if (!isDown) return;
+    isDown = false;
+    wrapper.style.cursor = '';
+    const diffX = startX - e.clientX;
+    const diffY = startY - e.clientY;
+
+    if (moved && Math.abs(diffX) > 40) {
+      if (diffX > 0 && carouselStates[id] < 3) {
+        carouselStates[id]++;
+        updateCarouselPosition(id, true);
+      } else if (diffX < 0 && carouselStates[id] > 0) {
+        carouselStates[id]--;
+        updateCarouselPosition(id, true);
+      }
+    } else if (Math.abs(diffX) < 5 && Math.abs(diffY) < 5) {
+      handleCardInfoClick(id);
+    }
+  });
+
+  wrapper.addEventListener('mouseleave', () => {
+    if (isDown) {
+      isDown = false;
+      wrapper.style.cursor = '';
+    }
+  });
+}
+
+// 列表内收藏按钮
+function handleCardFavorite(e, btn, id) {
+  e.stopPropagation();
+  if (!isLoggedIn) { showLogin('收藏漫画'); return; }
+  btn.classList.toggle('saved');
+  if (btn.classList.contains('saved')) {
+    btn.innerHTML = '❤️';
+    mySavedCount++;
+    showToast('已加入我的收藏 ⭐');
+  } else {
+    btn.innerHTML = '🤍';
+    mySavedCount--;
+    showToast('已取消收藏');
+  }
+  document.getElementById('myFavCount').innerText = mySavedCount;
+}
+
+// 点击卡片文字区打开全屏
+function handleCardInfoClick(id) {
+  openReader(id);
+}
+
+// ===== Tab 页面切换 =====
 function switchTab(page, el) {
-  // 更新 Tab 样式
   document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
-
-  // 切换页面
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
 }
 
-// ===== 上下滑动切换 =====
-const swipeContainer = document.getElementById('swipeContainer');
-const swipeTrack = document.getElementById('swipeTrack');
+// ===== 全屏阅读器交互 (PageContainer) =====
+function openReader(index) {
+  isReaderOpen = true;
+  activeReaderIndex = index;
+  updateReaderTrack(false);
+  
+  document.getElementById('readerOverlay').classList.add('open');
+  document.getElementById('readerModal').classList.add('open');
+  document.getElementById('swipeHint').style.opacity = '0.6';
 
-swipeContainer.addEventListener('touchstart', (e) => {
+  // 重置点赞收藏按钮状态以演示
+  document.getElementById('btnLike').classList.remove('liked');
+  document.getElementById('btnFavorite').classList.remove('favorited');
+
+  // 开始阅读计时 (轨迹采集)
+  startReadingTracker();
+}
+
+function closeReader() {
+  isReaderOpen = false;
+  document.getElementById('readerOverlay').classList.remove('open');
+  document.getElementById('readerModal').classList.remove('open');
+  closeComment();
+  stopReadingTracker();
+}
+
+function updateReaderTrack(animate) {
+  const swipeArea = document.getElementById('readerSwipeArea');
+  const slideHeight = swipeArea.offsetHeight;
+  const track = document.getElementById('readerTrack');
+  
+  track.style.transition = animate ? 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none';
+  track.style.transform = `translateY(-${activeReaderIndex * slideHeight}px)`;
+
+  // 更新进度指示器点
+  document.querySelectorAll('.reader-dot').forEach((dot, idx) => {
+    dot.classList.toggle('active', idx === activeReaderIndex);
+  });
+
+  // 更新所有滑块高度
+  document.querySelectorAll('.reader-slide').forEach(slide => {
+    slide.style.height = slideHeight + 'px';
+  });
+}
+
+// 阅读器内上下滑动
+const readerSwipe = document.getElementById('readerSwipeArea');
+let rTouchStartY = 0, rTouchEndY = 0;
+
+readerSwipe.addEventListener('touchstart', (e) => {
   if (isAnimating) return;
-  touchStartY = e.touches[0].clientY;
+  rTouchStartY = e.touches[0].clientY;
 }, { passive: true });
 
-swipeContainer.addEventListener('touchmove', (e) => {
-  touchEndY = e.touches[0].clientY;
+readerSwipe.addEventListener('touchmove', (e) => {
+  rTouchEndY = e.touches[0].clientY;
 }, { passive: true });
 
-swipeContainer.addEventListener('touchend', () => {
-  if (isAnimating) return;
-  const diff = touchStartY - touchEndY;
+readerSwipe.addEventListener('touchend', () => {
+  if (isAnimating || !isReaderOpen) return;
+  const diff = rTouchStartY - rTouchEndY;
   if (Math.abs(diff) > 50) {
-    if (diff > 0 && currentSlide < totalSlides - 1) {
-      currentSlide++;
-      updateSlide();
-    } else if (diff < 0 && currentSlide > 0) {
-      currentSlide--;
-      updateSlide();
+    if (diff > 0 && activeReaderIndex < 3) {
+      activeReaderIndex++;
+      triggerReaderSlide();
+    } else if (diff < 0 && activeReaderIndex > 0) {
+      activeReaderIndex--;
+      triggerReaderSlide();
     }
   }
 });
 
-// 鼠标滚轮支持（桌面浏览器）
-swipeContainer.addEventListener('wheel', (e) => {
-  if (isAnimating) return;
+readerSwipe.addEventListener('wheel', (e) => {
+  if (isAnimating || !isReaderOpen) return;
   e.preventDefault();
-  if (e.deltaY > 30 && currentSlide < totalSlides - 1) {
-    currentSlide++;
-    updateSlide();
-  } else if (e.deltaY < -30 && currentSlide > 0) {
-    currentSlide--;
-    updateSlide();
+  if (e.deltaY > 30 && activeReaderIndex < 3) {
+    activeReaderIndex++;
+    triggerReaderSlide();
+  } else if (e.deltaY < -30 && activeReaderIndex > 0) {
+    activeReaderIndex--;
+    triggerReaderSlide();
   }
 }, { passive: false });
 
-function updateSlide() {
+function triggerReaderSlide() {
   isAnimating = true;
-  const slideHeight = swipeContainer.offsetHeight;
-  swipeTrack.style.transform = `translateY(-${currentSlide * slideHeight}px)`;
-
-  // 更新进度点
-  document.querySelectorAll('.slide-dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === currentSlide);
-  });
-
-  // 第一次滑动后隐藏提示
+  updateReaderTrack(true);
   document.getElementById('swipeHint').style.opacity = '0';
+  
+  // 重置按钮状态
+  document.getElementById('btnLike').classList.remove('liked');
+  document.getElementById('btnFavorite').classList.remove('favorited');
 
-  setTimeout(() => { isAnimating = false; }, 400);
+  // 记录新话的阅读时长
+  stopReadingTracker();
+  startReadingTracker();
+
+  setTimeout(() => { isAnimating = false; }, 420);
 }
 
-// 初始化滑动轨道高度
-function initSwipeTrack() {
-  const slides = document.querySelectorAll('.comic-slide');
-  slides.forEach(slide => {
-    slide.style.height = swipeContainer.offsetHeight + 'px';
-  });
+// 双击点赞
+let rLastTap = 0;
+readerSwipe.addEventListener('click', (e) => {
+  if (e.target.closest('.action-sidebar') || e.target.closest('.reader-close-btn')) return;
+  const now = Date.now();
+  if (now - rLastTap < 300) {
+    if (!isLoggedIn) { showLogin('双击点赞'); return; }
+    const btn = document.getElementById('btnLike');
+    if (!btn.classList.contains('liked')) {
+      handleReaderLike(e);
+    }
+    const burst = document.getElementById('likeBurst' + activeReaderIndex);
+    if (burst) {
+      burst.classList.add('animate');
+      setTimeout(() => burst.classList.remove('animate'), 800);
+    }
+  }
+  rLastTap = now;
+});
+
+// 阅读时长计时逻辑 (演示采集轨迹和停留时长)
+function startReadingTracker() {
+  readerStartTime = Date.now();
+  // 10秒后打卡成功
+  readerTimer = setTimeout(() => {
+    if (isReaderOpen) {
+      streakDays++;
+      gemsCount += 5;
+      document.getElementById('streakNum').innerText = streakDays;
+      document.getElementById('gemsNum').innerText = gemsCount;
+      showToast('📖 阅读满10秒，连续打卡成功！获得 💎+5');
+    }
+  }, 10000);
 }
 
-window.addEventListener('resize', initSwipeTrack);
-setTimeout(initSwipeTrack, 100);
+function stopReadingTracker() {
+  if (readerTimer) {
+    clearTimeout(readerTimer);
+    readerTimer = null;
+  }
+  const duration = Math.round((Date.now() - readerStartTime) / 1000);
+  if (duration > 0) {
+    console.log(`[数据采集] 漫画 #${activeReaderIndex + 1} 阅读时长: ${duration}秒`);
+  }
+}
 
-// ===== 操作按钮交互 =====
-function handleLike() {
-  if (!isLoggedIn) { showLogin('点赞'); return; }
+// 屏幕变动重置
+window.addEventListener('resize', () => {
+  if (isReaderOpen) updateReaderTrack(false);
+});
+
+// ===== 互动区逻辑 =====
+function handleReaderLike(e) {
+  e && e.stopPropagation();
+  if (!isLoggedIn) { showLogin('点赞漫画'); return; }
   const btn = document.getElementById('btnLike');
   btn.classList.toggle('liked');
-  const countEl = btn.querySelector('.action-count');
+  const label = btn.querySelector('.btn-label');
   if (btn.classList.contains('liked')) {
-    countEl.textContent = '2.4k';
-    // 播放爱心动画
-    const burst = document.getElementById('likeBurst' + (currentSlide + 1));
-    burst.classList.add('animate');
-    setTimeout(() => burst.classList.remove('animate'), 800);
-    showToast('已点赞 ❤️');
+    label.innerText = '2.5k';
+    const burst = document.getElementById('likeBurst' + activeReaderIndex);
+    if (burst) { burst.classList.add('animate'); setTimeout(() => burst.classList.remove('animate'), 800); }
+    showToast('感谢点赞！🦉');
   } else {
-    countEl.textContent = '2.3k';
-    showToast('已取消点赞');
+    label.innerText = '2.4k';
   }
 }
 
-function handleFavorite() {
-  if (!isLoggedIn) { showLogin('收藏'); return; }
+function handleReaderFav(e) {
+  e && e.stopPropagation();
+  if (!isLoggedIn) { showLogin('收藏漫画'); return; }
   const btn = document.getElementById('btnFavorite');
   btn.classList.toggle('favorited');
-  const countEl = btn.querySelector('.action-count');
+  const label = btn.querySelector('.btn-label');
   if (btn.classList.contains('favorited')) {
-    countEl.textContent = '587';
-    showToast('已收藏 ⭐');
+    label.innerText = '587';
+    mySavedCount++;
+    showToast('已加入我的收藏 ⭐');
   } else {
-    countEl.textContent = '586';
-    showToast('已取消收藏');
+    label.innerText = '586';
+    mySavedCount--;
   }
+  document.getElementById('myFavCount').innerText = mySavedCount;
 }
 
-function handleComment() {
+function handleReaderComment(e) {
+  e && e.stopPropagation();
   document.getElementById('commentOverlay').classList.add('open');
   document.getElementById('commentPanel').classList.add('open');
 }
@@ -1684,24 +1970,25 @@ function closeComment() {
   document.getElementById('commentPanel').classList.remove('open');
 }
 
-function handleShare() {
-  showToast('已生成分享卡片 📤');
+function handleReaderShare(e) {
+  e && e.stopPropagation();
+  showToast('分享卡片已保存至相册 📸');
 }
 
-function checkLoginForComment() {
+function checkCommentInputLogin() {
   if (!isLoggedIn) {
     closeComment();
-    showLogin('评论');
+    showLogin('发表评论');
   }
 }
 
-// ===== 登录系统 =====
+// ===== 登录与权限控制 =====
 function showLogin(action) {
-  const desc = document.getElementById('loginDesc');
+  const text = document.getElementById('loginText');
   if (action) {
-    desc.innerHTML = `登录后即可${action}，<br>让你喜欢的漫画被更多人看到`;
+    text.innerHTML = `登录后即可${action}，<br>并获得连续阅读打卡钻石奖励！`;
   } else {
-    desc.innerHTML = '点赞、收藏、评论…<br>让你喜欢的漫画被更多人看到';
+    text.innerHTML = '点赞、收藏、评论…<br>还能获得连续阅读打卡配置哦！';
   }
   document.getElementById('loginModal').classList.add('open');
 }
@@ -1713,47 +2000,40 @@ function closeLogin() {
 function doLogin() {
   isLoggedIn = true;
   closeLogin();
-
-  // 切换个人中心状态
+  
+  // 转换面板状态
   document.getElementById('guestProfile').style.display = 'none';
   document.getElementById('loggedProfile').style.display = 'block';
 
-  showToast('登录成功 🎉 欢迎回来！');
+  // 模拟微信数据拉取
+  streakDays = 3;
+  document.getElementById('streakNum').innerText = streakDays;
+  document.getElementById('gemsNum').innerText = 25;
+  document.getElementById('myFavCount').innerText = mySavedCount;
+
+  showToast('微信登录成功 🎉 多邻国奖励已同步！');
 }
 
 function checkLogin(action) {
   if (!isLoggedIn) {
     showLogin(action);
   } else {
-    showToast('进入「我的' + action + '」页面');
+    showToast('进入' + action);
   }
 }
 
-// ===== Toast =====
+// ===== 通用 Toast =====
 function showToast(msg) {
   const toast = document.getElementById('toast');
-  toast.textContent = msg;
+  toast.innerText = msg;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2000);
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2000);
 }
 
-// ===== 双击点赞 =====
-let lastTapTime = 0;
-swipeContainer.addEventListener('click', (e) => {
-  const now = Date.now();
-  if (now - lastTapTime < 300) {
-    // 双击
-    if (!isLoggedIn) { showLogin('点赞'); return; }
-    const btn = document.getElementById('btnLike');
-    if (!btn.classList.contains('liked')) {
-      handleLike();
-    }
-    const burst = document.getElementById('likeBurst' + (currentSlide + 1));
-    burst.classList.add('animate');
-    setTimeout(() => burst.classList.remove('animate'), 800);
-  }
-  lastTapTime = now;
-});
+// 初始化
+initCarousels();
 </script>
 </body>
 </html>
