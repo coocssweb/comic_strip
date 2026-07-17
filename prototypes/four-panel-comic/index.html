@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>四格漫画小程序 — 交互原型</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ========== 设计 Token ========== */
+:root {
+  /* 多邻国风格色彩体系 */
+  --duo-green: #58CC02;
+  --duo-green-dark: #46A302;
+  --duo-green-light: #89E219;
+  --duo-blue: #1CB0F6;
+  --duo-blue-dark: #1899D6;
+  --duo-purple: #CE82FF;
+  --duo-purple-dark: #A855F7;
+  --duo-red: #FF4B4B;
+  --duo-red-dark: #EA2B2B;
+  --duo-orange: #FF9600;
+  --duo-orange-dark: #E08600;
+  --duo-yellow: #FFC800;
+  --duo-pink: #FF86D0;
+  --duo-teal: #2DD4BF;
+
+  /* 中性色 */
+  --bg-primary: #131F24;
+  --bg-secondary: #1A2C33;
+  --bg-card: #233A42;
+  --bg-card-hover: #2A4650;
+  --bg-overlay: rgba(0, 0, 0, 0.6);
+  --text-primary: #FFFFFF;
+  --text-secondary: #AFAFAF;
+  --text-tertiary: #777777;
+  --border-color: #3C5A65;
+  --border-thick: 3px;
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* 字体 */
+  --font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* 手机模拟尺寸 */
+  --phone-w: 375px;
+  --phone-h: 812px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-family);
+  background: #0A0E11;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* ========== 手机壳容器 ========== */
+.phone-shell {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  background: var(--bg-primary);
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 4px #1A2C33,
+    0 0 0 8px #0D1518,
+    0 20px 60px rgba(0,0,0,0.5);
+}
+
+/* 状态栏 */
+.status-bar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+.status-bar .time { font-weight: 700; }
+.status-bar .icons { display: flex; gap: 5px; align-items: center; }
+
+/* ========== 页面容器 ========== */
+.page-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  flex-direction: column;
+}
+.page.active { display: flex; }
+
+/* ========== 底部 Tab 栏 ========== */
+.tab-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 84px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  padding-top: 10px;
+  z-index: 200;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-item:active { transform: scale(0.9); }
+
+.tab-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  border-radius: var(--radius-sm);
+  transition: all 0.3s;
+}
+
+.tab-item.active .tab-icon {
+  background: var(--duo-green);
+  color: white;
+  box-shadow: 0 4px 12px rgba(88, 204, 2, 0.4);
+  border-bottom: var(--border-thick) solid var(--duo-green-dark);
+}
+
+.tab-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.tab-item.active .tab-label { color: var(--duo-green); }
+
+/* ========== 首页 - 全屏沉浸式阅读 ========== */
+.home-page {
+  background: var(--bg-primary);
+}
+
+.swipe-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 84px;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.swipe-track {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.comic-slide {
+  width: 100%;
+  height: calc(var(--phone-h) - 84px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px 20px;
+  position: relative;
+}
+
+/* 漫画标题区 */
+.comic-header {
+  position: absolute;
+  top: 50px;
+  left: 20px;
+  right: 60px;
+}
+
+.comic-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.comic-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.comic-tag {
+  background: var(--duo-purple);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border-bottom: 2px solid var(--duo-purple-dark);
+}
+
+/* 四格漫画展示区 */
+.comic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+  max-width: 335px;
+  aspect-ratio: 3/4;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: var(--border-thick) solid var(--border-color);
+  background: var(--bg-card);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.comic-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.comic-panel .panel-number {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 11px;
+  font-weight: 900;
+  color: white;
+  background: rgba(0,0,0,0.5);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 右侧浮动操作栏 */
+.action-sidebar {
+  position: absolute;
+  right: 12px;
+  bottom: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  z-index: 50;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.action-btn:active { transform: scale(0.85); }
+
+.action-btn .icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  border: 2px solid rgba(255,255,255,0.2);
+  transition: all 0.3s;
+}
+
+.action-btn .action-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.action-btn.liked .icon-circle {
+  background: rgba(255, 75, 75, 0.3);
+  border-color: var(--duo-red);
+}
+.action-btn.favorited .icon-circle {
+  background: rgba(255, 200, 0, 0.3);
+  border-color: var(--duo-yellow);
+}
+
+/* 滑动指示器 */
+.swipe-hint {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: bounce-up 2s infinite;
+  opacity: 0.6;
+}
+
+.swipe-hint span {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+@keyframes bounce-up {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+/* 进度指示点 */
+.slide-dots {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+}
+
+.slide-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transition: all 0.3s;
+}
+.slide-dot.active {
+  height: 16px;
+  border-radius: 2px;
+  background: var(--duo-green);
+}
+
+/* ========== 发现页 ========== */
+.discover-page {
+  background: var(--bg-primary);
+  padding-top: 44px;
+}
+
+.discover-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 84px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.discover-scroll::-webkit-scrollbar { display: none; }
+
+.page-title {
+  font-size: 28px;
+  font-weight: 900;
+  padding: 16px 20px 4px;
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 0 20px 16px;
+}
+
+/* 月榜区域 */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--duo-orange);
+  color: white;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border-bottom: 2px solid var(--duo-orange-dark);
+}
+
+.section-more {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--duo-blue);
+  cursor: pointer;
+}
+
+/* 月榜横滑卡片 */
+.rank-scroll {
+  display: flex;
+  gap: 12px;
+  padding: 8px 20px 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+.rank-scroll::-webkit-scrollbar { display: none; }
+
+.rank-card {
+  flex-shrink: 0;
+  width: 140px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: var(--border-thick) solid var(--border-color);
+  border-bottom: 5px solid var(--border-color);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.3s;
+  scroll-snap-align: start;
+}
+.rank-card:active { transform: scale(0.96); }
+.rank-card:hover { border-color: var(--duo-green); }
+
+.rank-card-cover {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  position: relative;
+}
+
+.rank-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  color: white;
+}
+.rank-badge.gold { background: var(--duo-yellow); border-bottom: 2px solid #D4A800; }
+.rank-badge.silver { background: #A8B8C0; border-bottom: 2px solid #8A9AA2; }
+.rank-badge.bronze { background: var(--duo-orange); border-bottom: 2px solid #CC7A00; }
+
+.rank-card-info {
+  padding: 10px;
+}
+
+.rank-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-card-stats {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 合集列表 */
+.collection-list {
+  padding: 0 20px;
+}
+
+.collection-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(60, 90, 101, 0.5);
+  cursor: pointer;
+  transition: background 0.2s;
+  border-radius: var(--radius-md);
+}
+.collection-item:active { background: rgba(255,255,255,0.05); }
+
+.collection-cover {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+}
+
+.collection-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.collection-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.collection-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.collection-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.collection-stat {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ========== 我的页面 ========== */
+.profile-page {
+  background: var(--bg-primary);
+  padding-top: 44px;
+}
+
+.profile-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 84px;
+  -webkit-overflow-scrolling: touch;
+}
+.profile-scroll::-webkit-scrollbar { display: none; }
+
+/* 用户信息头 */
+.profile-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--duo-green), var(--duo-blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: var(--border-thick) solid var(--duo-green);
+  box-shadow: 0 4px 16px rgba(88, 204, 2, 0.3);
+  flex-shrink: 0;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-name {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.profile-id {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* 统计数据条 */
+.stats-bar {
+  display: flex;
+  gap: 0;
+  padding: 0 20px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 14px 0;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.stat-item:first-child {
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  border-right: none;
+}
+.stat-item:last-child {
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  border-left: none;
+}
+.stat-item:nth-child(2) {
+  border-left: none;
+  border-right: none;
+}
+.stat-item:active { background: var(--bg-card-hover); }
+
+.stat-number {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--duo-green);
+  display: block;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* 功能菜单列表 */
+.menu-section {
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.menu-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 0;
+}
+
+.menu-list {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid rgba(60, 90, 101, 0.3);
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item:active { background: var(--bg-card-hover); }
+
+.menu-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.menu-icon.green { background: rgba(88, 204, 2, 0.2); }
+.menu-icon.red { background: rgba(255, 75, 75, 0.2); }
+.menu-icon.yellow { background: rgba(255, 200, 0, 0.2); }
+.menu-icon.blue { background: rgba(28, 176, 246, 0.2); }
+.menu-icon.purple { background: rgba(206, 130, 255, 0.2); }
+
+.menu-text {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.menu-arrow {
+  font-size: 14px;
+  color: var(--text-tertiary);
+}
+
+/* ========== 评论半屏面板 ========== */
+.comment-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65%;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.comment-panel.open { transform: translateY(0); }
+
+.comment-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-overlay);
+  z-index: 250;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+.comment-overlay.open { opacity: 1; pointer-events: auto; }
+
+.comment-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  margin: 10px auto;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.comment-title {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.comment-close {
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.comment-close:active { background: rgba(255,255,255,0.1); }
+
+.comment-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 20px;
+  -webkit-overflow-scrolling: touch;
+}
+.comment-list::-webkit-scrollbar { display: none; }
+
+.comment-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 2px solid var(--border-color);
+}
+
+.comment-body {
+  flex: 1;
+}
+
+.comment-user {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--duo-blue);
+  margin-bottom: 2px;
+}
+
+.comment-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.comment-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* 评论输入框 */
+.comment-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.comment-input {
+  flex: 1;
+  height: 36px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  font-family: var(--font-family);
+}
+.comment-input:focus { border-color: var(--duo-blue); }
+.comment-input::placeholder { color: var(--text-tertiary); }
+
+.comment-send {
+  width: 36px;
+  height: 36px;
+  background: var(--duo-green);
+  border: none;
+  border-radius: 50%;
+  border-bottom: var(--border-thick) solid var(--duo-green-dark);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+.comment-send:active { transform: scale(0.9); border-bottom-width: 1px; }
+
+/* ========== 登录引导弹窗 ========== */
+.login-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.login-modal.open { opacity: 1; pointer-events: auto; }
+
+.login-modal-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-overlay);
+}
+
+.login-card {
+  position: relative;
+  width: 300px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  border: var(--border-thick) solid var(--border-color);
+  border-bottom: 6px solid var(--border-color);
+  padding: 32px 24px 24px;
+  text-align: center;
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.login-modal.open .login-card { transform: scale(1); }
+
+.login-mascot {
+  font-size: 56px;
+  margin-bottom: 16px;
+  animation: mascot-wave 2s ease-in-out infinite;
+}
+@keyframes mascot-wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.login-title {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.login-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.login-btn {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-family);
+  transition: transform 0.1s;
+}
+.login-btn:active { transform: scale(0.97); }
+
+.login-btn-primary {
+  background: var(--duo-green);
+  color: white;
+  border-bottom: 4px solid var(--duo-green-dark);
+  margin-bottom: 10px;
+}
+.login-btn-primary:active { border-bottom-width: 2px; }
+
+.login-btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+}
+
+/* ========== 原型提示浮标 ========== */
+.proto-hint {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--duo-blue);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  z-index: 9999;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--duo-blue-dark);
+  box-shadow: 0 4px 12px rgba(28, 176, 246, 0.3);
+}
+
+/* ========== 漫画面板背景色 ========== */
+.bg-green-soft { background: linear-gradient(135deg, #1a3a2a, #233A42); }
+.bg-blue-soft { background: linear-gradient(135deg, #1a2a3a, #233A42); }
+.bg-purple-soft { background: linear-gradient(135deg, #2a1a3a, #233A42); }
+.bg-pink-soft { background: linear-gradient(135deg, #3a1a2a, #233A42); }
+.bg-orange-soft { background: linear-gradient(135deg, #3a2a1a, #233A42); }
+.bg-teal-soft { background: linear-gradient(135deg, #1a3a3a, #233A42); }
+
+/* ========== 双击点赞动画 ========== */
+.like-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 80px;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0;
+}
+.like-burst.animate {
+  animation: like-pop 0.8s ease-out forwards;
+}
+@keyframes like-pop {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.3); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+}
+
+/* ========== Toast 提示 ========== */
+.toast {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border-color);
+  z-index: 400;
+  opacity: 0;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+
+<div class="proto-hint">📱 交互原型 · 点击 Tab 切换页面 · 点击右侧按钮触发交互</div>
+
+<div class="phone-shell">
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <span class="time">10:21</span>
+    <div class="icons">
+      <span>📶</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <!-- 页面容器 -->
+  <div class="page-container">
+
+    <!-- ===== 首页 - 今日四格 ===== -->
+    <div class="page home-page active" id="page-home">
+      <div class="swipe-container" id="swipeContainer">
+        <div class="swipe-track" id="swipeTrack">
+          <!-- 漫画 1 -->
+          <div class="comic-slide">
+            <div class="comic-header">
+              <div class="comic-title">猫猫の日常 #128</div>
+              <div class="comic-meta">
+                <span class="comic-tag">治愈</span>
+                <span>今天 09:00</span>
+              </div>
+            </div>
+            <div class="comic-grid">
+              <div class="comic-panel bg-green-soft">
+                <div class="panel-number">1</div>
+                🐱
+              </div>
+              <div class="comic-panel bg-blue-soft">
+                <div class="panel-number">2</div>
+                📦
+              </div>
+              <div class="comic-panel bg-purple-soft">
+                <div class="panel-number">3</div>
+                😸
+              </div>
+              <div class="comic-panel bg-pink-soft">
+                <div class="panel-number">4</div>
+                💤
+              </div>
+            </div>
+            <div class="like-burst" id="likeBurst1">❤️</div>
+          </div>
+
+          <!-- 漫画 2 -->
+          <div class="comic-slide">
+            <div class="comic-header">
+              <div class="comic-title">社恐日记 #45</div>
+              <div class="comic-meta">
+                <span class="comic-tag" style="background:var(--duo-blue);border-color:var(--duo-blue-dark);">搞笑</span>
+                <span>今天 08:30</span>
+              </div>
+            </div>
+            <div class="comic-grid">
+              <div class="comic-panel bg-orange-soft">
+                <div class="panel-number">1</div>
+                🙈
+              </div>
+              <div class="comic-panel bg-teal-soft">
+                <div class="panel-number">2</div>
+                🏃
+              </div>
+              <div class="comic-panel bg-pink-soft">
+                <div class="panel-number">3</div>
+                😅
+              </div>
+              <div class="comic-panel bg-purple-soft">
+                <div class="panel-number">4</div>
+                🛋️
+              </div>
+            </div>
+            <div class="like-burst" id="likeBurst2">❤️</div>
+          </div>
+
+          <!-- 漫画 3 -->
+          <div class="comic-slide">
+            <div class="comic-header">
+              <div class="comic-title">打工人修炼手册 #89</div>
+              <div class="comic-meta">
+                <span class="comic-tag" style="background:var(--duo-orange);border-color:var(--duo-orange-dark);">职场</span>
+                <span>昨天 21:00</span>
+              </div>
+            </div>
+            <div class="comic-grid">
+              <div class="comic-panel bg-blue-soft">
+                <div class="panel-number">1</div>
+                💼
+              </div>
+              <div class="comic-panel bg-orange-soft">
+                <div class="panel-number">2</div>
+                😤
+              </div>
+              <div class="comic-panel bg-green-soft">
+                <div class="panel-number">3</div>
+                ☕
+              </div>
+              <div class="comic-panel bg-teal-soft">
+                <div class="panel-number">4</div>
+                😌
+              </div>
+            </div>
+            <div class="like-burst" id="likeBurst3">❤️</div>
+          </div>
+
+          <!-- 漫画 4 -->
+          <div class="comic-slide">
+            <div class="comic-header">
+              <div class="comic-title">恋爱小事 #67</div>
+              <div class="comic-meta">
+                <span class="comic-tag" style="background:var(--duo-pink);border-color:#CC6BA6;">恋爱</span>
+                <span>昨天 18:00</span>
+              </div>
+            </div>
+            <div class="comic-grid">
+              <div class="comic-panel bg-pink-soft">
+                <div class="panel-number">1</div>
+                💕
+              </div>
+              <div class="comic-panel bg-purple-soft">
+                <div class="panel-number">2</div>
+                🤭
+              </div>
+              <div class="comic-panel bg-blue-soft">
+                <div class="panel-number">3</div>
+                🥰
+              </div>
+              <div class="comic-panel bg-green-soft">
+                <div class="panel-number">4</div>
+                🌟
+              </div>
+            </div>
+            <div class="like-burst" id="likeBurst4">❤️</div>
+          </div>
+        </div>
+
+        <!-- 左侧进度点 -->
+        <div class="slide-dots" id="slideDots">
+          <div class="slide-dot active"></div>
+          <div class="slide-dot"></div>
+          <div class="slide-dot"></div>
+          <div class="slide-dot"></div>
+        </div>
+
+        <!-- 右侧操作栏 -->
+        <div class="action-sidebar">
+          <div class="action-btn" id="btnLike" onclick="handleLike()">
+            <div class="icon-circle">❤️</div>
+            <span class="action-count">2.3k</span>
+          </div>
+          <div class="action-btn" id="btnFavorite" onclick="handleFavorite()">
+            <div class="icon-circle">⭐</div>
+            <span class="action-count">586</span>
+          </div>
+          <div class="action-btn" id="btnComment" onclick="handleComment()">
+            <div class="icon-circle">💬</div>
+            <span class="action-count">128</span>
+          </div>
+          <div class="action-btn" onclick="handleShare()">
+            <div class="icon-circle">↗️</div>
+            <span class="action-count">分享</span>
+          </div>
+        </div>
+
+        <!-- 滑动提示 -->
+        <div class="swipe-hint" id="swipeHint">
+          <span>↑</span>
+          <span>上滑看下一个</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 发现页 ===== -->
+    <div class="page discover-page" id="page-discover">
+      <div class="discover-scroll">
+        <div class="page-title">发现</div>
+        <div class="page-subtitle">探索更多有趣的四格漫画 ✨</div>
+
+        <!-- 月榜区域 -->
+        <div class="section-header">
+          <div class="section-title">🏆 月榜 <span class="section-badge">7月</span></div>
+          <span class="section-more">查看全部 →</span>
+        </div>
+
+        <div class="rank-scroll">
+          <div class="rank-card">
+            <div class="rank-card-cover bg-green-soft">
+              <div class="rank-badge gold">1</div>
+              🐱
+            </div>
+            <div class="rank-card-info">
+              <div class="rank-card-title">猫猫の日常</div>
+              <div class="rank-card-stats">🔥 98.2k 热度</div>
+            </div>
+          </div>
+          <div class="rank-card">
+            <div class="rank-card-cover bg-blue-soft">
+              <div class="rank-badge silver">2</div>
+              🙈
+            </div>
+            <div class="rank-card-info">
+              <div class="rank-card-title">社恐日记</div>
+              <div class="rank-card-stats">🔥 76.5k 热度</div>
+            </div>
+          </div>
+          <div class="rank-card">
+            <div class="rank-card-cover bg-orange-soft">
+              <div class="rank-badge bronze">3</div>
+              💼
+            </div>
+            <div class="rank-card-info">
+              <div class="rank-card-title">打工人手册</div>
+              <div class="rank-card-stats">🔥 61.3k 热度</div>
+            </div>
+          </div>
+          <div class="rank-card">
+            <div class="rank-card-cover bg-pink-soft">
+              🍰
+            </div>
+            <div class="rank-card-info">
+              <div class="rank-card-title">甜品拟人</div>
+              <div class="rank-card-stats">🔥 45.1k 热度</div>
+            </div>
+          </div>
+          <div class="rank-card">
+            <div class="rank-card-cover bg-purple-soft">
+              🧙
+            </div>
+            <div class="rank-card-info">
+              <div class="rank-card-title">魔法小日子</div>
+              <div class="rank-card-stats">🔥 38.9k 热度</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 合集区域 -->
+        <div class="section-header">
+          <div class="section-title">📚 精选合集</div>
+          <span class="section-more">查看全部 →</span>
+        </div>
+
+        <div class="collection-list">
+          <div class="collection-item">
+            <div class="collection-cover bg-green-soft">🐱</div>
+            <div class="collection-info">
+              <div class="collection-name">猫猫の日常</div>
+              <div class="collection-desc">一只橘猫和铲屎官的爆笑日常，每天都有新花样</div>
+              <div class="collection-stats">
+                <span class="collection-stat">📖 128话</span>
+                <span class="collection-stat">❤️ 98.2k</span>
+                <span class="collection-stat">⭐ 23.1k</span>
+              </div>
+            </div>
+          </div>
+          <div class="collection-item">
+            <div class="collection-cover bg-blue-soft">🙈</div>
+            <div class="collection-info">
+              <div class="collection-name">社恐日记</div>
+              <div class="collection-desc">社恐星人的真实生活写照，看完你会说"这不就是我吗"</div>
+              <div class="collection-stats">
+                <span class="collection-stat">📖 45话</span>
+                <span class="collection-stat">❤️ 76.5k</span>
+                <span class="collection-stat">⭐ 18.3k</span>
+              </div>
+            </div>
+          </div>
+          <div class="collection-item">
+            <div class="collection-cover bg-orange-soft">💼</div>
+            <div class="collection-info">
+              <div class="collection-name">打工人修炼手册</div>
+              <div class="collection-desc">职场生存指南，笑着笑着就哭了</div>
+              <div class="collection-stats">
+                <span class="collection-stat">📖 89话</span>
+                <span class="collection-stat">❤️ 61.3k</span>
+                <span class="collection-stat">⭐ 15.7k</span>
+              </div>
+            </div>
+          </div>
+          <div class="collection-item">
+            <div class="collection-cover bg-pink-soft">💕</div>
+            <div class="collection-info">
+              <div class="collection-name">恋爱小事</div>
+              <div class="collection-desc">那些甜到掉牙的恋爱日常，单身勿入</div>
+              <div class="collection-stats">
+                <span class="collection-stat">📖 67话</span>
+                <span class="collection-stat">❤️ 52.8k</span>
+                <span class="collection-stat">⭐ 14.2k</span>
+              </div>
+            </div>
+          </div>
+          <div class="collection-item">
+            <div class="collection-cover bg-teal-soft">🍰</div>
+            <div class="collection-info">
+              <div class="collection-name">甜品拟人</div>
+              <div class="collection-desc">如果甜品们有了生命，它们会怎样生活？</div>
+              <div class="collection-stats">
+                <span class="collection-stat">📖 34话</span>
+                <span class="collection-stat">❤️ 45.1k</span>
+                <span class="collection-stat">⭐ 12.6k</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 我的页面 ===== -->
+    <div class="page profile-page" id="page-profile">
+      <div class="profile-scroll">
+        <div class="page-title">我的</div>
+
+        <!-- 游客状态 -->
+        <div id="guestProfile">
+          <div class="profile-header">
+            <div class="avatar">👤</div>
+            <div class="profile-info">
+              <div class="profile-name" style="color: var(--text-secondary);">未登录</div>
+              <div class="profile-id" style="cursor:pointer;color:var(--duo-blue);" onclick="showLogin()">点击登录 →</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 已登录状态 -->
+        <div id="loggedProfile" style="display:none;">
+          <div class="profile-header">
+            <div class="avatar">🦊</div>
+            <div class="profile-info">
+              <div class="profile-name">小狐狸爱画画</div>
+              <div class="profile-id">ID: comic_fox_2026</div>
+            </div>
+          </div>
+
+          <div class="stats-bar">
+            <div class="stat-item">
+              <span class="stat-number">42</span>
+              <span class="stat-label">收藏</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">186</span>
+              <span class="stat-label">点赞</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">23</span>
+              <span class="stat-label">评论</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 功能菜单 -->
+        <div class="menu-section">
+          <div class="menu-section-title">我的内容</div>
+          <div class="menu-list">
+            <div class="menu-item" onclick="checkLogin('收藏')">
+              <div class="menu-icon yellow">⭐</div>
+              <span class="menu-text">我的收藏</span>
+              <span class="menu-arrow">›</span>
+            </div>
+            <div class="menu-item" onclick="checkLogin('点赞')">
+              <div class="menu-icon red">❤️</div>
+              <span class="menu-text">我的点赞</span>
+              <span class="menu-arrow">›</span>
+            </div>
+            <div class="menu-item" onclick="checkLogin('评论')">
+              <div class="menu-icon blue">💬</div>
+              <span class="menu-text">我的评论</span>
+              <span class="menu-arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-section">
+          <div class="menu-section-title">其他</div>
+          <div class="menu-list">
+            <div class="menu-item">
+              <div class="menu-icon purple">⚙️</div>
+              <span class="menu-text">设置</span>
+              <span class="menu-arrow">›</span>
+            </div>
+            <div class="menu-item">
+              <div class="menu-icon green">💡</div>
+              <span class="menu-text">意见反馈</span>
+              <span class="menu-arrow">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 评论遮罩 -->
+  <div class="comment-overlay" id="commentOverlay" onclick="closeComment()"></div>
+
+  <!-- 评论面板 -->
+  <div class="comment-panel" id="commentPanel">
+    <div class="comment-handle"></div>
+    <div class="comment-header">
+      <span class="comment-title">评论 (128)</span>
+      <div class="comment-close" onclick="closeComment()">✕</div>
+    </div>
+    <div class="comment-list">
+      <div class="comment-item">
+        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-blue), var(--duo-purple));">🐰</div>
+        <div class="comment-body">
+          <div class="comment-user">兔叽酱</div>
+          <div class="comment-text">啊啊啊好可爱！第四格绝了 🥹</div>
+          <div class="comment-time">2分钟前</div>
+        </div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-green), var(--duo-teal));">🌵</div>
+        <div class="comment-body">
+          <div class="comment-user">仙人掌本掌</div>
+          <div class="comment-text">每天来这里补充元气，治愈了我的班味 ☕</div>
+          <div class="comment-time">15分钟前</div>
+        </div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-orange), var(--duo-yellow));">🧸</div>
+        <div class="comment-body">
+          <div class="comment-user">小熊饼干</div>
+          <div class="comment-text">这不就是我家猫吗哈哈哈哈</div>
+          <div class="comment-time">32分钟前</div>
+        </div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-pink), var(--duo-purple));">🌸</div>
+        <div class="comment-body">
+          <div class="comment-user">樱花味汽水</div>
+          <div class="comment-text">催更催更！什么时候出下一话 🙏</div>
+          <div class="comment-time">1小时前</div>
+        </div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-avatar" style="background:linear-gradient(135deg, var(--duo-red), var(--duo-orange));">🔥</div>
+        <div class="comment-body">
+          <div class="comment-user">火锅英雄</div>
+          <div class="comment-text">已收藏已点赞已转发，一条龙服务</div>
+          <div class="comment-time">2小时前</div>
+        </div>
+      </div>
+    </div>
+    <div class="comment-input-bar">
+      <input class="comment-input" placeholder="说点什么..." onclick="checkLoginForComment()">
+      <button class="comment-send">➤</button>
+    </div>
+  </div>
+
+  <!-- 登录弹窗 -->
+  <div class="login-modal" id="loginModal">
+    <div class="login-modal-bg" onclick="closeLogin()"></div>
+    <div class="login-card">
+      <div class="login-mascot">🦉</div>
+      <div class="login-title">登录后解锁更多乐趣</div>
+      <div class="login-desc" id="loginDesc">点赞、收藏、评论…<br>让你喜欢的漫画被更多人看到</div>
+      <button class="login-btn login-btn-primary" onclick="doLogin()">
+        <span>💬</span> 微信一键登录
+      </button>
+      <button class="login-btn login-btn-secondary" onclick="closeLogin()">
+        先看看再说
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 底部 Tab 栏 -->
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab('home', this)">
+      <div class="tab-icon">🏠</div>
+      <span class="tab-label">今日</span>
+    </div>
+    <div class="tab-item" onclick="switchTab('discover', this)">
+      <div class="tab-icon">🔍</div>
+      <span class="tab-label">发现</span>
+    </div>
+    <div class="tab-item" onclick="switchTab('profile', this)">
+      <div class="tab-icon">👤</div>
+      <span class="tab-label">我的</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 全局状态 =====
+let isLoggedIn = false;
+let currentSlide = 0;
+const totalSlides = 4;
+let touchStartY = 0;
+let touchEndY = 0;
+let isAnimating = false;
+
+// ===== Tab 切换 =====
+function switchTab(page, el) {
+  // 更新 Tab 样式
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+
+  // 切换页面
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+}
+
+// ===== 上下滑动切换 =====
+const swipeContainer = document.getElementById('swipeContainer');
+const swipeTrack = document.getElementById('swipeTrack');
+
+swipeContainer.addEventListener('touchstart', (e) => {
+  if (isAnimating) return;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+swipeContainer.addEventListener('touchmove', (e) => {
+  touchEndY = e.touches[0].clientY;
+}, { passive: true });
+
+swipeContainer.addEventListener('touchend', () => {
+  if (isAnimating) return;
+  const diff = touchStartY - touchEndY;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0 && currentSlide < totalSlides - 1) {
+      currentSlide++;
+      updateSlide();
+    } else if (diff < 0 && currentSlide > 0) {
+      currentSlide--;
+      updateSlide();
+    }
+  }
+});
+
+// 鼠标滚轮支持（桌面浏览器）
+swipeContainer.addEventListener('wheel', (e) => {
+  if (isAnimating) return;
+  e.preventDefault();
+  if (e.deltaY > 30 && currentSlide < totalSlides - 1) {
+    currentSlide++;
+    updateSlide();
+  } else if (e.deltaY < -30 && currentSlide > 0) {
+    currentSlide--;
+    updateSlide();
+  }
+}, { passive: false });
+
+function updateSlide() {
+  isAnimating = true;
+  const slideHeight = swipeContainer.offsetHeight;
+  swipeTrack.style.transform = `translateY(-${currentSlide * slideHeight}px)`;
+
+  // 更新进度点
+  document.querySelectorAll('.slide-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === currentSlide);
+  });
+
+  // 第一次滑动后隐藏提示
+  document.getElementById('swipeHint').style.opacity = '0';
+
+  setTimeout(() => { isAnimating = false; }, 400);
+}
+
+// 初始化滑动轨道高度
+function initSwipeTrack() {
+  const slides = document.querySelectorAll('.comic-slide');
+  slides.forEach(slide => {
+    slide.style.height = swipeContainer.offsetHeight + 'px';
+  });
+}
+
+window.addEventListener('resize', initSwipeTrack);
+setTimeout(initSwipeTrack, 100);
+
+// ===== 操作按钮交互 =====
+function handleLike() {
+  if (!isLoggedIn) { showLogin('点赞'); return; }
+  const btn = document.getElementById('btnLike');
+  btn.classList.toggle('liked');
+  const countEl = btn.querySelector('.action-count');
+  if (btn.classList.contains('liked')) {
+    countEl.textContent = '2.4k';
+    // 播放爱心动画
+    const burst = document.getElementById('likeBurst' + (currentSlide + 1));
+    burst.classList.add('animate');
+    setTimeout(() => burst.classList.remove('animate'), 800);
+    showToast('已点赞 ❤️');
+  } else {
+    countEl.textContent = '2.3k';
+    showToast('已取消点赞');
+  }
+}
+
+function handleFavorite() {
+  if (!isLoggedIn) { showLogin('收藏'); return; }
+  const btn = document.getElementById('btnFavorite');
+  btn.classList.toggle('favorited');
+  const countEl = btn.querySelector('.action-count');
+  if (btn.classList.contains('favorited')) {
+    countEl.textContent = '587';
+    showToast('已收藏 ⭐');
+  } else {
+    countEl.textContent = '586';
+    showToast('已取消收藏');
+  }
+}
+
+function handleComment() {
+  document.getElementById('commentOverlay').classList.add('open');
+  document.getElementById('commentPanel').classList.add('open');
+}
+
+function closeComment() {
+  document.getElementById('commentOverlay').classList.remove('open');
+  document.getElementById('commentPanel').classList.remove('open');
+}
+
+function handleShare() {
+  showToast('已生成分享卡片 📤');
+}
+
+function checkLoginForComment() {
+  if (!isLoggedIn) {
+    closeComment();
+    showLogin('评论');
+  }
+}
+
+// ===== 登录系统 =====
+function showLogin(action) {
+  const desc = document.getElementById('loginDesc');
+  if (action) {
+    desc.innerHTML = `登录后即可${action}，<br>让你喜欢的漫画被更多人看到`;
+  } else {
+    desc.innerHTML = '点赞、收藏、评论…<br>让你喜欢的漫画被更多人看到';
+  }
+  document.getElementById('loginModal').classList.add('open');
+}
+
+function closeLogin() {
+  document.getElementById('loginModal').classList.remove('open');
+}
+
+function doLogin() {
+  isLoggedIn = true;
+  closeLogin();
+
+  // 切换个人中心状态
+  document.getElementById('guestProfile').style.display = 'none';
+  document.getElementById('loggedProfile').style.display = 'block';
+
+  showToast('登录成功 🎉 欢迎回来！');
+}
+
+function checkLogin(action) {
+  if (!isLoggedIn) {
+    showLogin(action);
+  } else {
+    showToast('进入「我的' + action + '」页面');
+  }
+}
+
+// ===== Toast =====
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ===== 双击点赞 =====
+let lastTapTime = 0;
+swipeContainer.addEventListener('click', (e) => {
+  const now = Date.now();
+  if (now - lastTapTime < 300) {
+    // 双击
+    if (!isLoggedIn) { showLogin('点赞'); return; }
+    const btn = document.getElementById('btnLike');
+    if (!btn.classList.contains('liked')) {
+      handleLike();
+    }
+    const burst = document.getElementById('likeBurst' + (currentSlide + 1));
+    burst.classList.add('animate');
+    setTimeout(() => burst.classList.remove('animate'), 800);
+  }
+  lastTapTime = now;
+});
+</script>
+</body>
+</html>
