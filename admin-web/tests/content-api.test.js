@@ -42,6 +42,24 @@ describe('管理后台 API 契约', () => {
     expect(request.get).toHaveBeenCalledWith('/admin/topics/topic-1');
   });
 
+  test('查询评论时透传游标与视图参数', async () => {
+    request.get.mockResolvedValue({ items: [], nextCursor: null });
+
+    await contentApi.listComments({ view: 'deleted', cursor: 'cursor-1' });
+
+    expect(request.get).toHaveBeenCalledWith('/admin/comments', {
+      params: { view: 'deleted', cursor: 'cursor-1' },
+    });
+  });
+
+  test('删除评论调用管理员软删除端点', async () => {
+    request.delete.mockResolvedValue({ deleted: true });
+
+    await contentApi.deleteComment('comment-1');
+
+    expect(request.delete).toHaveBeenCalledWith('/admin/comments/comment-1');
+  });
+
   test('图片上传先获取签名再直传并返回 COS 公网地址', async () => {
     request.post.mockResolvedValue({
       uploadUrl: 'https://upload.example.com/panel.png',

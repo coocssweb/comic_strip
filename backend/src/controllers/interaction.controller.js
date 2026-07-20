@@ -297,10 +297,26 @@ export async function deleteComment(ctx) {
     throw new ApiError(403, 'FORBIDDEN', '无权执行此操作。');
   }
 
-  comment.deletedAt = new Date();
-  comment.deletedByRole = role;
-  comment.deletedById = subjectId;
-  await comment.save();
+  const deletedComment = await Comment.findOneAndUpdate(
+    { _id: comment._id, deletedAt: null },
+    {
+      $set: {
+        deletedAt: new Date(),
+        deletedByRole: role,
+        deletedById: subjectId,
+      },
+    },
+    { new: true },
+  );
+
+  if (!deletedComment) {
+    if (await Comment.exists({ _id: comment._id })) {
+      throw new ApiError(409, 'COMMENT_ALREADY_DELETED', '评论已删除。');
+    }
+
+    throw new ApiError(404, 'RESOURCE_NOT_FOUND', '内容不存在或已不可用。');
+  }
+
   ctx.ok({ deleted: true });
 }
 

@@ -58,10 +58,14 @@ export const exampleAPI = new ExampleAPI();
 | 漫画系列 | `GET`、`POST /admin/series` | `PATCH`、`DELETE /admin/series/:seriesId` | `{ name, summary, authorByline }` |
 | 漫画单话 | `GET`、`POST /admin/episodes` | `PATCH`、`DELETE /admin/episodes/:episodeId` | `{ seriesId, title, summary?, themeTagId, panels: [{ position, imageUrl, altText? }] }` |
 | 运营专题 | `GET`、`POST /admin/topics` | `GET`、`PATCH`、`DELETE /admin/topics/:topicId` | `{ title, summary?, coverImageUrl, episodeIds }` |
+| 评论处置 | `GET /admin/comments?cursor=&limit=1..50&view=active\|deleted` | `DELETE /admin/comments/:commentId` | 列表返回 `{ items, nextCursor }`；删除返回 `{ deleted: true }` |
 
 - 单话状态流转：`POST /admin/episodes/:episodeId/publish`、`POST /admin/episodes/:episodeId/unpublish`。
 - 仅草稿可删除；已发布单话必须先下架才可编辑。发布前必须存在顺序固定的四个画格。
 - 专题的 `episodeIds` 数组顺序即读者端展示顺序；只允许收录已发布单话。
+- 评论处置列表默认 `view=active`，可查询 `active` 或 `deleted`；单项为 `{ id, content, createdAt, author: { id: string|null, displayName: string|null, avatarUrl: string|null }, episode: { id: string|null, title: string|null, status: string|null }, audit: null|{ deletedAt, deletedBy: { role, id } } }`。关联读者或单话已不存在时保留可用原 ID，无法取得时返回 `null`；已删除视图保留原软删除审计信息。
+- 评论处置接口的非法查询参数或评论 ID 返回 `400 VALIDATION_ERROR`；缺失、失效或非管理员会话返回 `401 ADMIN_AUTH_REQUIRED`。
+- `DELETE /admin/comments/:commentId` 不受单话发布状态限制；不存在返回 `404 RESOURCE_NOT_FOUND`，已删除返回 `409 COMMENT_ALREADY_DELETED`，且不覆盖原审计记录。
 
 ## 四、COS 图片直传
 

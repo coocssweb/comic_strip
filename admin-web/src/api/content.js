@@ -20,6 +20,8 @@ class ContentApi {
   getTopic(topicId) { return request.get(`/admin/topics/${topicId}`); }
   updateTopic(topicId, payload) { return request.patch(`/admin/topics/${topicId}`, payload); }
   deleteTopic(topicId) { return request.delete(`/admin/topics/${topicId}`); }
+  listComments(params) { return request.get('/admin/comments', { params }); }
+  deleteComment(commentId) { return request.delete(`/admin/comments/${commentId}`); }
 }
 
 export const contentApi = new ContentApi();

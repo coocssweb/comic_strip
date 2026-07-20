@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { BookOpen, FolderKanban, Images, LogOut, Plus, Tags, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BookOpen, FolderKanban, Images, LogOut, MessageSquare, Plus, Tags, Trash2 } from 'lucide-react';
 import { adminAuthApi, contentApi } from '../api';
 import { createContentPayload, moveTopicEpisode } from '../content/payload';
 import { collectCursorPages } from '../content/pagination';
@@ -15,9 +15,10 @@ const NAVIGATION = [
   { key: 'series', label: '漫画系列', icon: BookOpen },
   { key: 'episodes', label: '漫画单话', icon: Images },
   { key: 'topics', label: '运营专题', icon: FolderKanban },
+  { key: 'comments', label: '评论处置', icon: MessageSquare },
 ];
 
-const EMPTY_ITEMS = { tags: [], series: [], episodes: [], topics: [] };
+const EMPTY_ITEMS = { tags: [], series: [], episodes: [], topics: [], comments: [] };
 
 function getEmptyForm(resource) {
   if (resource === 'tags') return { name: '', sortOrder: 0 };
@@ -44,66 +45,96 @@ function formatStatus(status) {
   return { draft: '草稿', published: '已发布', unpublished: '已下架' }[status] || status;
 }
 
+function formatDateTime(value) {
+  if (!value) return '—';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString('zh-CN', { hour12: false });
+}
+
 export default function ContentConsole({ onLogout }) {
   const [activeResource, setActiveResource] = useState('episodes');
   const [items, setItems] = useState(EMPTY_ITEMS);
   const [isLoading, setIsLoading] = useState(true);
   const [nextCursor, setNextCursor] = useState(null);
   const [dialogState, setDialogState] = useState(null);
+  const [commentView, setCommentView] = useState('active');
+  const requestGenerationRef = useRef(0);
+  const currentQueryRef = useRef({ resource: 'episodes', commentView: 'active' });
 
-  const loadResources = useCallback(async () => {
+  const loadResources = useCallback(async (query = currentQueryRef.current) => {
+    const resource = query.resource;
+    const view = query.commentView;
+    const requestGeneration = requestGenerationRef.current + 1;
+    requestGenerationRef.current = requestGeneration;
     setIsLoading(true);
     try {
-      if (activeResource === 'tags') {
+      if (resource === 'tags') {
         const tags = await contentApi.listTags();
+        if (requestGeneration !== requestGenerationRef.current) return;
         setItems((current) => ({ ...current, tags: tags.items }));
         setNextCursor(null);
-      } else if (activeResource === 'series') {
+      } else if (resource === 'series') {
         const series = await contentApi.listSeries();
+        if (requestGeneration !== requestGenerationRef.current) return;
         setItems((current) => ({ ...current, series: series.items }));
         setNextCursor(series.nextCursor);
-      } else if (activeResource === 'episodes') {
+      } else if (resource === 'episodes') {
         const [episodes, series, tags] = await Promise.all([
           contentApi.listEpisodes(), collectCursorPages(contentApi.listSeries.bind(contentApi)), contentApi.listTags(),
         ]);
+        if (requestGeneration !== requestGenerationRef.current) return;
         setItems((current) => ({ ...current, episodes: episodes.items, series, tags: tags.items }));
         setNextCursor(episodes.nextCursor);
+      } else if (resource === 'comments') {
+        const comments = await contentApi.listComments({ view });
+        if (requestGeneration !== requestGenerationRef.current) return;
+        setItems((current) => ({ ...current, comments: comments.items }));
+        setNextCursor(comments.nextCursor);
       } else {
         const [topics, episodes] = await Promise.all([
           contentApi.listTopics(),
           collectCursorPages((params) => contentApi.listEpisodes({ ...params, status: 'published' })),
         ]);
+        if (requestGeneration !== requestGenerationRef.current) return;
         setItems((current) => ({ ...current, topics: topics.items, episodes }));
         setNextCursor(topics.nextCursor);
       }
     } catch (error) {
-      Toast.Error(getErrorMessage(error));
+      if (requestGeneration === requestGenerationRef.current) Toast.Error(getErrorMessage(error));
     } finally {
-      setIsLoading(false);
+      if (requestGeneration === requestGenerationRef.current) setIsLoading(false);
     }
-  }, [activeResource]);
+  }, []);
 
-  useEffect(() => { loadResources(); }, [loadResources]);
+  useEffect(() => {
+    loadResources({ resource: activeResource, commentView });
+  }, [activeResource, commentView, loadResources]);
 
   async function loadNextPage() {
     if (!nextCursor) return;
+    const query = currentQueryRef.current;
 
+    const requestGeneration = requestGenerationRef.current + 1;
+    requestGenerationRef.current = requestGeneration;
     setIsLoading(true);
     try {
-      const response = activeResource === 'series'
+      const response = query.resource === 'series'
         ? await contentApi.listSeries({ cursor: nextCursor })
-        : activeResource === 'episodes'
-          ? await contentApi.listEpisodes({ cursor: nextCursor })
+        : query.resource === 'episodes'
+        ? await contentApi.listEpisodes({ cursor: nextCursor })
+        : query.resource === 'comments'
+          ? await contentApi.listComments({ view: query.commentView, cursor: nextCursor })
           : await contentApi.listTopics({ cursor: nextCursor });
+      if (requestGeneration !== requestGenerationRef.current) return;
       setItems((current) => ({
         ...current,
         [activeResource]: [...current[activeResource], ...response.items],
       }));
       setNextCursor(response.nextCursor);
     } catch (error) {
-      Toast.Error(getErrorMessage(error));
+      if (requestGeneration === requestGenerationRef.current) Toast.Error(getErrorMessage(error));
     } finally {
-      setIsLoading(false);
+      if (requestGeneration === requestGenerationRef.current) setIsLoading(false);
     }
   }
 
@@ -120,8 +151,21 @@ export default function ContentConsole({ onLogout }) {
   }
 
   function handleResourceChange(resource) {
+    if (resource === activeResource) return;
+    requestGenerationRef.current += 1;
+    currentQueryRef.current = { resource, commentView };
     setActiveResource(resource);
     setDialogState(null);
+    setNextCursor(null);
+  }
+
+  function handleCommentViewChange(view) {
+    if (view === commentView) return;
+    requestGenerationRef.current += 1;
+    currentQueryRef.current = { resource: activeResource, commentView: view };
+    setItems((current) => ({ ...current, comments: [] }));
+    setNextCursor(null);
+    setCommentView(view);
   }
 
   async function handleEdit(item) {
@@ -150,6 +194,26 @@ export default function ContentConsole({ onLogout }) {
           await contentApi[`delete${resource === 'series' ? 'Series' : resource === 'tags' ? 'Tag' : resource === 'episodes' ? 'Episode' : 'Topic'}`](item.id);
           Toast.Success('已删除。');
           await loadResources();
+        } catch (error) {
+          Toast.Error(getErrorMessage(error));
+          throw error;
+        }
+      },
+    });
+  }
+
+  async function handleDeleteComment(comment) {
+    await Dialog.alert({
+      title: '删除评论',
+      description: '该操作会软删除评论，读者端后续请求将不可见，审计记录会保留。',
+      okText: '确认删除',
+      okType: 'danger',
+      showIcon: true,
+      onOk: async () => {
+        try {
+          await contentApi.deleteComment(comment.id);
+          Toast.Success('评论已软删除。');
+          await loadResources(currentQueryRef.current);
         } catch (error) {
           Toast.Error(getErrorMessage(error));
           throw error;
@@ -208,10 +272,11 @@ export default function ContentConsole({ onLogout }) {
               <h2 className="mt-2 text-3xl font-black tracking-tight text-primary">{headerTitle}</h2>
               <p className="mt-2 text-sm text-muted-foreground">维护作品信息、画格图片及读者端可见状态。</p>
             </div>
-            <Button onClick={() => setDialogState({ resource: activeResource, item: null })} leftIcon={<Plus />}>新增{headerTitle}</Button>
+            {activeResource !== 'comments' && <Button onClick={() => setDialogState({ resource: activeResource, item: null })} leftIcon={<Plus />}>新增{headerTitle}</Button>}
           </header>
           <div className="mt-6 lg:hidden"><select value={activeResource} onChange={(event) => handleResourceChange(event.target.value)} className="h-10 rounded-lg border border-border bg-white px-3 text-sm">{NAVIGATION.map((item) => <option key={item.key} value={item.key}>{item.label}</option>)}</select></div>
-          <ResourceTable resource={activeResource} items={items[activeResource]} isLoading={isLoading} onEdit={handleEdit} onDelete={handleDelete} onTransition={handleEpisodeTransition} />
+          {activeResource === 'comments' && <div className="mt-6 flex gap-2" role="group" aria-label="评论视图"><Button size="sm" variant={commentView === 'active' ? 'default' : 'outline'} aria-pressed={commentView === 'active'} onClick={() => handleCommentViewChange('active')}>有效评论</Button><Button size="sm" variant={commentView === 'deleted' ? 'default' : 'outline'} aria-pressed={commentView === 'deleted'} onClick={() => handleCommentViewChange('deleted')}>已删除评论</Button></div>}
+          <ResourceTable resource={activeResource} items={items[activeResource]} isLoading={isLoading} commentView={commentView} onEdit={handleEdit} onDelete={handleDelete} onDeleteComment={handleDeleteComment} onTransition={handleEpisodeTransition} />
           {nextCursor && <div className="mt-5 text-center"><Button variant="outline" loading={isLoading} onClick={loadNextPage}>加载更多</Button></div>}
         </section>
       </div>
@@ -220,9 +285,12 @@ export default function ContentConsole({ onLogout }) {
   );
 }
 
-function ResourceTable({ resource, items, isLoading, onEdit, onDelete, onTransition }) {
+function ResourceTable({ resource, items, isLoading, commentView, onEdit, onDelete, onDeleteComment, onTransition }) {
   if (isLoading) return <p className="mt-10 text-sm text-muted-foreground">正在加载内容…</p>;
-  if (!items.length) return <p className="mt-10 rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">暂无{getResourceLabel(resource)}，可从右上角新增。</p>;
+  if (!items.length) return <p className="mt-10 rounded-2xl border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">{resource === 'comments' ? `暂无${commentView === 'deleted' ? '已删除' : '有效'}评论。` : `暂无${getResourceLabel(resource)}，可从右上角新增。`}</p>;
+  if (resource === 'comments') {
+    return <div className="mt-6 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm"><table className="w-full min-w-[820px] text-left text-sm"><thead className="border-b border-border bg-muted text-xs font-bold text-muted-foreground"><tr><th className="px-5 py-4">评论正文</th><th className="px-5 py-4">读者</th><th className="px-5 py-4">所属单话</th><th className="px-5 py-4">创建时间</th>{commentView === 'deleted' && <><th className="px-5 py-4">删除时间</th><th className="px-5 py-4">删除角色</th><th className="px-5 py-4">操作主体 ID</th></>}{commentView === 'active' && <th className="px-5 py-4 text-right">操作</th>}</tr></thead><tbody>{items.map((comment) => <tr key={comment.id} className="border-b border-border/60 last:border-0"><td className="max-w-md break-words px-5 py-4 font-medium text-foreground">{comment.content || '—'}</td><td className="px-5 py-4 text-muted-foreground">{comment.author?.displayName || comment.author?.id || '读者信息不可用'}</td><td className="px-5 py-4 text-muted-foreground">{comment.episode?.title || comment.episode?.id || '单话信息不可用'}</td><td className="whitespace-nowrap px-5 py-4 text-muted-foreground">{formatDateTime(comment.createdAt)}</td>{commentView === 'deleted' && <><td className="whitespace-nowrap px-5 py-4 text-muted-foreground">{formatDateTime(comment.audit?.deletedAt)}</td><td className="px-5 py-4 text-muted-foreground">{comment.audit?.deletedBy?.role === 'admin' ? '管理员' : comment.audit?.deletedBy?.role === 'reader' ? '读者' : comment.audit?.deletedBy?.role || '—'}</td><td className="px-5 py-4 font-mono text-xs text-muted-foreground">{comment.audit?.deletedBy?.id || '—'}</td></>}{commentView === 'active' && <td className="px-5 py-4 text-right"><Button size="sm" variant="ghost" className="text-destructive" aria-label="删除评论" onClick={() => onDeleteComment(comment)}><Trash2 /></Button></td>}</tr>)}</tbody></table></div>;
+  }
 
   return <div className="mt-6 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-b border-border bg-muted text-xs font-bold text-muted-foreground"><tr><th className="px-5 py-4">名称</th><th className="px-5 py-4">说明</th><th className="px-5 py-4">状态</th><th className="px-5 py-4 text-right">操作</th></tr></thead><tbody>{items.map((item) => <tr key={item.id} className="border-b border-border/60 last:border-0"><td className="px-5 py-4 font-bold text-primary">{item.name || item.title}</td><td className="max-w-md px-5 py-4 text-muted-foreground">{resource === 'tags' ? `排序 ${item.sortOrder}` : resource === 'series' ? `${item.authorByline} · ${item.episodeCount || 0} 话` : resource === 'episodes' ? item.summary || '未填写简介' : `${item.episodeCount || 0} 话 · ${item.summary || '未填写简介'}`}</td><td className="px-5 py-4">{resource === 'episodes' ? <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-bold text-primary">{formatStatus(item.status)}</span> : '—'}</td><td className="px-5 py-4 text-right"><div className="flex justify-end gap-2">{resource === 'episodes' && <Button size="sm" variant="outline" onClick={() => onTransition(item)}>{item.status === 'published' ? '下架' : '发布'}</Button>}{!(resource === 'episodes' && item.status === 'published') && <Button size="sm" variant="ghost" onClick={() => onEdit(item)}>编辑</Button>}{resource === 'episodes' && item.status === 'published' && <span className="self-center text-xs text-muted-foreground">先下架后编辑</span>}{(resource !== 'episodes' || item.status === 'draft') && <Button size="sm" variant="ghost" className="text-destructive" aria-label={`删除${item.name || item.title}`} onClick={() => onDelete(resource, item)}><Trash2 /></Button>}</div></td></tr>)}</tbody></table></div>;
 }
@@ -266,7 +334,7 @@ function TopicFields({ form, episodes, onChange }) {
 function Field({ label, children }) { return <label className="block space-y-2"><span className="text-xs font-semibold text-foreground">{label}</span>{children}</label>; }
 
 ContentConsole.propTypes = { onLogout: PropTypes.func.isRequired };
-ResourceTable.propTypes = { resource: PropTypes.string.isRequired, items: PropTypes.array.isRequired, isLoading: PropTypes.bool.isRequired, onEdit: PropTypes.func.isRequired, onDelete: PropTypes.func.isRequired, onTransition: PropTypes.func.isRequired };
+ResourceTable.propTypes = { resource: PropTypes.string.isRequired, items: PropTypes.array.isRequired, isLoading: PropTypes.bool.isRequired, commentView: PropTypes.string.isRequired, onEdit: PropTypes.func.isRequired, onDelete: PropTypes.func.isRequired, onDeleteComment: PropTypes.func.isRequired, onTransition: PropTypes.func.isRequired };
 ContentEditor.propTypes = { resource: PropTypes.string.isRequired, item: PropTypes.object, tags: PropTypes.array.isRequired, series: PropTypes.array.isRequired, episodes: PropTypes.array.isRequired, onClose: PropTypes.func.isRequired, onSaved: PropTypes.func.isRequired };
 EpisodeFields.propTypes = { form: PropTypes.object.isRequired, series: PropTypes.array.isRequired, tags: PropTypes.array.isRequired, onChange: PropTypes.func.isRequired, onPanelChange: PropTypes.func.isRequired };
 TopicFields.propTypes = { form: PropTypes.object.isRequired, episodes: PropTypes.array.isRequired, onChange: PropTypes.func.isRequired };

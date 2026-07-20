@@ -1,6 +1,10 @@
 import Joi from 'joi';
 import Router from 'koa-router';
 import {
+  deleteAdminComment,
+  listAdminComments,
+} from '../controllers/admin-comment.controller.js';
+import {
   createEpisode,
   deleteEpisode,
   getAdminEpisode,
@@ -34,6 +38,9 @@ const paginationSchema = Joi.object({
     .max(256)
     .optional(),
   limit: Joi.number().integer().min(1).max(50).default(20),
+});
+const commentPaginationSchema = paginationSchema.keys({
+  view: Joi.string().valid('active', 'deleted').default('active'),
 });
 const seriesPayloadSchema = Joi.object({
   name: Joi.string().trim().min(1).max(100).required(),
@@ -156,5 +163,8 @@ contentRouter.patch(
   updateTopic,
 );
 contentRouter.delete('/topics/:topicId', validate(paramsSchema('topicId')), deleteTopic);
+
+contentRouter.get('/comments', validateQuery(commentPaginationSchema), listAdminComments);
+contentRouter.delete('/comments/:commentId', validate(paramsSchema('commentId')), deleteAdminComment);
 
 export { contentRouter };
