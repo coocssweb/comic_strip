@@ -15,18 +15,19 @@ const commentSchema = new mongoose.Schema(
 commentSchema.index({ episodeId: 1, deletedAt: 1, createdAt: -1, _id: -1 });
 commentSchema.index({ readerId: 1, deletedAt: 1, createdAt: -1, _id: -1 });
 commentSchema.index(
-  { createdAt: -1, _id: -1 },
+  { deletedAt: 1, createdAt: -1, _id: -1 },
   {
-    name: 'active_comments_by_created_at',
+    name: 'active_comments_by_deleted_at_created_at',
     partialFilterExpression: { deletedAt: null },
   },
 );
 commentSchema.index(
-  { createdAt: -1, _id: -1 },
+  { createdAt: -1, _id: -1, deletedAt: 1 },
   {
-    name: 'deleted_comments_by_created_at',
+    name: 'deleted_comments_by_created_at_deleted_at',
     partialFilterExpression: { deletedAt: { $type: 'date' } },
   },
 );
 
+export const LEGACY_ACTIVE_COMMENT_INDEX = 'active_comments_by_created_at';
 export const Comment = mongoose.model('Comment', commentSchema);

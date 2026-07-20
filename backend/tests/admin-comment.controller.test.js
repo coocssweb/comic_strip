@@ -371,6 +371,7 @@ test('评论审计分页索引分别覆盖有效和已删除视图', () => {
   const indexDefinitions = Comment.schema.indexes();
   const activeIndex = indexDefinitions.find(
     ([fields, options]) =>
+      fields.deletedAt === 1 &&
       fields.createdAt === -1 &&
       fields._id === -1 &&
       options.partialFilterExpression?.deletedAt === null,
@@ -379,6 +380,7 @@ test('评论审计分页索引分别覆盖有效和已删除视图', () => {
     ([fields, options]) =>
       fields.createdAt === -1 &&
       fields._id === -1 &&
+      fields.deletedAt === 1 &&
       options.partialFilterExpression?.deletedAt?.$type === 'date',
   );
 
