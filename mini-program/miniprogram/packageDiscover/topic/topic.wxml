@@ -1,0 +1,11 @@
+<view wx:if="{{isUnavailable}}" class="page-topic page-topic--unavailable">内容暂不可用</view>
+
+<view wx:elif="{{topic}}" class="page-topic">
+  <image class="page-topic__cover" src="{{topic.coverImageUrl}}" mode="aspectFill" />
+  <text class="page-topic__title">{{topic.title}}</text>
+  <text wx:if="{{topic.summary}}" class="page-topic__summary">{{topic.summary}}</text>
+  <view wx:if="{{episodes.length}}" class="page-topic__episode-list">
+    <episode-card wx:for="{{episodes}}" wx:key="id" episode="{{item}}" bind:open="handleOpenEpisode" />
+  </view>
+  <view wx:else class="page-topic__empty-state">这个专题暂时没有可阅读的漫画</view>
+</view>

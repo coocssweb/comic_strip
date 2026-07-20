@@ -1,86 +1,50 @@
-.container {
+.page-home {
   padding: var(--spacing-lg);
 }
 
-.header {
-  text-align: center;
-  padding: var(--spacing-xl) 0;
+.page-home__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
 }
 
-.title {
+.page-home__title {
   display: block;
-  font-size: var(--font-size-xl);
-  font-weight: bold;
   color: var(--color-text);
+  font-size: var(--font-size-xxl);
+  font-weight: bold;
 }
 
-.subtitle {
+.page-home__subtitle {
   display: block;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
   margin-top: var(--spacing-xs);
-}
-
-.section {
-  background-color: var(--color-bg-card);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-}
-
-.section-title {
-  display: block;
-  font-size: var(--font-size-lg);
-  font-weight: bold;
-  margin-bottom: var(--spacing-md);
-}
-
-.section-desc {
-  display: block;
-  font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-sm);
 }
 
-.counter-display {
+.page-home__header-actions {
   display: flex;
-  align-items: baseline;
-  justify-content: center;
-  padding: var(--spacing-lg) 0;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
-.count {
-  font-size: 96rpx;
-  font-weight: bold;
+.page-home__header-link {
+  padding: var(--spacing-sm) var(--spacing-md);
   color: var(--color-primary);
+  font-size: var(--font-size-base);
 }
 
-.parity {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-left: var(--spacing-sm);
-}
-
-.actions {
+.page-home__episode-list {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: var(--spacing-md);
 }
 
-.btn {
-  min-width: 160rpx;
+.page-home__empty-state,
+.page-home__loading-more {
+  padding: var(--spacing-xl) var(--spacing-lg);
+  color: var(--color-text-secondary);
   font-size: var(--font-size-base);
-  border-radius: var(--radius-md);
-  padding: 0 var(--spacing-lg);
-  line-height: 72rpx;
-}
-
-.btn-default {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-}
-
-.btn-primary {
-  background-color: var(--color-primary);
-  color: #ffffff;
+  text-align: center;
 }

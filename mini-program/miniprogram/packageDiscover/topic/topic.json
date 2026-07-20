@@ -1,4 +1,5 @@
 {
+  "navigationBarTitleText": "运营专题",
   "usingComponents": {
     "episode-card": "../../components/episode-card/episode-card"
   }

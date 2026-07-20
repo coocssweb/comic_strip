@@ -1,0 +1,17 @@
+<view wx:if="{{isUnavailable}}" class="page-series page-series--unavailable">内容暂不可用</view>
+
+<view wx:elif="{{series}}" class="page-series">
+  <view class="page-series__header">
+    <image class="page-series__cover" src="{{series.thumbnailUrl}}" mode="aspectFill" />
+    <view class="page-series__details">
+      <text class="page-series__name">{{series.name}}</text>
+      <text class="page-series__author">{{series.authorByline}}</text>
+      <text wx:if="{{series.summary}}" class="page-series__summary">{{series.summary}}</text>
+    </view>
+  </view>
+  <view wx:if="{{episodes.length}}" class="page-series__episode-list">
+    <episode-card wx:for="{{episodes}}" wx:key="id" episode="{{item}}" bind:open="handleOpenEpisode" />
+  </view>
+  <view wx:else class="page-series__empty-state">这个系列暂时没有可阅读的漫画</view>
+  <view wx:if="{{isLoadingMore}}" class="page-series__loading-more">正在加载更多内容</view>
+</view>

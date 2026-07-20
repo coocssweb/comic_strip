@@ -1,0 +1,51 @@
+<view wx:if="{{isUnavailable}}" class="page-reader page-reader--unavailable">
+  <text class="page-reader__unavailable-text">内容暂不可用</text>
+</view>
+
+<swiper wx:else class="page-reader__vertical-swiper" vertical current="{{readerIndex}}" bind:change="handleVerticalChange">
+  <swiper-item wx:for="{{episodeSlides}}" wx:key="index">
+    <view wx:if="{{item.isAvailable}}" class="page-reader">
+      <swiper class="page-reader__panel-swiper" indicator-dots>
+        <swiper-item wx:for="{{item.panels}}" wx:for-item="panel" wx:key="position">
+          <scroll-view class="page-reader__panel-scroll" scroll-y>
+            <image class="page-reader__panel-image" src="{{panel.imageUrl}}" mode="widthFix" aria-label="{{panel.altText}}" />
+          </scroll-view>
+        </swiper-item>
+      </swiper>
+      <scroll-view class="page-reader__details" scroll-y>
+        <view class="page-reader__series" data-series-id="{{item.seriesId}}" bind:tap="handleOpenSeries">{{item.seriesName}}</view>
+        <text class="page-reader__title">{{item.title}}</text>
+        <text wx:if="{{item.summary}}" class="page-reader__summary">{{item.summary}}</text>
+        <view class="page-reader__counts">
+          <text>点赞 {{item.likeCount}}</text>
+          <text>收藏 {{item.favoriteCount}}</text>
+          <text>评论 {{item.commentCount}}</text>
+          <text>分享 {{item.shareCount}}</text>
+        </view>
+        <view class="page-reader__actions">
+          <button class="page-reader__action {{item.isLiked ? 'page-reader__action--active' : ''}}" bind:tap="handleToggleEpisodeLike">{{item.isLiked ? '已点赞' : '点赞'}}</button>
+          <button class="page-reader__action {{item.isFavorited ? 'page-reader__action--active' : ''}}" bind:tap="handleToggleEpisodeFavorite">{{item.isFavorited ? '已收藏' : '收藏'}}</button>
+        </view>
+        <view class="page-reader__comments">
+          <text class="page-reader__comments-title">评论</text>
+          <textarea class="page-reader__comment-input" value="{{commentContent}}" maxlength="200" placeholder="写下你的想法" bind:input="handleCommentInput" />
+          <button class="page-reader__comment-submit" loading="{{isSubmittingComment}}" bind:tap="handleSubmitComment">发布评论</button>
+          <view wx:for="{{comments}}" wx:key="id" class="page-reader__comment">
+            <view class="page-reader__comment-author">
+              <image wx:if="{{item.authorAvatarUrl}}" class="page-reader__comment-avatar" src="{{item.authorAvatarUrl}}" mode="aspectFill" />
+              <text>{{item.authorName}}</text>
+            </view>
+            <text class="page-reader__comment-content">{{item.content}}</text>
+            <view class="page-reader__comment-actions">
+              <view class="page-reader__comment-action {{item.isLiked ? 'page-reader__comment-action--active' : ''}}" data-comment-id="{{item.id}}" bind:tap="handleToggleCommentLike">点赞 {{item.likeCount}}</view>
+              <view wx:if="{{item.canDelete}}" class="page-reader__comment-action page-reader__comment-action--danger" data-comment-id="{{item.id}}" bind:tap="handleDeleteComment">删除</view>
+            </view>
+          </view>
+          <button wx:if="{{commentsNextCursor}}" class="page-reader__load-more" loading="{{isCommentsLoading}}" bind:tap="handleLoadMoreComments">加载更多评论</button>
+          <text wx:if="{{!isCommentsLoading && !comments.length}}" class="page-reader__comment-empty">暂时还没有评论</text>
+        </view>
+      </scroll-view>
+    </view>
+    <view wx:else class="page-reader page-reader--placeholder" />
+  </swiper-item>
+</swiper>

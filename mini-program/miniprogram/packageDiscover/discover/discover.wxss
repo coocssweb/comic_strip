@@ -1,0 +1,108 @@
+.page-discover {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg);
+}
+
+.page-discover__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.page-discover__section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-discover__section-title {
+  color: var(--color-text);
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+}
+
+.page-discover__section-note,
+.page-discover__ranking-author,
+.page-discover__series-author,
+.page-discover__topic-summary {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.page-discover__ranking-list,
+.page-discover__topic-list,
+.page-discover__series-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.page-discover__ranking-row,
+.page-discover__topic-card,
+.page-discover__series-card {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-bg-card);
+  border: 1rpx solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.page-discover__ranking-row {
+  padding: var(--spacing-md);
+}
+
+.page-discover__rank {
+  width: 56rpx;
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+}
+
+.page-discover__ranking-series,
+.page-discover__topic-content,
+.page-discover__series-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.page-discover__ranking-name,
+.page-discover__topic-title,
+.page-discover__series-name {
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-weight: bold;
+}
+
+.page-discover__heat {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.page-discover__topic-card,
+.page-discover__series-card {
+  overflow: hidden;
+}
+
+.page-discover__topic-cover,
+.page-discover__series-cover {
+  flex: 0 0 160rpx;
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.page-discover__topic-content,
+.page-discover__series-content {
+  padding: var(--spacing-md);
+}
+
+.page-discover__empty-state,
+.page-discover__loading-more {
+  padding: var(--spacing-xl) var(--spacing-lg);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  text-align: center;
+}

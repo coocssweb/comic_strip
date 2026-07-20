@@ -2,6 +2,20 @@
   "pages": [
     "pages/index/index"
   ],
+  "subpackages": [
+    {
+      "root": "packageReader",
+      "pages": ["reader/reader"]
+    },
+    {
+      "root": "packageDiscover",
+      "pages": ["discover/discover", "series/series", "topic/topic"]
+    },
+    {
+      "root": "packageUser",
+      "pages": ["profile/profile"]
+    }
+  ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "漫画条",

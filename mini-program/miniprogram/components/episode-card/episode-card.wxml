@@ -1,0 +1,16 @@
+<view class="episode-card" bind:tap="handleOpen">
+  <image class="episode-card__cover" src="{{episode.thumbnailUrl}}" mode="aspectFill" />
+  <view class="episode-card__content">
+    <view class="episode-card__meta">
+      <text class="episode-card__series-name">{{episode.seriesName}}</text>
+      <text class="episode-card__tag">{{episode.themeTagName}}</text>
+    </view>
+    <text class="episode-card__title">{{episode.title}}</text>
+    <view class="episode-card__counts">
+      <text>点赞 {{episode.likeCount}}</text>
+      <text>收藏 {{episode.favoriteCount}}</text>
+      <text>评论 {{episode.commentCount}}</text>
+      <text>分享 {{episode.shareCount}}</text>
+    </view>
+  </view>
+</view>

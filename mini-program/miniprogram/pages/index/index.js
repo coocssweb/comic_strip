@@ -1,28 +1,68 @@
-import { createStoreBindings } from 'mobx-miniprogram-bindings'
-import { counterStore } from '../../stores/index'
+const { discoveryApi } = require('../../api/discovery');
+const { mergeEpisodeCards, toEpisodeCard } = require('../../utils/discovery-view-model');
 
 Page({
-  onLoad() {
-    // Page 级 store 绑定：在 onLoad 中创建
-    this.storeBindings = createStoreBindings(this, {
-      store: counterStore,
-      fields: {
-        // 字符串映射：将 store 的 count 映射到页面 data.count
-        count: 'count',
-        // 函数映射：自定义计算逻辑
-        isEven: () => counterStore.isEven
-      },
-      actions: {
-        // 将 store action 映射为页面方法
-        increment: 'increment',
-        decrement: 'decrement',
-        reset: 'reset'
-      }
-    })
+  data: {
+    episodes: [],
+    nextCursor: null,
+    isLoading: false,
+    isLoadingMore: false,
+    hasLoaded: false,
   },
 
-  onUnload() {
-    // 销毁 store 绑定，防止内存泄漏
-    this.storeBindings.destroyStoreBindings()
-  }
-})
+  onLoad() {
+    this.loadEpisodes({ reset: true });
+  },
+
+  onPullDownRefresh() {
+    this.loadEpisodes({ reset: true }).finally(() => {
+      wx.stopPullDownRefresh();
+    });
+  },
+
+  onReachBottom() {
+    if (this.data.nextCursor && !this.data.isLoadingMore) {
+      this.loadEpisodes({ reset: false });
+    }
+  },
+
+  async loadEpisodes({ reset }) {
+    if (reset) {
+      this.setData({ isLoading: true, hasLoaded: false });
+    } else {
+      this.setData({ isLoadingMore: true });
+    }
+
+    try {
+      const page = await discoveryApi.listEpisodes({
+        cursor: reset ? undefined : this.data.nextCursor,
+        limit: 20,
+        showLoading: reset,
+      });
+      const nextEpisodes = (page.items || []).map(toEpisodeCard);
+
+      this.setData({
+        episodes: reset ? nextEpisodes : mergeEpisodeCards(this.data.episodes, nextEpisodes),
+        nextCursor: page.nextCursor || null,
+        hasLoaded: true,
+      });
+    } catch (error) {
+      wx.showToast({ title: error.message || '内容加载失败，请稍后重试。', icon: 'none' });
+    } finally {
+      this.setData({ isLoading: false, isLoadingMore: false });
+    }
+  },
+
+  handleOpenEpisode(event) {
+    const { episodeId } = event.detail;
+    wx.navigateTo({ url: `/packageReader/reader/reader?episodeId=${encodeURIComponent(episodeId)}` });
+  },
+
+  handleOpenDiscover() {
+    wx.navigateTo({ url: '/packageDiscover/discover/discover' });
+  },
+
+  handleOpenProfile() {
+    wx.navigateTo({ url: '/packageUser/profile/profile' });
+  },
+});

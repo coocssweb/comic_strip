@@ -131,3 +131,9 @@ miniprogram/stores/
 - `miniprogramNpmDistDir`：`./miniprogram/`（构建产物输出目录）
 
 这样 npm 依赖安装在项目根目录的 `node_modules/`，构建后输出到 `miniprogram/miniprogram_npm/`。
+
+## 公开内容接口配置
+
+公开阅读页通过 `miniprogram/config.js` 的 `API_BASE_URL` 访问后端。默认值指向本地后端 `http://127.0.0.1:3000/api/v1`，仅适用于微信开发者工具的本地调试。
+
+真机调试和发布前，必须改为已在微信公众平台配置的 HTTPS 服务域名；不要把会话令牌、微信密钥或 COS 凭据写入小程序配置。
