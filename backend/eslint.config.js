@@ -8,9 +8,13 @@ export default [
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
+        Buffer: 'readonly',
         console: 'readonly',
+        fetch: 'readonly',
         process: 'readonly',
         setTimeout: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
       },
     },
     rules: {

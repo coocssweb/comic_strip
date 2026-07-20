@@ -1,0 +1,18 @@
+import mongoose from 'mongoose';
+
+const commentSchema = new mongoose.Schema(
+  {
+    readerId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Reader' },
+    episodeId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Episode' },
+    content: { type: String, required: true, trim: true },
+    deletedAt: { type: Date, default: null },
+    deletedByRole: { type: String, enum: ['reader', 'admin'], default: null },
+    deletedById: { type: String, default: null },
+  },
+  { timestamps: true, collection: 'comments' },
+);
+
+commentSchema.index({ episodeId: 1, deletedAt: 1, createdAt: -1, _id: -1 });
+commentSchema.index({ readerId: 1, deletedAt: 1, createdAt: -1, _id: -1 });
+
+export const Comment = mongoose.model('Comment', commentSchema);

@@ -7,11 +7,11 @@ function mapError(error) {
   }
 
   if (error instanceof mongoose.Error.CastError) {
-    return new ApiError(400, 40002, '用户 ID 格式不合法');
+    return new ApiError(400, 'VALIDATION_ERROR', '请求参数不合法。');
   }
 
   if (error?.code === 11000) {
-    return new ApiError(409, 40901, '邮箱已存在');
+    return new ApiError(409, 'DUPLICATE_ACTION', '已执行过该操作。');
   }
 
   return new ApiError(500, 50000, '服务器内部错误');

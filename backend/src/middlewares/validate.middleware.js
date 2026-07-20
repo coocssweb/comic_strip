@@ -12,11 +12,43 @@ export function validate(schema) {
     });
 
     if (error) {
-      throw new ApiError(400, 40001, '请求参数不合法');
+      throw new ApiError(400, 'VALIDATION_ERROR', '请求参数不合法。');
     }
 
     ctx.request.body = value.body;
     ctx.params = value.params;
+    await next();
+  };
+}
+
+export function validateBody(schema) {
+  return async (ctx, next) => {
+    const { error, value } = schema.validate(ctx.request.body, {
+      abortEarly: true,
+      stripUnknown: false,
+    });
+
+    if (error) {
+      throw new ApiError(400, 'VALIDATION_ERROR', '请求参数不合法。');
+    }
+
+    ctx.request.body = value;
+    await next();
+  };
+}
+
+export function validateQuery(schema) {
+  return async (ctx, next) => {
+    const { error, value } = schema.validate(ctx.query, {
+      abortEarly: true,
+      stripUnknown: false,
+    });
+
+    if (error) {
+      throw new ApiError(400, 'VALIDATION_ERROR', '请求参数不合法。');
+    }
+
+    ctx.state.query = value;
     await next();
   };
 }
