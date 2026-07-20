@@ -37,3 +37,17 @@
 - 仅涉及 `mini-program + admin-web` 且不涉及 `backend` 的任务，用户确认后可由两个前端代理并行开发，不需要等待 Backend Agent。
 
 当本文件与规则源文件冲突时，以本文件为准。
+
+## Agent skills
+
+### Issue tracker
+
+本仓库使用 GitHub Issues 管理议题；外部拉取请求不作为分诊入口。详见 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+分诊使用 `needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`。详见 `docs/agents/triage-labels.md`。
+
+### Domain docs
+
+本仓库采用单上下文布局，领域词汇和 ADR 分别位于根目录 `CONTEXT.md` 与 `docs/adr/`。详见 `docs/agents/domain.md`。
