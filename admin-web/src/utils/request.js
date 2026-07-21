@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const request = axios.create({
-  baseURL: process.env.APP_API_BASE_URL || 'http://localhost:6010/api/v1',
+  baseURL: process.env.APP_API_BASE_URL,
   timeout: 15000,
 });
 

@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "漫画系列",
-  "usingComponents": {
-    "episode-card": "../../components/episode-card/episode-card"
-  }
-}
