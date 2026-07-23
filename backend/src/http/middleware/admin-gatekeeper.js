@@ -1,6 +1,7 @@
 import { findPrimaryAdmin } from '../../db/admin-repository.js';
 import { computeCsrfTokenHash, findAdminSession } from '../../db/session-repository.js';
 import { verifyAdminJwt } from '../../security/jwt.js';
+import { getAdminCookieName } from '../utils/admin-cookie.js';
 
 /**
  * 管理端默认拒绝门禁中间件：负责精确来源、管理会话鉴权、已认证写请求 CSRF 校验及未匹配路由隔离。
@@ -51,7 +52,7 @@ export function createAdminGatekeeper({ config, logger, getDb }) {
     }
 
     const isLogout = ctx.path === '/admin/auth/logout' && ctx.method === 'POST';
-    const cookieName = config.nodeEnv === 'production' ? '__Host-admin_session' : 'admin_session';
+    const cookieName = getAdminCookieName(config.nodeEnv);
     const token = ctx.cookies.get(cookieName);
 
     const clearCookieAndReject = (status, code, message) => {

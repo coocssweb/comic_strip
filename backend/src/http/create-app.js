@@ -2,7 +2,7 @@ import { performance } from 'node:perf_hooks';
 
 import Koa from 'koa';
 
-import { createAdminAuthRoutes } from './routes/admin-auth.route.js';
+import { createAdminAuthRouter } from './routes/admin-auth.route.js';
 import { createHealthRoutes } from './health.route.js';
 import { createAdminGatekeeper } from './middleware/admin-gatekeeper.js';
 import { requestContext } from './middleware/request-context.js';
@@ -64,7 +64,9 @@ export function createApp({ config, logger, readiness, getDb = () => null }) {
   app.use(createAccessLogger(logger));
   app.use(createHealthRoutes({ readiness }));
   app.use(createAdminGatekeeper({ config, logger, getDb }));
-  app.use(createAdminAuthRoutes({ config, logger, getDb }));
+  const adminAuthRouter = createAdminAuthRouter({ config, logger, getDb });
+  app.use(adminAuthRouter.routes());
+  app.use(adminAuthRouter.allowedMethods());
 
   return app;
 }

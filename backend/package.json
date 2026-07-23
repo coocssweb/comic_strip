@@ -15,8 +15,14 @@
     "admin:recover": "node src/cli/admin-recover.js"
   },
   "dependencies": {
+    "@koa/router": "^15.7.0",
     "argon2": "^0.45.1",
     "koa": "^3.2.1",
-    "mongoose": "^9.8.0"
+    "koa-bodyparser": "^4.4.1",
+    "koa-compress": "^5.2.2",
+    "koa-jwt": "^4.0.4",
+    "koa-router": "^14.0.0",
+    "mongoose": "^9.8.0",
+    "zod": "^4.4.3"
   }
 }
