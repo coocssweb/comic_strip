@@ -5,7 +5,7 @@
 ## 运行边界
 
 - 后端固定使用 Node.js `22.21.0` 的原生 ESM JavaScript；`backend/package.json` 通过 `engines` 约束 `>=22.21.0 <23`，根 `.nvmrc` 精确锁定 `22.21.0`。
-- React 管理端与 Koa API 独立部署：生产地址分别为 `https://apollo.example.com` 和 `https://apis.example.com`；本地开发地址分别为 `http://localhost:4000` 和 `http://localhost:40001`。
+- React 管理端与 Koa API 独立部署：生产地址分别为 `https://apollo.example.com` 和 `https://apis.example.com`；本地开发地址分别为 `http://localhost:4000` 和 `http://localhost:4001`。
 - Koa 在开发和生产环境都只监听 `127.0.0.1`。生产环境只信任同机反向代理覆盖写入的单个来源地址，不启用宽泛代理信任。
 - MongoDB 是管理员聚合、管理会话、登录限速和安全审计的持久化边界。Mongoose 负责连接、Schema、Model 和索引定义，业务服务通过薄仓储访问，不直接操作 Model 或原生驱动。
 - 唯一管理员的初始化和访问恢复只在受信部署主机上通过交互式 CLI 执行，不开放 HTTP 入口，见 [ADR-0001](docs/adr/0001-admin-credential-operations-via-cli.md)。
@@ -17,14 +17,14 @@
 | 配置 | 边界 |
 | --- | --- |
 | `NODE_ENV` | 只允许 `development`、`test`、`production` |
-| `PORT` | 开发环境默认 `40001` |
+| `PORT` | 开发环境默认 `4001` |
 | `MONGODB_URI` | 必填；包含主机、端口、数据库名、认证信息和 `authSource` 等参数的完整 MongoDB URI，不拆分读取连接字段 |
 | `ADMIN_JWT_SECRET` | 必填；解码后至少 256 位 |
 | `SECURITY_HMAC_SECRET` | 必填；必须与 `ADMIN_JWT_SECRET` 不同，用于限速键和审计摘要 |
 | `ADMIN_WEB_ORIGIN` | 开发固定为 `http://localhost:4000`，生产固定为 `https://apollo.example.com` |
 | `LOG_LEVEL` | 可选，默认 `info` |
 
-管理端只使用 `APP_API_BASE_URL` 和开发服务器 `APP_PORT`：开发值分别为 `http://localhost:40001`、`4000`，生产 `APP_API_BASE_URL` 固定为 `https://apis.example.com`；生产静态部署不使用 `APP_PORT`。
+管理端只使用 `APP_API_BASE_URL` 和开发服务器 `APP_PORT`：开发值分别为 `http://localhost:4001`、`4000`，生产 `APP_API_BASE_URL` 固定为 `https://apis.example.com`；生产静态部署不使用 `APP_PORT`。
 
 Cookie 名称与属性、JWT 算法与声明、会话期限、5 分钟活动采样间隔、`Argon2id` 最低参数、登录限速阈值和 CORS 凭据策略均为安全常量，不允许通过环境配置改变。所有配置在服务启动前一次性校验，缺失、格式错误或互相冲突时拒绝启动。
 

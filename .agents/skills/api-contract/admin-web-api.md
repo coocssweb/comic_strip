@@ -44,7 +44,7 @@ export const exampleAPI = new ExampleAPI();
 
 ## 二、管理员认证
 
-认证 API 基础路径为 `/admin/auth`。生产 API 地址为 `https://apis.example.com`，管理端来源为 `https://apollo.example.com`；本地开发地址分别为 `http://localhost:40001` 和 `http://localhost:4000`。
+认证 API 基础路径为 `/admin/auth`。生产 API 地址为 `https://apis.example.com`，管理端来源为 `https://apollo.example.com`；本地开发地址分别为 `http://localhost:4001` 和 `http://localhost:4000`。
 
 ### 会话、Cookie 与 CSRF
 

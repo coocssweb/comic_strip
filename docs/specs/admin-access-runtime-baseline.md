@@ -119,7 +119,7 @@
 
 ### 本地开发地址与 Cookie
 
-- React 管理端运行于 `http://localhost:4000`，后端 API 运行于 `http://localhost:40001`。
+- React 管理端运行于 `http://localhost:4000`，后端 API 运行于 `http://localhost:4001`。
 - 开发环境 CORS 只允许 `http://localhost:4000`；生产环境只允许 `https://apollo.example.com`。
 - 开发环境 Cookie 名为 `admin_session`，属性为 `Path=/; HttpOnly; SameSite=Strict`，不设置 `Secure` 或 `Domain`。
 - 生产环境 Cookie 名为 `__Host-admin_session`，属性为 `Path=/; HttpOnly; Secure; SameSite=Strict`，不设置 `Domain`。
@@ -131,14 +131,14 @@
 后端只接受以下运行配置：
 
 - `NODE_ENV`：只允许 `development`、`test`、`production`。
-- `PORT`：开发默认 `40001`。
+- `PORT`：开发默认 `4001`。
 - `MONGODB_URI`：必填，接受包含主机、端口、数据库名、认证信息和 `authSource` 等参数的完整 MongoDB URI；应用不再拆分读取数据库连接字段。
 - `ADMIN_JWT_SECRET`：必填，解码后至少 256 位。
 - `SECURITY_HMAC_SECRET`：必填且必须与 JWT 密钥不同，用于限速键和审计摘要。
 - `ADMIN_WEB_ORIGIN`：开发为 `http://localhost:4000`，生产固定为 `https://apollo.example.com`。
 - `LOG_LEVEL`：可选，默认 `info`。
 
-管理端只使用 `APP_API_BASE_URL` 和开发服务器 `APP_PORT`；开发值分别为 `http://localhost:40001`、`4000`，生产 API 地址为 `https://apis.example.com`。
+管理端只使用 `APP_API_BASE_URL` 和开发服务器 `APP_PORT`；开发值分别为 `http://localhost:4001`、`4000`，生产 API 地址为 `https://apis.example.com`。
 
 Cookie 名称与属性、JWT 算法与声明、会话期限、活动采样间隔、`Argon2id` 最低参数、登录限速阈值和 CORS 凭据策略不开放环境配置。配置在服务启动前一次性校验，缺失、格式错误或互相冲突时拒绝启动；仓库只提交使用不可用占位值的 `.env.example`，真实 URI 仅由运行环境注入，日志和错误响应不得输出其中任何部分或完整 MongoDB 连接串。
 
@@ -294,22 +294,6 @@ MongoDB 集合 `security_audits` 使用以下字段：
 - 审计仓储只暴露追加方法，不提供业务更新或删除能力；审计不设置 TTL，也不随管理员、会话或业务对象清理。
 - 仅建立 `occurredAt`、`requestId` 和 `eventType + occurredAt` 三组查询索引；`requestId` 不唯一，因为同一请求可以产生多个事件。
 
-### 安全审计事件
-
-| `eventType` | 记录条件 |
-| --- | --- |
-| `ADMIN_INITIALIZATION` | 初始化成功或在已连接数据库后发生的业务失败 |
-| `ADMIN_LOGIN` | 凭据成功、凭据失败，或某个限速桶首次进入冷却 |
-| `ADMIN_LOGOUT` | 当前有效管理会话实际被撤销 |
-| `ADMIN_PASSWORD_CHANGE` | 修改成功、当前密码错误或并发冲突 |
-| `ADMIN_ACCESS_RECOVERY` | 恢复成功或在已连接数据库后发生的业务失败 |
-| `ADMIN_SESSION_REVOCATION` | 密码修改、访问恢复或签名密钥轮换触发全部会话撤销 |
-
-- `outcome` 区分 `succeeded`、`failed` 和 `throttled`，不为每种结果扩展事件名。
-- 密码修改或访问恢复成功时，同一 `requestId` 追加动作事件和 `ADMIN_SESSION_REVOCATION` 两条记录。
-- 退出重试和已失效会话退出不重复写审计；限速期间只在首次进入冷却时写永久审计，不为每个拒绝请求写入。
-- 请求格式错误、非法来源、CSRF 失败、无效 JWT 和失效会话只写结构化安全日志，不写永久审计。
-- MongoDB 尚不可用时无法写审计集合，只写结构化运行日志。
 
 ## JWT 签名与密钥
 
@@ -416,23 +400,6 @@ JWT 头部固定为：
 - MVP 不提供公开初始化、访问恢复、管理员创建、会话列表或退出全部设备 API。
 - 初始化与访问恢复只由部署主机上的后端 CLI 承担。
 
-### 登录限速状态
-
-- 登录同时检查来源 IP 和规范化登录名两个独立限速桶，状态模型见 [ADR-0007](../adr/0007-mongodb-admin-login-throttles.md)。
-- 限速状态保存在 MongoDB 的短期安全限速集合中，通过原子更新维护，并使用 TTL 自动清理；进程重启不清空状态。
-- 两个桶分别计算，不使用 `IP + 登录名` 复合桶，也不引入 Redis 或进程内权威限速状态。
-- 桶键使用独立秘密执行 HMAC 后保存，不保存原始 IP 或登录名。
-- 限速在执行 `Argon2id` 前检查，避免攻击者利用密码校验消耗 CPU。
-- 该集合是可丢弃的安全基础设施状态，不是领域实体、审计历史或管理员身份状态，不改变 #14 冻结的核心领域集合边界。
-
-### 登录限速阈值
-
-- 来源 IP 桶容量为 10 次，每 60 秒补充 1 次；耗尽后冷却 5 分钟。
-- 规范化登录名桶容量为 5 次，每 5 分钟补充 1 次；首次耗尽冷却 1 分钟，24 小时内再次耗尽依次冷却 5 分钟、15 分钟，后续保持 15 分钟上限，不永久锁定。
-- 任一冷却结束后恢复对应桶的完整容量；登录成功后重置登录名桶及其冷却等级，但不重置来源 IP 桶。
-- 凭据验证失败的响应延迟依次为 250 毫秒、500 毫秒、1 秒、2 秒，后续保持 2 秒上限。
-- 任一桶处于冷却期时返回通用 `429`，不执行 `Argon2id`，也不暴露触发维度、剩余次数或精确解除时间。
-- 登录名不存在与密码错误消耗相同限速额度，并返回相同外部语义。
 
 ### 登录契约
 
