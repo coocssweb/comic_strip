@@ -4,6 +4,7 @@
 
 ## 运行边界
 
+- 后端固定使用 Node.js `22.21.0` 的原生 ESM JavaScript；`backend/package.json` 通过 `engines` 约束 `>=22.21.0 <23`，根 `.nvmrc` 精确锁定 `22.21.0`。
 - React 管理端与 Koa API 独立部署：生产地址分别为 `https://apollo.example.com` 和 `https://apis.example.com`；本地开发地址分别为 `http://localhost:4000` 和 `http://localhost:40001`。
 - Koa 在开发和生产环境都只监听 `127.0.0.1`。生产环境只信任同机反向代理覆盖写入的单个来源地址，不启用宽泛代理信任。
 - MongoDB 是管理员聚合、管理会话、登录限速和安全审计的持久化边界。Mongoose 负责连接、Schema、Model 和索引定义，业务服务通过薄仓储访问，不直接操作 Model 或原生驱动。

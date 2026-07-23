@@ -51,8 +51,8 @@
 
 ### 后端语言与模块格式
 
-- 后端固定使用 Node.js `24.18.0` LTS 的原生 ESM JavaScript，`backend/package.json` 固定 `"type": "module"`，并通过 `engines` 约束 `>=24.18.0 <25`。
-- 仓库使用 `.nvmrc` 固定 `24.18.0`；后续 24.x 升级必须显式评估并提交，不自动漂移到新的 Node.js 主版本。
+- 后端固定使用 Node.js `22.21.0` LTS 的原生 ESM JavaScript，`backend/package.json` 固定 `"type": "module"`，并通过 `engines` 约束 `>=22.21.0 <23`。
+- 仓库使用 `.nvmrc` 固定 `22.21.0`；后续 22.x 升级必须显式评估并提交，不自动漂移到新的 Node.js 主版本。
 - 当前切片不引入 TypeScript、转译步骤或双模块格式发布；开发、测试与生产直接执行同一份 JavaScript。
 - 配置、仓储、领域服务和 HTTP 请求/响应等关键边界使用 JSDoc 描述输入输出类型；类型注释不能替代运行时请求校验、MongoDB 集合校验或配置校验。
 

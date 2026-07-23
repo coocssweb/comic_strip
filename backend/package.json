@@ -1,0 +1,19 @@
+{
+  "name": "comic-strip-backend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.21.0 <23"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "check": "node --check src/server.js"
+  },
+  "dependencies": {
+    "koa": "^3.2.1",
+    "mongoose": "^9.8.0"
+  }
+}
