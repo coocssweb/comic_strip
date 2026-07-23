@@ -1,7 +1,7 @@
 {
   "name": "admin-web",
   "version": "1.0.0",
-  "description": "天天种草平台管理端",
+  "description": "四格漫画",
   "main": "src/index.js",
   "scripts": {
     "start": "webpack serve --mode development",

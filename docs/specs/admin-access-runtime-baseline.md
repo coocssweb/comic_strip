@@ -151,24 +151,6 @@ Cookie 名称与属性、JWT 算法与声明、会话期限、活动采样间隔
 - 禁止记录请求正文、响应正文、Cookie、密码、密码散列、JWT、CSRF 令牌、原始来源 IP、原始登录名、秘密配置值或完整 MongoDB URI。
 - 成功的存活与就绪检查不写访问日志；失败的健康检查和其他服务错误仍写安全摘要。
 
-### 来源 IP 信任链
-
-- Koa 在开发和生产环境都只监听 `127.0.0.1`。
-- 开发环境由浏览器直接访问 API，来源 IP 取 TCP 连接地址并完全忽略 `X-Forwarded-For`。
-- 生产环境只允许同机反向代理连接 Koa；反向代理是唯一可信一跳，并且必须覆盖而不是追加客户端提供的 `X-Forwarded-For`。
-- Koa 只读取可信一跳写入的单个来源地址；字段缺失或格式非法时使用代理连接地址并写安全日志，不使用宽泛的 `app.proxy = true` 信任任意转发头。
-- 来源地址统一规范化 IPv4、IPv4 映射 IPv6和 IPv6 表达后，再生成限速及审计 HMAC。
-- 后续增加负载均衡或容器网络时，由第七切片重新冻结可信代理链。
-
-### CORS
-
-- `/admin/**` 的所有请求都必须携带 `Origin`，并精确匹配当前环境唯一允许的管理端来源。
-- 只允许 `GET`、`POST`、`PATCH`、`OPTIONS` 方法及 `Content-Type`、`X-CSRF-Token` 请求头，不允许 `Authorization`。
-- 允许响应固定设置精确 `Access-Control-Allow-Origin`、`Access-Control-Allow-Credentials: true`、`Vary: Origin`，并通过 `Access-Control-Expose-Headers` 暴露 `X-Request-ID`。
-- 预检结果缓存 10 分钟。
-- 来源缺失或不匹配时返回 `403 ORIGIN_NOT_ALLOWED`，且不返回允许跨域读取的 CORS 头。
-- `/health/live` 和 `/health/ready` 不启用 CORS，也不要求 `Origin`；CLI 不调用 HTTP API。
-
 ### API 安全响应头
 
 - 后端所有响应统一设置 `X-Content-Type-Options: nosniff`、`Referrer-Policy: no-referrer`，并通过 `Permissions-Policy` 禁用当前 API 不需要的浏览器能力。
@@ -184,15 +166,7 @@ Cookie 名称与属性、JWT 算法与声明、会话期限、活动采样间隔
 - `GET /admin/auth/session` 和 `POST /admin/auth/logout` 不接受请求正文，携带正文时返回 `400 VALIDATION_ERROR`。
 - 请求正文超过上限时返回 `413 PAYLOAD_TOO_LARGE`；需要 JSON 正文却使用其他媒体类型时返回 `415 UNSUPPORTED_MEDIA_TYPE`。
 
-### 默认拒绝的管理路由
-
-- 公开白名单只有健康检查、`POST /admin/auth/login` 和合法 CORS 预检。
-- `/admin/**` 先执行来源校验，再默认执行管理会话认证；除登录外，不允许业务路由自行声明无需认证，公开例外集中维护在路由入口。
-- 所有已认证写请求统一执行 CSRF 校验，业务控制器不重复实现。
-- `POST /admin/auth/logout` 是唯一特殊路由：有效会话时执行认证与 CSRF；会话已经不存在时仍允许幂等清除 Cookie。
-- 管理会话与小程序业务会话使用完全不同的中间件、Cookie 和身份上下文，不能互相替代。
-- 未认证访问未知 `/admin/**` 路径时返回 `401 ADMIN_AUTH_REQUIRED`；认证后访问未知路径才返回 `404`。
-- 后续管理模块挂载到 `/admin` 路由树后自动继承来源、认证和 CSRF 门禁。
+。
 
 ## 已确认的架构决策
 
