@@ -24,9 +24,14 @@
 
 API skill 负责工作流程，API 规范负责接口事实。新增、删除或修改接口封装、请求参数、响应字段、枚举值、上传业务类型时，必须同步更新 API 规范。
 
-## 原型移植与公共组件复用规范
+## 公共组件复用规范
 
-在将本地 HTML 原型或交互预览页面（如 `*.html` 演示文件）移植、转化为 React 业务组件时，必须严格遵守以下规范：
+**必须优先检索并复用系统公共组件**：优先使用已有的公共组件，而不是重新创建。
 
-1. **严禁直接搬运 HTML 原型中的弹窗/交互遮罩层样式**：禁止复制如手写 `fixed inset-0` 遮罩等 inline styles 样式。
-2. **必须优先检索并复用系统公共组件**：优先使用已有的公共组件，而不是重新创建。
+### 组件列表
+- `../.agents/skills/admin-web-button/SKILL.md`
+- `../.agents/skills/admin-web-dialog/SKILL.md`
+- `../.agents/skills/admin-web-drawer/SKILL.md`
+- `../.agents/skills/admin-web-form-select/SKILL.md`
+- `../.agents/skills/admin-web-pagination/SKILL.md`
+- `../.agents/skills/admin-web-ui-primitives/SKILL.md`
