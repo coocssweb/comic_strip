@@ -102,8 +102,12 @@ describe('真实 MongoDB 集合注册表', () => {
     }
   });
 
-  test('默认生产集合定义为空', () => {
-    assert.deepEqual(DEFAULT_COLLECTION_DEFINITIONS, []);
+  test('默认生产集合定义包含全量集合定义', () => {
+    assert.equal(DEFAULT_COLLECTION_DEFINITIONS.length, 4);
+    assert.equal(DEFAULT_COLLECTION_DEFINITIONS[0].name, 'admins');
+    assert.equal(DEFAULT_COLLECTION_DEFINITIONS[1].name, 'security_audits');
+    assert.equal(DEFAULT_COLLECTION_DEFINITIONS[2].name, 'admin_sessions');
+    assert.equal(DEFAULT_COLLECTION_DEFINITIONS[3].name, 'admin_throttles');
   });
 
   test('首次建立集合校验器和索引后可通过核验', async () => {

@@ -120,7 +120,7 @@ export function createServiceRuntime({
       await registry.verify(connection.db);
       assertStartupContinues();
 
-      const app = dependencies.createApplication({ config, logger, readiness });
+      const app = dependencies.createApplication({ config, logger, readiness, getDb: () => connection?.db });
       server = app.listen(config.port, '127.0.0.1');
       server.on('request', (_request, response) => {
         response.once('finish', () => {

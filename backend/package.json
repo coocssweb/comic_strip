@@ -10,9 +10,12 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test": "node --test",
-    "check": "node --check src/server.js"
+    "check": "node --check src/server.js",
+    "admin:init": "node src/cli/admin-init.js",
+    "admin:recover": "node src/cli/admin-recover.js"
   },
   "dependencies": {
+    "argon2": "^0.45.1",
     "koa": "^3.2.1",
     "mongoose": "^9.8.0"
   }

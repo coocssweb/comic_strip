@@ -76,6 +76,7 @@ export async function openIsolatedTestDatabase(sourceUri = process.env.TEST_MONG
   return Object.freeze({
     connection,
     databaseName: target.databaseName,
+    uri: target.uri,
     async dropAndClose() {
       const actualName = connection.db?.databaseName;
       assertSafeTestDatabaseName(actualName, target.databaseName);

@@ -1,7 +1,122 @@
 import { isDeepStrictEqual } from 'node:util';
 
+export const ADMINS_COLLECTION_DEFINITION = Object.freeze({
+  name: 'admins',
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['_id', 'username', 'passwordHash', 'sessionGeneration', 'createdAt', 'updatedAt'],
+      additionalProperties: false,
+      properties: {
+        _id: { bsonType: 'string', enum: ['primary-admin'] },
+        username: { bsonType: 'string', minLength: 3, maxLength: 64, pattern: '^[a-z0-9][a-z0-9._-]*[a-z0-9]$' },
+        passwordHash: { bsonType: 'string', minLength: 1 },
+        sessionGeneration: { bsonType: 'number', minimum: 1 },
+        createdAt: { bsonType: 'date' },
+        updatedAt: { bsonType: 'date' },
+      },
+    },
+  },
+  indexes: Object.freeze([]),
+});
+
+export const SECURITY_AUDITS_COLLECTION_DEFINITION = Object.freeze({
+  name: 'security_audits',
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['occurredAt', 'eventType', 'outcome', 'actorType', 'requestId'],
+      additionalProperties: false,
+      properties: {
+        _id: { bsonType: 'objectId' },
+        occurredAt: { bsonType: 'date' },
+        eventType: {
+          bsonType: 'string',
+          enum: [
+            'ADMIN_INITIALIZATION',
+            'ADMIN_LOGIN',
+            'ADMIN_LOGOUT',
+            'ADMIN_PASSWORD_CHANGE',
+            'ADMIN_ACCESS_RECOVERY',
+            'ADMIN_SESSION_REVOCATION',
+          ],
+        },
+        outcome: { bsonType: 'string', enum: ['succeeded', 'failed', 'throttled'] },
+        actorType: { bsonType: 'string', enum: ['anonymous', 'admin', 'trusted_operator', 'system'] },
+        requestId: { bsonType: 'string' },
+        adminId: { bsonType: 'string' },
+        sessionIdHash: { bsonType: 'string' },
+        sourceIpHash: { bsonType: 'string' },
+        credentialKeyHash: { bsonType: 'string' },
+        reasonCode: { bsonType: 'string' },
+        sessionGeneration: { bsonType: 'number' },
+        revocationScope: { bsonType: 'string', enum: ['current', 'all'] },
+      },
+    },
+  },
+  indexes: Object.freeze([
+    { name: 'occurredAt_1', key: { occurredAt: 1 } },
+    { name: 'requestId_1', key: { requestId: 1 } },
+    { name: 'eventType_1_occurredAt_1', key: { eventType: 1, occurredAt: 1 } },
+  ]),
+});
+
+export const ADMIN_SESSIONS_COLLECTION_DEFINITION = Object.freeze({
+  name: 'admin_sessions',
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['_id', 'sessionGeneration', 'csrfTokenHash', 'createdAt', 'lastSeenAt', 'idleExpiresAt', 'absoluteExpiresAt'],
+      additionalProperties: false,
+      properties: {
+        _id: { bsonType: 'string' },
+        sessionGeneration: { bsonType: 'number', minimum: 1 },
+        csrfTokenHash: { bsonType: 'string' },
+        createdAt: { bsonType: 'date' },
+        lastSeenAt: { bsonType: 'date' },
+        idleExpiresAt: { bsonType: 'date' },
+        absoluteExpiresAt: { bsonType: 'date' },
+      },
+    },
+  },
+  indexes: Object.freeze([
+    { name: 'idleExpiresAt_ttl', key: { idleExpiresAt: 1 }, expireAfterSeconds: 0 },
+  ]),
+});
+
+export const ADMIN_THROTTLES_COLLECTION_DEFINITION = Object.freeze({
+  name: 'admin_throttles',
+  validator: {
+    $jsonSchema: {
+      bsonType: 'object',
+      required: ['_id', 'type', 'keyHash', 'tokens', 'updatedAt', 'expiresAt'],
+      additionalProperties: false,
+      properties: {
+        _id: { bsonType: 'string' },
+        type: { bsonType: 'string', enum: ['ip', 'username'] },
+        keyHash: { bsonType: 'string' },
+        tokens: { bsonType: 'number' },
+        cooldownExpiresAt: { bsonType: 'date' },
+        cooldownLevel: { bsonType: 'number' },
+        lastDepletedAt: { bsonType: 'date' },
+        updatedAt: { bsonType: 'date' },
+        expiresAt: { bsonType: 'date' },
+      },
+    },
+  },
+  indexes: Object.freeze([
+    { name: 'expiresAt_ttl', key: { expiresAt: 1 }, expireAfterSeconds: 0 },
+  ]),
+});
+
 /** @type {ReadonlyArray<{name: string, validator: object, indexes: ReadonlyArray<object>}>} */
-export const DEFAULT_COLLECTION_DEFINITIONS = Object.freeze([]);
+export const DEFAULT_COLLECTION_DEFINITIONS = Object.freeze([
+  ADMINS_COLLECTION_DEFINITION,
+  SECURITY_AUDITS_COLLECTION_DEFINITION,
+  ADMIN_SESSIONS_COLLECTION_DEFINITION,
+  ADMIN_THROTTLES_COLLECTION_DEFINITION,
+]);
+
 const INDEX_CONTRACT_OPTIONS = Object.freeze([
   'unique',
   'sparse',
@@ -103,7 +218,7 @@ async function runWithSafeDatabaseError(operation, safeMessage) {
 }
 
 /**
- * 集合定义可注入，当前生产注册表为空，后续切片再添加权威集合定义。
+ * 集合定义注册表。
  *
  * @param {{definitions?: ReadonlyArray<{name: string, validator: object, indexes: ReadonlyArray<object>}>}} options
  * @returns {Readonly<{

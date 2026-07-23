@@ -2,7 +2,9 @@ import { performance } from 'node:perf_hooks';
 
 import Koa from 'koa';
 
+import { createAdminAuthRoutes } from './routes/admin-auth.route.js';
 import { createHealthRoutes } from './health.route.js';
+import { createAdminGatekeeper } from './middleware/admin-gatekeeper.js';
 import { requestContext } from './middleware/request-context.js';
 import { createSecurityHeaders } from './middleware/security-headers.js';
 
@@ -10,7 +12,7 @@ function createErrorBoundary(logger) {
   return async function errorBoundary(ctx, next) {
     try {
       await next();
-    } catch {
+    } catch (err) {
       ctx.status = 500;
       ctx.body = { status: 'unavailable' };
       logger.error('请求处理失败', {
@@ -18,7 +20,7 @@ function createErrorBoundary(logger) {
         method: ctx.method,
         route: ctx.state.routeTemplate ?? 'unmatched',
         status: 500,
-        errorSummary: '未处理的服务异常',
+        errorSummary: err?.message || String(err),
       });
     }
   };
@@ -49,10 +51,10 @@ function createAccessLogger(logger) {
 /**
  * 中间件顺序是运行安全契约：请求标识与安全头必须覆盖错误响应，访问日志只观察最终状态。
  *
- * @param {{config: object, logger: object, readiness: {isDraining: () => boolean, verify: () => Promise<void>}}} options
+ * @param {{config: object, logger: object, readiness: {isDraining: () => boolean, verify: () => Promise<void>}, getDb?: () => import('mongodb').Db}} options
  * @returns {Koa}
  */
-export function createApp({ config, logger, readiness }) {
+export function createApp({ config, logger, readiness, getDb = () => null }) {
   const app = new Koa();
   app.proxy = false;
 
@@ -61,6 +63,8 @@ export function createApp({ config, logger, readiness }) {
   app.use(createErrorBoundary(logger));
   app.use(createAccessLogger(logger));
   app.use(createHealthRoutes({ readiness }));
+  app.use(createAdminGatekeeper({ config, logger, getDb }));
+  app.use(createAdminAuthRoutes({ config, logger, getDb }));
 
   return app;
 }
