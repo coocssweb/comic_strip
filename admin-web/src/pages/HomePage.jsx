@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, KeyRound, LogOut } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useSessionExpiry } from '../hooks/useSessionExpiry';
 import ChangePasswordModal from '../components/ChangePasswordModal';
+import SessionExpiryWarningModal from '../components/SessionExpiryWarningModal';
 import { Button } from '../components/ui/button';
 
 export default function HomePage() {
@@ -11,6 +13,16 @@ export default function HomePage() {
 
   const { admin, logout } = useAuth();
   const navigate = useNavigate();
+
+  // 会话过期管理
+  const {
+    showWarning: showExpiryWarning,
+    remainingSeconds,
+    isRefreshing,
+    refreshError,
+    handleContinue: handleSessionContinue,
+    handleLogout: handleSessionLogout,
+  } = useSessionExpiry();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -71,6 +83,16 @@ export default function HomePage() {
       <ChangePasswordModal
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
+      />
+
+      {/* 会话过期提醒弹窗 */}
+      <SessionExpiryWarningModal
+        isOpen={showExpiryWarning}
+        remainingSeconds={remainingSeconds}
+        onContinue={handleSessionContinue}
+        onLogout={handleSessionLogout}
+        isLoading={isRefreshing}
+        errorMsg={refreshError}
       />
     </div>
   );

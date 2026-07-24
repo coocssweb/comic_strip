@@ -4,6 +4,13 @@ import Dialog from './Dialog';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * 统计字符串的 Unicode 码点数量（非 UTF-16 码元长度）
+ */
+function codePointLength(str) {
+  return [...str].length;
+}
+
 export default function ChangePasswordModal({ isOpen, onClose }) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -26,28 +33,24 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
     onClose();
   };
 
-  const handleSubmit = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-
+  const handleSubmit = async () => {
     if (!currentPassword) {
-      const err = new Error('请输入当前密码');
-      setErrorMsg(err.message);
-      throw err;
+      setErrorMsg('请输入当前密码');
+      throw new Error('请输入当前密码');
     }
     if (!newPassword) {
-      const err = new Error('请输入新密码');
-      setErrorMsg(err.message);
-      throw err;
+      setErrorMsg('请输入新密码');
+      throw new Error('请输入新密码');
     }
-    if (newPassword.length < 15 || newPassword.length > 128) {
-      const err = new Error('新密码长度必须在 15 至 128 个字符之间');
-      setErrorMsg(err.message);
-      throw err;
+    const cpLen = codePointLength(newPassword);
+    // 前端仅校验 5-28 Unicode 码点；不实现字符组合规则或强度评分
+    if (cpLen < 5 || cpLen > 28) {
+      setErrorMsg('新密码长度应为 5-28 个字符');
+      throw new Error('新密码长度应为 5-28 个字符');
     }
     if (newPassword !== confirmPassword) {
-      const err = new Error('两次输入的新密码不一致');
-      setErrorMsg(err.message);
-      throw err;
+      setErrorMsg('两次输入的新密码不一致');
+      throw new Error('两次输入的新密码不一致');
     }
 
     setErrorMsg('');
@@ -55,14 +58,26 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
 
     try {
       await changePassword({ currentPassword, newPassword });
+      // 修改成功：useAuth.changePassword 已清除 Redux 中管理员和 CSRF 状态
       resetForm();
-      onClose();
+      // 跳转 /login 并携带一次性提示，供 LoginPage 通过 location.state 显示
       navigate('/login', {
         replace: true,
-        state: { notice: '密码修改成功，请使用新密码重新登录' },
+        state: { notice: '密码已修改，请重新登录' },
       });
     } catch (err) {
-      setErrorMsg(err.message || '修改密码失败，请检查输入');
+      if (err.code === 'CURRENT_PASSWORD_INVALID') {
+        // 当前密码错误：清空当前密码字段，保留新密码字段供用户修正
+        setCurrentPassword('');
+        setErrorMsg(err.message || '当前密码错误');
+      } else if (err.code === 'NETWORK_ERROR') {
+        // 网络/服务失败：保留表单供重试
+        setErrorMsg(err.message || '网络连接失败，请检查网络后重试');
+      } else {
+        // 其他后端业务错误（ADMIN_CREDENTIAL_UNCHANGED、ADMIN_CREDENTIAL_CONFLICT 等）：保留表单
+        setErrorMsg(err.message || '修改密码失败，请重试');
+      }
+      // 抛出异常阻止 Dialog 自动关闭，让用户重试
       throw err;
     } finally {
       setIsLoading(false);
@@ -80,7 +95,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
     >
       <form onSubmit={handleSubmit} className="space-y-4 py-2">
         {errorMsg && (
-          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-sm font-medium text-destructive">
             {errorMsg}
           </div>
         )}
@@ -88,7 +103,7 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
         <div>
           <label
             htmlFor="modal-current-password"
-            className="block text-sm font-medium text-slate-300 mb-1"
+            className="mb-1 block text-sm font-medium text-foreground"
           >
             当前密码
           </label>
@@ -99,15 +114,16 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             autoComplete="current-password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950/60 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+            className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
             placeholder="请输入当前密码"
+            disabled={isLoading}
           />
         </div>
 
         <div>
           <label
             htmlFor="modal-new-password"
-            className="block text-sm font-medium text-slate-300 mb-1"
+            className="mb-1 block text-sm font-medium text-foreground"
           >
             新密码
           </label>
@@ -118,15 +134,16 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             autoComplete="new-password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950/60 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-            placeholder="15-128个字符"
+            className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
+            placeholder="5-28 个字符"
+            disabled={isLoading}
           />
         </div>
 
         <div>
           <label
             htmlFor="modal-confirm-password"
-            className="block text-sm font-medium text-slate-300 mb-1"
+            className="mb-1 block text-sm font-medium text-foreground"
           >
             确认新密码
           </label>
@@ -137,8 +154,9 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950/60 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+            className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
             placeholder="再次输入新密码"
+            disabled={isLoading}
           />
         </div>
       </form>

@@ -395,3 +395,190 @@ describe('authSlice 状态', () => {
     expect(state.status).toBe('unavailable');
   });
 });
+
+// 生成临近过期的认证状态（用于测试会话过期提醒）
+function makeNearExpiryState({ idleMinutes = 4, absoluteMinutes = 60 * 24 } = {}) {
+  const now = new Date();
+  return {
+    auth: {
+      status: "authenticated",
+      admin: { id: "admin-1", username: "testadmin" },
+      idleExpiresAt: new Date(now.getTime() + idleMinutes * 60 * 1000).toISOString(),
+      absoluteExpiresAt: new Date(now.getTime() + absoluteMinutes * 60 * 1000).toISOString(),
+      serverTime: now.toISOString(),
+    },
+  };
+}
+
+describe("密码修改", () => {
+  it("修改密码成功：跳转 /login 并显示一次性提示", async () => {
+    mockUpdatePassword.mockResolvedValue(undefined);
+
+    renderApp({ preloadedState: authenticatedState });
+
+    await waitFor(() => {
+      expect(screen.getByText("修改密码")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await userEvent.click(screen.getByText("修改密码"));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("修改管理员密码")).toBeInTheDocument();
+    });
+
+    await userEvent.type(
+      screen.getByPlaceholderText("请输入当前密码"),
+      "old-password",
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText("5-28 个字符"),
+      "new-password-123",
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText("再次输入新密码"),
+      "new-password-123",
+    );
+
+    await act(async () => {
+      await userEvent.click(screen.getByText("确认修改"));
+    });
+
+    await waitFor(() => {
+      expect(mockUpdatePassword).toHaveBeenCalledWith({
+        currentPassword: "old-password",
+        newPassword: "new-password-123",
+      });
+    });
+  });
+
+  it("当前密码错误：清空当前密码字段，保留新密码字段", async () => {
+    const error = new Error("当前密码错误");
+    error.code = "CURRENT_PASSWORD_INVALID";
+    error.status = 403;
+    mockUpdatePassword.mockRejectedValue(error);
+
+    renderApp({ preloadedState: authenticatedState });
+
+    await waitFor(() => {
+      expect(screen.getByText("修改密码")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await userEvent.click(screen.getByText("修改密码"));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("修改管理员密码")).toBeInTheDocument();
+    });
+
+    await userEvent.type(
+      screen.getByPlaceholderText("请输入当前密码"),
+      "wrong-password",
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText("5-28 个字符"),
+      "new-password-123",
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText("再次输入新密码"),
+      "new-password-123",
+    );
+
+    await act(async () => {
+      await userEvent.click(screen.getByText("确认修改"));
+    });
+
+    await waitFor(() => {
+      const currentInput = screen.getByPlaceholderText("请输入当前密码");
+      expect(currentInput.value).toBe("");
+    });
+
+    expect(screen.getByPlaceholderText("5-28 个字符").value).toBe("new-password-123");
+    expect(screen.getByText("当前密码错误")).toBeInTheDocument();
+  });
+
+  it("网络失败：保留表单供重试", async () => {
+    const error = new Error("网络连接失败，请检查网络后重试");
+    error.code = "NETWORK_ERROR";
+    mockUpdatePassword.mockRejectedValue(error);
+
+    renderApp({ preloadedState: authenticatedState });
+
+    await waitFor(() => {
+      expect(screen.getByText("修改密码")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await userEvent.click(screen.getByText("修改密码"));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("修改管理员密码")).toBeInTheDocument();
+    });
+
+    await userEvent.type(
+      screen.getByPlaceholderText("请输入当前密码"),
+      "current",
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText("5-28 个字符"),
+      "new-password",
+    );
+    await userEvent.type(
+      screen.getByPlaceholderText("再次输入新密码"),
+      "new-password",
+    );
+
+    await act(async () => {
+      await userEvent.click(screen.getByText("确认修改"));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("网络连接失败，请检查网络后重试")).toBeInTheDocument();
+    });
+
+    expect(screen.getByPlaceholderText("请输入当前密码").value).toBe("current");
+    expect(screen.getByPlaceholderText("5-28 个字符").value).toBe("new-password");
+  });
+});
+
+describe("会话过期提醒", () => {
+  it("会话不足 5 分钟到期时显示提醒弹窗", async () => {
+    renderApp({ preloadedState: makeNearExpiryState({ idleMinutes: 4 }) });
+
+    await waitFor(() => {
+      expect(screen.getByText("管理会话即将到期")).toBeInTheDocument();
+      expect(screen.getByText("继续使用")).toBeInTheDocument();
+      expect(screen.getByText("重新登录")).toBeInTheDocument();
+    });
+  });
+
+  it('点击"继续使用"调用 session 续期', async () => {
+    const extendedSession = {
+      admin: { id: "admin-1", username: "testadmin" },
+      session: {
+        idleExpiresAt: "2026-07-26T00:00:00.000Z",
+        absoluteExpiresAt: "2026-07-26T12:00:00.000Z",
+      },
+      serverTime: "2026-07-25T00:00:00.000Z",
+    };
+
+    mockGetSession.mockResolvedValue(extendedSession);
+
+    renderApp({ preloadedState: makeNearExpiryState({ idleMinutes: 4 }) });
+
+    await waitFor(() => {
+      expect(screen.getByText("继续使用")).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await userEvent.click(screen.getByText("继续使用"));
+    });
+
+    await waitFor(() => {
+      expect(mockGetSession).toHaveBeenCalled();
+    });
+  });
+});
