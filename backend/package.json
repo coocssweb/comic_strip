@@ -26,7 +26,6 @@
     "koa-compress": "^5.2.2",
     "koa-helmet": "^9.0.0",
     "koa-jwt": "^4.0.4",
-    "koa-router": "^14.0.0",
     "mongoose": "^9.8.0",
     "pino": "^10.3.1",
     "uuid": "^14.0.1",

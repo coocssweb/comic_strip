@@ -3,13 +3,25 @@
 
 import { createComicSchema, updateComicSchema, listComicsQuerySchema } from '../validators/comic.validator.js';
 import * as comicService from '../services/comic.service.js';
+import { verifyToken } from '../utils/jwt.js';
 
 /**
- * 判断当前请求是否为管理员
- * admin-auth 中间件校验通过后 ctx.state.admin 存在且含 sub（adminId）
+ * 判断当前请求是否为管理员。
+ * POST/PUT 路由经 admin-auth 中间件设置 ctx.state.admin；
+ * GET 路由无中间件，手动从 admin_session cookie 解析。
  */
 function isAdmin(ctx) {
-  return !!(ctx.state?.admin?.sub);
+  if (ctx.state?.admin?.sub) return true;
+
+  const token = ctx.cookies.get('admin_session');
+  if (!token) return false;
+
+  try {
+    const payload = verifyToken(token, ctx.config.adminJwtSecret);
+    return !!payload.sub;
+  } catch {
+    return false;
+  }
 }
 
 /**

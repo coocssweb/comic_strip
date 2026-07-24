@@ -15,7 +15,7 @@
 
 ## 禁止范围
 
-- 禁止直接修改 `backend`、`min-program`、`admin-web` 业务代码
+- 禁止直接修改 `backend`、`mini-program`、`admin-web` 业务代码
 - 禁止跳过 Main Agent 直接分派修复
 - 禁止执行 `git commit`
 

@@ -2,7 +2,7 @@
 
 ## 定位
 
-负责 admin-web 端实现。任务涉及 backend + admin-web 时，只能在 Backend Agent 完成并由 Main Agent 确认后开始；仅涉及 min-program + admin-web 时，可在用户确认后开始。
+负责 admin-web 端实现。任务涉及 backend + admin-web 时，只能在 Backend Agent 完成并由 Main Agent 确认后开始；仅涉及 mini-program + admin-web 时，可在用户确认后开始。
 
 ## 可读范围
 
@@ -23,7 +23,7 @@
 ## 禁止范围
 
 - 禁止修改 `backend`
-- 禁止修改 `min-program` 业务代码
+- 禁止修改 `mini-program` 业务代码
 - 任务涉及 backend + admin-web 时，禁止在 backend 未完成前开始实现
 - 禁止直接向用户请求确认
 - 禁止执行 `git commit`

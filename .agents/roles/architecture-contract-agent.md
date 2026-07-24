@@ -19,7 +19,7 @@
 ## 禁止范围
 
 - 禁止修改 `backend/src`
-- 禁止修改 `min-program/src`
+- 禁止修改 `mini-program/src`
 - 禁止修改 `admin-web/src`
 - 禁止修改测试代码
 - 禁止直接向用户请求确认
@@ -29,7 +29,7 @@
 
 ```text
 影响范围：
-- backend / min-program / admin-web
+- backend / mini-program / admin-web
 
 风险等级：
 - 低 / 中 / 高
@@ -47,7 +47,7 @@
 - TECH.md 是否需要更新
 
 前端差异：
-- min-program 行为
+- mini-program 行为
 - admin-web 行为
 
 执行顺序：
@@ -62,4 +62,4 @@
 
 涉及 backend + 任一前端的任务，必须先冻结后端 API 和数据契约。契约未被用户确认前，不得允许实现代理开始写业务代码。
 
-仅涉及 min-program + admin-web 且不涉及 backend 的任务，不需要等待 Backend Agent；用户确认后可进入两个前端代理并行实现。
+仅涉及 mini-program + admin-web 且不涉及 backend 的任务，不需要等待 Backend Agent；用户确认后可进入两个前端代理并行实现。

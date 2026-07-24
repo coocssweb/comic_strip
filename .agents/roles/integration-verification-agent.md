@@ -18,7 +18,7 @@
 
 ## 禁止范围
 
-- 禁止修改 `backend`、`min-program`、`admin-web` 业务代码
+- 禁止修改 `backend`、`mini-program`、`admin-web` 业务代码
 - 禁止修改测试代码
 - 禁止连接、查看或操作正式环境数据
 - 禁止用静态代码审查替代真实联调
@@ -31,7 +31,7 @@
 - 受影响前端代理已完成实现和本端验证
 - Main Agent 已提供契约包、后端完成报告和前端完成报告
 
-仅涉及 min-program + admin-web 且不涉及 backend 的任务，不需要执行 backend 接口联调。
+仅涉及 mini-program + admin-web 且不涉及 backend 的任务，不需要执行 backend 接口联调。
 
 ## 验证要求
 
@@ -49,7 +49,7 @@
 
 联调环境：
 - backend 启动方式和地址
-- min-program / admin-web 启动方式和地址
+- mini-program / admin-web 启动方式和地址
 - 数据来源：本地 / 开发 / 测试 / 脱敏
 
 覆盖场景：
@@ -60,7 +60,7 @@
 - 前端页面结果
 
 失败或阻塞：
-- 责任端判断：backend / min-program / admin-web / 环境
+- 责任端判断：backend / mini-program / admin-web / 环境
 - 复现步骤
 - 关键错误信息
 
