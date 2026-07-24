@@ -81,3 +81,19 @@ export async function updateStatus(id, status, extraFields = {}) {
   const setFields = { status, ...extraFields };
   return Comic.findByIdAndUpdate(id, { $set: setFields }, { new: true, lean: true });
 }
+
+/**
+ * 更新漫画的封面和正文图片引用（图片绑定专用）。
+ * 仅修改 cover 和 bodyImages 字段。
+ *
+ * @param {string} id - 漫画 ID
+ * @param {{ cover: string, bodyImages: string[] }} params
+ * @returns {Promise<object|null>}
+ */
+export async function updateImageBinding(id, { cover, bodyImages }) {
+  return Comic.findByIdAndUpdate(
+    id,
+    { $set: { cover, bodyImages } },
+    { new: true, lean: true },
+  );
+}

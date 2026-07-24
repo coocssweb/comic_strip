@@ -3,6 +3,7 @@
 import Router from '@koa/router';
 import { createAdminAuthMiddleware } from '../middlewares/admin-auth.middleware.js';
 import * as comicController from '../controllers/comic.controller.js';
+import * as imageController from '../controllers/image.controller.js';
 
 /**
  * 创建漫画路由
@@ -26,6 +27,10 @@ export function createComicRouter(config) {
   router.post('/:id/unpublish', adminAuth, comicController.unpublish);
   router.delete('/:id', adminAuth, comicController.remove);
   router.post('/:id/restore', adminAuth, comicController.restore);
+
+  // 图片路由：STS 凭证申请 + 图片绑定（均为管理员专用）
+  router.post('/:id/images/sts', adminAuth, imageController.requestSts);
+  router.put('/:id/images', adminAuth, imageController.bindImages);
 
   return router;
 }
