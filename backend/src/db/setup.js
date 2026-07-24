@@ -5,6 +5,7 @@ import Admin, { ADMIN_COLLECTION, ADMIN_JSON_SCHEMA } from "../models/admin.mode
 import Session, { SESSION_COLLECTION, SESSION_JSON_SCHEMA } from "../models/session.model.js";
 import Comic, { COMIC_COLLECTION, COMIC_JSON_SCHEMA } from "../models/comic.model.js";
 import ImageAsset, { IMAGE_ASSET_COLLECTION, IMAGE_ASSET_JSON_SCHEMA } from "../models/image-asset.model.js";
+import Series, { SERIES_COLLECTION, SERIES_JSON_SCHEMA } from "../models/series.model.js";
 
 /** 启动序列是否完全成功 — 供 /health/ready 消费 */
 let _isReady = false;
@@ -71,12 +72,22 @@ export async function setupDatabase(mongodbUri, logger) {
     return;
   }
 
-  // 6. 创建必要索引
+  // 6. 建立或校验 series 集合的 JSON Schema 校验器
+  try {
+    await ensureCollectionSchema(SERIES_COLLECTION, SERIES_JSON_SCHEMA, Series, logger);
+    logger.info({ event: "series_schema_validator_ensured" });
+  } catch (err) {
+    logger.error({ event: "series_schema_validator_failed", error: err.message });
+    return;
+  }
+
+  // 7. 创建必要索引
   try {
     await Admin.createIndexes();
     await Session.createIndexes();
     await Comic.createIndexes();
     await ImageAsset.createIndexes();
+    await Series.createIndexes();
     logger.info({ event: "all_indexes_created" });
   } catch (err) {
     logger.error({ event: "indexes_failed", error: err.message });
