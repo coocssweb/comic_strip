@@ -157,3 +157,85 @@ export const exampleAPI = new ExampleAPI();
 1. 调用 `POST /admin/cos/presign`，请求体为 `{ fileName, contentType, contentLength }`。
 2. 仅允许 `image/jpeg`、`image/png`、`image/webp`，单文件最大 5 MB。
 3. 使用返回的 `{ method, uploadUrl, headers }` 向 `uploadUrl` 发起原始二进制 `PUT` 请求；成功后仅持久化返回的 `publicUrl`。
+
+## 五、漫画管理（#51 #52 #53 已交付，当前生效）
+
+> 本节的 CRUD、生命周期和图片上传端点全部已交付，替代第三节「内容运营」中同功能旧占位端点。
+
+### 漫画 CRUD
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/comics` | 查询漫画列表，参数 `?status=&page=1&pageSize=20` |
+| `GET` | `/comics/:id` | 查询单本漫画 |
+| `POST` | `/comics` | 创建漫画草稿，body: `{ title, seriesId?, tags?: string[] }` |
+| `PUT` | `/comics/:id` | 更新漫画元信息，body: `{ title?, seriesId?, tags? }`（至少一个字段） |
+
+列表响应格式：
+```json
+{
+  "items": [Comic],
+  "total": 100,
+  "page": 1,
+  "pageSize": 20
+}
+```
+
+### 漫画生命周期
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `POST` | `/comics/:id/publish` | 发布漫画（草稿/已下架 → 已发布） |
+| `POST` | `/comics/:id/unpublish` | 下架漫画（已发布 → 已下架） |
+| `DELETE` | `/comics/:id` | 软删除漫画，返回 204 |
+| `POST` | `/comics/:id/restore` | 恢复已删除漫画（已删除 → 草稿） |
+
+### 图片上传（两阶段 STS）
+
+1. `POST /comics/:id/images/sts` — 申请 STS 上传凭证  
+   body: `{ fileName, contentType, contentLength }`  
+   仅允许 `image/jpeg` `image/png` `image/webp`，单文件最大 5 MB  
+   返回: `{ method, uploadUrl, headers }`
+
+2. 使用返回的凭证直传 COS（`PUT` 到 `uploadUrl`）
+
+3. `PUT /comics/:id/images` — 确认绑定封面和正文图片  
+   body: `{ cover?: string, bodyImages?: string[] }`  
+   返回: 更新后的 Comic 对象
+
+### Comic 数据结构
+
+```json
+{
+  "_id": "string (UUID v4)",
+  "title": "string (1-100 字符)",
+  "seriesId": "string | null",
+  "status": "draft | published | unpublished | deleted",
+  "cover": "string | null (COS key)",
+  "bodyImages": ["string (COS key)"],
+  "tags": ["string"],
+  "likeCount": 0,
+  "favoriteCount": 0,
+  "commentCount": 0,
+  "publishedAt": "ISO 8601 | null",
+  "createdAt": "ISO 8601",
+  "updatedAt": "ISO 8601"
+}
+```
+
+### 连载列表（供下拉选择）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| `GET` | `/series` | 查询连载列表（供 FormSelect 使用） |
+
+### 生命周期状态机
+
+```
+draft ──[publish]──→ published ──[unpublish]──→ unpublished
+  │                       │                         │
+  │                       │                         │
+  └──[delete]──→ deleted ←──[delete]──────────────┘
+                     │
+                     └──[restore]──→ draft
+```
