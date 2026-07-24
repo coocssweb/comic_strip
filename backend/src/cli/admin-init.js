@@ -4,7 +4,7 @@
 
 import { createInterface } from "node:readline";
 import { stdin, stdout, exit } from "node:process";
-import { v4 as uuidv4 } from "node:uuid";
+import { v4 as uuidv4 } from "uuid";
 import argon2 from "argon2";
 import mongoose from "mongoose";
 import Admin from "../models/admin.model.js";
