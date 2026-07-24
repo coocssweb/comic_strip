@@ -1,6 +1,6 @@
 ---
 name: fullstack-feature-orchestration
-description: Use when 任务同时影响 backend、min-program、admin-web 中任意两个或以上子项目，或涉及多端 API、权限、数据流、接口契约、跨端联调和全栈功能开发
+description: Use when 任务同时影响 backend、mini-program、admin-web 中任意两个或以上子项目，或涉及多端 API、权限、数据流、接口契约、跨端联调和全栈功能开发
 ---
 
 # 全栈多端任务编排
@@ -34,12 +34,12 @@ Main Agent 汇总
 | 影响范围 | 是否触发 |
 | --- | --- |
 | 仅 backend | 否，使用 backend 相关技能 |
-| 仅 min-program | 否，使用 min-program 相关技能 |
+| 仅 mini-program | 否，使用 mini-program 相关技能 |
 | 仅 admin-web | 否，使用 admin-web 相关技能 |
-| backend + min-program | 是 |
+| backend + mini-program | 是 |
 | backend + admin-web | 是 |
-| min-program + admin-web | 是 |
-| backend + min-program + admin-web | 是 |
+| mini-program + admin-web | 是 |
+| backend + mini-program + admin-web | 是 |
 
 涉及多端消费或跨端契约的 API 字段、响应结构、权限、数据库模型、跨角色状态流转、资金、结算、提现、注册、邀请、定时任务时，即使改动看似很小，也按多端任务处理。
 
@@ -49,7 +49,7 @@ Main Agent 汇总
 
 - `.agents/roles/architecture-contract-agent.md`
 - `.agents/roles/backend-agent.md`
-- `.agents/roles/min-program-agent.md`
+- `.agents/roles/mini-program-agent.md`
 - `.agents/roles/admin-web-agent.md`
 - `.agents/roles/integration-verification-agent.md`
 - `.agents/roles/review-agent.md`
@@ -67,12 +67,12 @@ Main Agent 汇总
 2. Architecture / Contract Agent 分析影响范围、风险等级、API 契约、数据模型、权限、执行顺序和验收点。
 3. Architecture / Contract Agent 输出确认内容，不直接询问用户。
 4. Main Agent 整理确认内容并询问用户。
-5. 用户确认前，任何实现代理不得修改 `backend/src`、`min-program/src`、`admin-web/src` 或测试代码。
+5. 用户确认前，任何实现代理不得修改 `backend/src`、`mini-program/src`、`admin-web/src` 或测试代码。
 6. 用户确认后，Main Agent 必须构造任务包，并派发独立子代理，不得用 Main Agent 自己扮演各端角色来替代。
 7. 如果任务涉及 backend + 任一前端，Backend Agent 必须先实现 backend。
 8. 涉及 backend + 任一前端时，Backend Agent 完成后必须给出完成证据：改动文件、测试结果、契约更新、未解决风险。
 9. 涉及 backend + 任一前端时，Main Agent 确认 backend 已完成后，才允许 Mini Program Agent 和 Admin Web Agent 开始。
-10. 仅涉及 min-program + admin-web 且不涉及 backend 时，用户确认后可由两个前端代理并行实现。
+10. 仅涉及 mini-program + admin-web 且不涉及 backend 时，用户确认后可由两个前端代理并行实现。
 11. 前端代理可以并行，但只能修改各自端代码。
 12. 涉及 backend + 任一前端时，前端实现完成后必须由 Integration Verification Agent 执行真实联调验证。
 13. 真实联调验证通过后，Review Agent 才能做最终跨端审查；验证失败时，Main Agent 必须按责任端重新分派修复。
@@ -158,7 +158,7 @@ Main Agent 向用户确认时必须包含：
 
 ```text
 影响范围：
-- backend / min-program / admin-web
+- backend / mini-program / admin-web
 
 风险等级：
 - 低 / 中 / 高
@@ -175,7 +175,7 @@ Main Agent 向用户确认时必须包含：
 - 是否影响 TECH.md
 
 前端变化：
-- min-program 改动点
+- mini-program 改动点
 - admin-web 改动点
 
 执行顺序：
@@ -199,9 +199,9 @@ Main Agent 向用户确认时必须包含：
 | 代理 | 可读 | 可写 | 禁止 |
 | --- | --- | --- | --- |
 | Architecture / Contract Agent | 全项目 | `docs/specs/`、`docs/superpowers/specs/`、`docs/TECH.md`、`ARCHITECTURE.md` | 业务代码和测试代码 |
-| Backend Agent | `backend`、`docs`、全局规则 | `backend`、`backend/tests`、相关契约和技术文档 | 修改 `min-program`、`admin-web` 业务代码 |
-| Mini Program Agent | `min-program`、`backend`、`docs`、全局规则 | `min-program`、`min-program/tests` | 修改 `backend`、`admin-web` 业务代码 |
-| Admin Web Agent | `admin-web`、`backend`、`docs`、全局规则 | `admin-web`、`admin-web/tests` | 修改 `backend`、`min-program` 业务代码 |
+| Backend Agent | `backend`、`docs`、全局规则 | `backend`、`backend/tests`、相关契约和技术文档 | 修改 `mini-program`、`admin-web` 业务代码 |
+| Mini Program Agent | `mini-program`、`backend`、`docs`、全局规则 | `mini-program`、`mini-program/tests` | 修改 `backend`、`admin-web` 业务代码 |
+| Admin Web Agent | `admin-web`、`backend`、`docs`、全局规则 | `admin-web`、`admin-web/tests` | 修改 `backend`、`mini-program` 业务代码 |
 | Integration Verification Agent | 全项目、本地服务、测试数据 | 默认不写；必要时只写指定联调报告 | 修改业务代码、修改测试代码、连接正式环境 |
 | Review Agent | 全项目 | 默认不写；必要时只写审查报告 | 直接修业务代码 |
 
@@ -220,7 +220,7 @@ Main Agent 向用户确认时必须包含：
 - 记录实际请求路径、关键请求参数、关键响应结果、页面或接口结果。
 - 如果 backend 或受影响前端服务无法启动、依赖缺失或环境不可用，必须作为阻塞问题报告，不得用接口脚本、mock、静态审查或代码阅读替代。
 
-仅涉及 min-program + admin-web 且不涉及 backend 的任务，不要求 backend 接口联调；应执行前端构建、关键页面交互或本地预览验证。
+仅涉及 mini-program + admin-web 且不涉及 backend 的任务，不要求 backend 接口联调；应执行前端构建、关键页面交互或本地预览验证。
 
 ## 必须调用的配套技能
 
