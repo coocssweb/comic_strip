@@ -7,6 +7,7 @@ let onAuthInvalid = null;
 const request = axios.create({
   // Cookie 凭据模式：携带 HttpOnly Cookie，不手动设置 Authorization
   withCredentials: true,
+  baseURL: process.env.APP_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
