@@ -127,7 +127,7 @@ export default function ComicEditPage() {
       await publishComic(id).unwrap();
       Toast.Success('漫画已发布');
     } catch (err) {
-      Toast.Error(err.message || '发布失败');
+      Toast.Error(err?.data?.message || err?.error || '发布失败');
     }
     setConfirmAction(null);
   };
@@ -137,7 +137,7 @@ export default function ComicEditPage() {
       await unpublishComic(id).unwrap();
       Toast.Success('漫画已下架');
     } catch (err) {
-      Toast.Error(err.message || '下架失败');
+      Toast.Error(err?.data?.message || err?.error || '下架失败');
     }
     setConfirmAction(null);
   };
@@ -148,7 +148,7 @@ export default function ComicEditPage() {
       Toast.Success('漫画已删除');
       navigate('/comics', { replace: true });
     } catch (err) {
-      Toast.Error(err.message || '删除失败');
+      Toast.Error(err?.data?.message || err?.error || '删除失败');
     }
     setConfirmAction(null);
   };
@@ -158,7 +158,7 @@ export default function ComicEditPage() {
       await restoreComic(id).unwrap();
       Toast.Success('漫画已恢复为草稿');
     } catch (err) {
-      Toast.Error(err.message || '恢复失败');
+      Toast.Error(err?.data?.message || err?.error || '恢复失败');
     }
     setConfirmAction(null);
   };
@@ -183,7 +183,7 @@ export default function ComicEditPage() {
 
       Toast.Success('修改已保存');
     } catch (err) {
-      Toast.Error(err.message || '保存失败');
+      Toast.Error(err?.data?.message || err?.error || '保存失败');
     } finally {
       setIsSaving(false);
     }

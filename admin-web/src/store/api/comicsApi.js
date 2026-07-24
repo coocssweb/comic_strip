@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+﻿import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 /**
  * 漫画管理 RTK Query API slice
@@ -17,7 +17,7 @@ export const comicsApi = createApi({
       query: ({ status, page = 1, pageSize = 20 } = {}) => {
         const params = { page, pageSize };
         if (status) params.status = status;
-        return { url: '/comics', params };
+        return { url: '/api/v1/comics', params };
       },
       providesTags: (result) =>
         result
@@ -30,14 +30,14 @@ export const comicsApi = createApi({
 
     // 查询单本漫画
     getComicById: builder.query({
-      query: (id) => `/comics/${id}`,
+      query: (id) => `/api/v1/comics/${id}`,
       providesTags: (result, error, id) => [{ type: 'ComicDetail', id }],
     }),
 
     // 创建漫画草稿
     createComic: builder.mutation({
       query: (payload) => ({
-        url: '/comics',
+        url: '/api/v1/comics',
         method: 'POST',
         body: payload,
       }),
@@ -47,7 +47,7 @@ export const comicsApi = createApi({
     // 更新漫画元信息
     updateComic: builder.mutation({
       query: ({ id, ...payload }) => ({
-        url: `/comics/${id}`,
+        url: `/api/v1/comics/${id}`,
         method: 'PUT',
         body: payload,
       }),
@@ -60,7 +60,7 @@ export const comicsApi = createApi({
     // 发布漫画
     publishComic: builder.mutation({
       query: (id) => ({
-        url: `/comics/${id}/publish`,
+        url: `/api/v1/comics/${id}/publish`,
         method: 'POST',
       }),
       invalidatesTags: (result, error, id) => [
@@ -72,7 +72,7 @@ export const comicsApi = createApi({
     // 下架漫画
     unpublishComic: builder.mutation({
       query: (id) => ({
-        url: `/comics/${id}/unpublish`,
+        url: `/api/v1/comics/${id}/unpublish`,
         method: 'POST',
       }),
       invalidatesTags: (result, error, id) => [
@@ -84,7 +84,7 @@ export const comicsApi = createApi({
     // 软删除漫画
     deleteComic: builder.mutation({
       query: (id) => ({
-        url: `/comics/${id}`,
+        url: `/api/v1/comics/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: (result, error, id) => [
@@ -96,7 +96,7 @@ export const comicsApi = createApi({
     // 恢复已删除漫画
     restoreComic: builder.mutation({
       query: (id) => ({
-        url: `/comics/${id}/restore`,
+        url: `/api/v1/comics/${id}/restore`,
         method: 'POST',
       }),
       invalidatesTags: (result, error, id) => [

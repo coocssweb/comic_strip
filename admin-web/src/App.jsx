@@ -7,6 +7,8 @@ import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/login/LoginPage';
 import AdminLayout from './layouts/AdminLayout';
 import ComicListPage from './pages/comics/ComicListPage';
+import SeriesListPage from './pages/series/SeriesListPage';
+import SeriesEditPage from './pages/series/SeriesEditPage';
 import ComicEditPage from './pages/comics/ComicEditPage';
 
 /**
@@ -115,6 +117,8 @@ export default function App({ store = defaultStore }) {
             <Route index element={<Navigate to="/comics" replace />} />
             <Route path="/comics" element={<ComicListPage />} />
             <Route path="/comics/:id" element={<ComicEditPage />} />
+            <Route path="/series" element={<SeriesListPage />} />
+            <Route path="/series/:id" element={<SeriesEditPage />} />
           </Route>
         </Routes>
       </AuthBootstrap>

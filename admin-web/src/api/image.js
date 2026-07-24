@@ -1,4 +1,4 @@
-import request from '../utils/request';
+﻿import request from '../utils/request';
 
 /**
  * 图片上传 API
@@ -12,7 +12,7 @@ class ImageAPI {
    * @returns {Promise<{ method: string, uploadUrl: string, headers: object }>}
    */
   async requestSts(comicId, params) {
-    const { data } = await request.post(`/comics/${comicId}/images/sts`, params);
+    const { data } = await request.post(`/api/v1/comics/${comicId}/images/sts`, params);
     return data;
   }
 
@@ -23,7 +23,7 @@ class ImageAPI {
    * @returns {Promise<object>} 更新后的 Comic 对象
    */
   async bindImages(comicId, payload) {
-    const { data } = await request.put(`/comics/${comicId}/images`, payload);
+    const { data } = await request.put(`/api/v1/comics/${comicId}/images`, payload);
     return data;
   }
 }

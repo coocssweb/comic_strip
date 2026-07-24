@@ -1,11 +1,11 @@
-import request from '../utils/request';
+﻿import request from '../utils/request';
 
 /**
  * 漫画管理 API
  * 基础路径 /comics，涵盖 CRUD、生命周期和图片上传
  */
 class ComicsAPI {
-  basePath = '/comics';
+  basePath = '/api/v1/comics';
 
   /**
    * 查询漫画列表

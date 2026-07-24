@@ -1,9 +1,9 @@
 ﻿import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Plus, Edit, ImageOff } from 'lucide-react';
+import { Plus, Edit, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/utils/cn';
-import { useGetComicsListQuery, useCreateComicMutation } from '@/store/api/comicsApi';
-import ComicStatusBadge from './ComicStatusBadge';
+import { useGetSeriesListQuery, useCreateSeriesMutation } from '@/store/api/seriesApi';
+import SeriesStatusBadge from './SeriesStatusBadge';
 import Pagination from '@/components/Pagination';
 import Toast from '@/components/Toast';
 import { Button } from '@/components/ui/button';
@@ -17,28 +17,6 @@ const STATUS_TABS = [
   { key: 'deleted', label: '已删除' },
 ];
 
-// 封面过期时的占位显示
-function CoverThumb({ coverUrl }) {
-  const [hasError, setHasError] = React.useState(false);
-
-  if (hasError || !coverUrl) {
-    return (
-      <div className="flex h-10 w-10 items-center justify-center rounded bg-muted">
-        <ImageOff className="h-5 w-5 text-muted-foreground/50" />
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={coverUrl}
-      alt="封面"
-      className="h-10 w-10 rounded object-cover"
-      onError={() => setHasError(true)}
-    />
-  );
-}
-
 // 相对时间格式化
 function relativeTime(isoString) {
   if (!isoString) return '-';
@@ -47,17 +25,17 @@ function relativeTime(isoString) {
   const diffSec = Math.floor((now - then) / 1000);
 
   if (diffSec < 60) return '刚刚';
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} 分钟前`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} 小时前`;
-  if (diffSec < 604800) return `${Math.floor(diffSec / 86400)} 天前`;
+  if (diffSec < 3600) return Math.floor(diffSec / 60) + ' 分钟前';
+  if (diffSec < 86400) return Math.floor(diffSec / 3600) + ' 小时前';
+  if (diffSec < 604800) return Math.floor(diffSec / 86400) + ' 天前';
   return new Date(isoString).toLocaleDateString('zh-CN');
 }
 
 /**
- * 漫画列表页
- * 状态 Tab 筛选 + 分页表格 + 新建漫画入口
+ * 连载列表页
+ * 状态 Tab 筛选 + 分页表格 + 新建连载入口
  */
-export default function ComicListPage() {
+export default function SeriesListPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -67,13 +45,13 @@ export default function ComicListPage() {
   const pageSize = 20;
 
   // 查询列表
-  const { data, isLoading, isError, error } = useGetComicsListQuery(
+  const { data, isLoading, isError, error } = useGetSeriesListQuery(
     { status: status || undefined, page, pageSize },
     { refetchOnMountOrArgChange: true },
   );
 
-  // 创建漫画 mutation
-  const [createComic, { isLoading: isCreating }] = useCreateComicMutation();
+  // 创建连载 mutation
+  const [createSeries, { isLoading: isCreating }] = useCreateSeriesMutation();
 
   // 更新 URL 参数（筛选 + 分页）
   const updateParams = (updates) => {
@@ -96,11 +74,11 @@ export default function ComicListPage() {
     updateParams({ page: nextPage });
   };
 
-  const handleCreateComic = async () => {
+  const handleCreateSeries = async () => {
     try {
-      const comic = await createComic({ title: '未命名漫画' }).unwrap();
-      Toast.Success('漫画创建成功');
-      navigate(`/comics/${comic._id}`);
+      const series = await createSeries({ title: '未命名连载' }).unwrap();
+      Toast.Success('连载创建成功');
+      navigate('/series/' + series._id);
     } catch (err) {
       Toast.Error(err?.data?.message || err?.error || '创建失败，请重试');
     }
@@ -112,14 +90,14 @@ export default function ComicListPage() {
     <div className="animate-fade-in-up">
       {/* 顶部：标题 + 新建按钮 */}
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-lg font-extrabold text-foreground">漫画管理</h2>
+        <h2 className="text-lg font-extrabold text-foreground">连载管理</h2>
         <Button
           loading={isCreating}
-          onClick={handleCreateComic}
+          onClick={handleCreateSeries}
           className="rounded-xl font-bold shadow-md"
         >
           <Plus className="h-4 w-4" />
-          新建漫画
+          新建连载
         </Button>
       </div>
 
@@ -160,14 +138,14 @@ export default function ComicListPage() {
         {/* 空状态 */}
         {!isLoading && !isError && data?.items?.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20">
-            <p className="text-sm font-medium text-muted-foreground">暂无漫画</p>
+            <p className="text-sm font-medium text-muted-foreground">暂无连载</p>
             <Button
               variant="outline"
               size="sm"
-              onClick={handleCreateComic}
+              onClick={handleCreateSeries}
               className="mt-3 rounded-lg"
             >
-              新建漫画
+              新建连载
             </Button>
           </div>
         )}
@@ -177,49 +155,53 @@ export default function ComicListPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-muted/30 text-left">
-                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground">封面</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground">标题</th>
-                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground">连载</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground">状态</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground">成员数</th>
+                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground">已完结</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground">更新时间</th>
                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground">操作</th>
               </tr>
             </thead>
             <tbody>
-              {data.items.map((comic) => (
+              {data.items.map((series) => (
                 <tr
-                  key={comic._id}
+                  key={series._id}
                   className={cn(
                     'border-b border-border transition-colors hover:bg-muted/30',
-                    comic.status === 'deleted' && 'opacity-60',
+                    series.status === 'deleted' && 'opacity-60',
                   )}
                 >
-                  <td className="px-4 py-3">
-                    <CoverThumb coverUrl={comic.cover} />
-                  </td>
                   <td className="px-4 py-3">
                     <button
                       type="button"
                       className="text-sm font-semibold text-foreground hover:text-primary hover:underline"
-                      onClick={() => navigate(`/comics/${comic._id}`)}
+                      onClick={() => navigate('/series/' + series._id)}
                     >
-                      {comic.title}
+                      {series.title}
                     </button>
                   </td>
+                  <td className="px-4 py-3">
+                    <SeriesStatusBadge status={series.status} />
+                  </td>
                   <td className="px-4 py-3 text-sm text-muted-foreground">
-                    {comic.seriesName || '-'}
+                    {series.comics ? series.comics.length : 0}
                   </td>
                   <td className="px-4 py-3">
-                    <ComicStatusBadge status={comic.status} />
+                    {series.isCompleted ? (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">-</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
-                    {relativeTime(comic.updatedAt)}
+                    {relativeTime(series.updatedAt)}
                   </td>
                   <td className="px-4 py-3">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate(`/comics/${comic._id}`)}
+                      onClick={() => navigate('/series/' + series._id)}
                       className="h-8 rounded-lg text-xs font-medium"
                     >
                       <Edit className="h-3.5 w-3.5" />

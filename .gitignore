@@ -1,4 +1,5 @@
 admin-web/node_modules/
+admin-web/dist/*
 backend/node_modules/
 backend/.env
 backend/coverage/

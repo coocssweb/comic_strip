@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 const MENU_ITEMS = [
   { key: '/comics', label: '漫画管理', icon: BookOpen, enabled: true },
   { key: '/tags', label: '标签管理', icon: Tag, enabled: false },
-  { key: '/series-manage', label: '系列管理', icon: Layers, enabled: false },
+  { key: '/series', label: '连载管理', icon: Layers, enabled: true },
   { key: '/settings', label: '设置', icon: Settings, enabled: false },
 ];
 
