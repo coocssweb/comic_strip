@@ -1,4 +1,5 @@
-import request, { setCsrfToken } from '../utils/request';
+﻿import request, { setCsrfToken } from '../utils/request';
+import { comicsAPI } from './comics';
 
 /**
  * 管理员认证 API
@@ -54,3 +55,8 @@ class AuthAPI {
 }
 
 export const authAPI = new AuthAPI();
+
+// 内容运营 API 统一导出
+export { comicsAPI };
+export { imageAPI } from './image';
+export { seriesAPI } from './series';

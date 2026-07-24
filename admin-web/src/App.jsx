@@ -5,7 +5,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { store as defaultStore } from './store';
 import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
-import HomePage from './pages/HomePage';
+import AdminLayout from './layouts/AdminLayout';
+import ComicListPage from './pages/ComicListPage';
+import ComicEditPage from './pages/ComicEditPage';
 
 /**
  * 认证引导组件
@@ -102,7 +104,18 @@ export default function App({ store = defaultStore }) {
       <AuthBootstrap>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          {/* 管理端受保护路由：AdminLayout 包裹所有管理页面 */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/comics" replace />} />
+            <Route path="/comics" element={<ComicListPage />} />
+            <Route path="/comics/:id" element={<ComicEditPage />} />
+          </Route>
         </Routes>
       </AuthBootstrap>
     </Provider>
