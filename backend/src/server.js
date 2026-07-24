@@ -1,24 +1,24 @@
-// 服务入口 — 连接数据库、启动 HTTP 服务、处理优雅关闭
-
-import mongoose from 'mongoose';
-import { createApp } from './app.js';
+﻿// 服务入口 — 按顺序执行数据库启动序列 → 启动 HTTP 服务 → 处理优雅关闭
+import { createApp } from "./app.js";
+import { setupDatabase, disconnectDatabase } from "./db/setup.js";
 
 const { app, logger, config } = createApp();
 
-// 连接 MongoDB
 let server;
 
 async function start() {
+  // 1. 按顺序执行数据库启动序列：连接 → JSON Schema 校验器 → 索引
+  // 无论 setupDatabase 成功与否，都继续启动 HTTP 服务
+  // /health/ready 会反映实际就绪状态
   try {
-    await mongoose.connect(config.mongodbUri);
-    logger.info({ event: 'mongodb_connected' });
+    await setupDatabase(config.mongodbUri, logger);
   } catch (err) {
-    // MongoDB 连接失败不影响启动 — 健康检查 /health/ready 会报告未就绪
-    logger.error({ event: 'mongodb_connect_failed', error: err.message });
+    logger.error({ event: "mongodb_connect_failed", error: err.message });
   }
 
+  // 2. 数据库启动序列完成后才开放 HTTP 服务
   server = app.listen(config.port, () => {
-    logger.info({ event: 'server_started', port: config.port, env: config.nodeEnv });
+    logger.info({ event: "server_started", port: config.port, env: config.nodeEnv });
   });
 }
 
@@ -26,35 +26,34 @@ async function start() {
 // 1. 停止接收新请求
 // 2. 等待已有请求最多 10 秒
 // 3. 关闭 HTTP 服务
-// 4. 断开 MongoDB 连接
+// 4. 断开数据库连接
 async function gracefulShutdown(signal) {
-  logger.info({ event: 'shutdown_started', signal });
+  logger.info({ event: "shutdown_started", signal });
 
-  // 停止接收新请求
   if (server) {
     server.close(() => {
-      logger.info({ event: 'http_server_closed' });
+      logger.info({ event: "http_server_closed" });
     });
 
     // 给现有请求最多 10 秒完成
     setTimeout(() => {
-      logger.warn({ event: 'shutdown_timeout', signal });
+      logger.warn({ event: "shutdown_timeout", signal });
       process.exit(1);
     }, 10000).unref();
   }
 
-  // 断开 MongoDB
+  // 断开数据库连接
   try {
-    await mongoose.disconnect();
-    logger.info({ event: 'mongodb_disconnected' });
+    await disconnectDatabase();
+    logger.info({ event: "mongodb_disconnected" });
   } catch (err) {
-    logger.error({ event: 'mongodb_disconnect_error', error: err.message });
+    logger.error({ event: "mongodb_disconnect_error", error: err.message });
   }
 
   process.exit(0);
 }
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 start();
