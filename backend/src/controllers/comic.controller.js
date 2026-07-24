@@ -1,9 +1,10 @@
-// 漫画控制器 — 请求参数提取 → 校验 → 调用 Service → 组装响应
+﻿// 漫画控制器 — 请求参数提取 → 校验 → 调用 Service → 组装响应
 // 禁止在此层出现业务判断逻辑
 
-import { createComicSchema, updateComicSchema, listComicsQuerySchema } from '../validators/comic.validator.js';
-import * as comicService from '../services/comic.service.js';
-import { verifyToken } from '../utils/jwt.js';
+import { signComicImages } from "../utils/cdn.js";
+import { createComicSchema, updateComicSchema, listComicsQuerySchema } from "../validators/comic.validator.js";
+import * as comicService from "../services/comic.service.js";
+import { verifyToken } from "../utils/jwt.js";
 
 /**
  * 判断当前请求是否为管理员。
@@ -13,7 +14,7 @@ import { verifyToken } from '../utils/jwt.js';
 function isAdmin(ctx) {
   if (ctx.state?.admin?.sub) return true;
 
-  const token = ctx.cookies.get('admin_session');
+  const token = ctx.cookies.get("admin_session");
   if (!token) return false;
 
   try {
@@ -32,8 +33,8 @@ export async function create(ctx) {
   if (!parsed.success) {
     ctx.status = 400;
     ctx.body = {
-      code: 'VALIDATION_ERROR',
-      message: parsed.error.issues.map((i) => i.message).join('；'),
+      code: "VALIDATION_ERROR",
+      message: parsed.error.issues.map((i) => i.message).join("；"),
       requestId: ctx.state?.requestId,
     };
     return;
@@ -53,8 +54,8 @@ export async function list(ctx) {
   if (!parsed.success) {
     ctx.status = 400;
     ctx.body = {
-      code: 'VALIDATION_ERROR',
-      message: parsed.error.issues.map((i) => i.message).join('；'),
+      code: "VALIDATION_ERROR",
+      message: parsed.error.issues.map((i) => i.message).join("；"),
       requestId: ctx.state?.requestId,
     };
     return;
@@ -65,6 +66,13 @@ export async function list(ctx) {
     isAdmin: isAdmin(ctx),
   });
 
+  // 公开请求：将图片 key 替换为 CDN 鉴权 URL
+  if (!isAdmin(ctx)) {
+    result.items = await Promise.all(
+      result.items.map((comic) => signComicImages(comic, ctx.config.cos)),
+    );
+  }
+
   ctx.body = result;
 }
 
@@ -74,9 +82,15 @@ export async function list(ctx) {
 export async function getById(ctx) {
   const { id } = ctx.params;
 
-  const comic = await comicService.getComic(id, isAdmin(ctx));
+  const admin = isAdmin(ctx);
+  const comic = await comicService.getComic(id, admin);
 
-  ctx.body = comic;
+  // 公开请求：将图片 key 替换为 CDN 鉴权 URL
+  if (!admin) {
+    ctx.body = await signComicImages(comic, ctx.config.cos);
+  } else {
+    ctx.body = comic;
+  }
 }
 
 /**
@@ -89,8 +103,8 @@ export async function update(ctx) {
   if (!parsed.success) {
     ctx.status = 400;
     ctx.body = {
-      code: 'VALIDATION_ERROR',
-      message: parsed.error.issues.map((i) => i.message).join('；'),
+      code: "VALIDATION_ERROR",
+      message: parsed.error.issues.map((i) => i.message).join("；"),
       requestId: ctx.state?.requestId,
     };
     return;
@@ -100,8 +114,8 @@ export async function update(ctx) {
   if (Object.keys(parsed.data).length === 0) {
     ctx.status = 400;
     ctx.body = {
-      code: 'VALIDATION_ERROR',
-      message: '至少需要提供一个要更新的字段',
+      code: "VALIDATION_ERROR",
+      message: "至少需要提供一个要更新的字段",
       requestId: ctx.state?.requestId,
     };
     return;

@@ -1,9 +1,10 @@
-// 连载控制器 — 请求参数提取 → 校验 → 调用 Service → 组装响应
+﻿// 连载控制器 — 请求参数提取 → 校验 → 调用 Service → 组装响应
 // 禁止在此层出现业务判断逻辑
 
-import { createSeriesSchema, updateSeriesSchema, listSeriesQuerySchema } from '../validators/series.validator.js';
-import * as seriesService from '../services/series.service.js';
-import { verifyToken } from '../utils/jwt.js';
+import { signComicImages } from "../utils/cdn.js";
+import { createSeriesSchema, updateSeriesSchema, listSeriesQuerySchema } from "../validators/series.validator.js";
+import * as seriesService from "../services/series.service.js";
+import { verifyToken } from "../utils/jwt.js";
 
 /**
  * 判断当前请求是否为管理员。
@@ -13,7 +14,7 @@ import { verifyToken } from '../utils/jwt.js';
 function isAdmin(ctx) {
   if (ctx.state?.admin?.sub) return true;
 
-  const token = ctx.cookies.get('admin_session');
+  const token = ctx.cookies.get("admin_session");
   if (!token) return false;
 
   try {
@@ -32,8 +33,8 @@ export async function create(ctx) {
   if (!parsed.success) {
     ctx.status = 400;
     ctx.body = {
-      code: 'VALIDATION_ERROR',
-      message: parsed.error.issues.map((i) => i.message).join('；'),
+      code: "VALIDATION_ERROR",
+      message: parsed.error.issues.map((i) => i.message).join("；"),
       requestId: ctx.state?.requestId,
     };
     return;
@@ -53,8 +54,8 @@ export async function list(ctx) {
   if (!parsed.success) {
     ctx.status = 400;
     ctx.body = {
-      code: 'VALIDATION_ERROR',
-      message: parsed.error.issues.map((i) => i.message).join('；'),
+      code: "VALIDATION_ERROR",
+      message: parsed.error.issues.map((i) => i.message).join("；"),
       requestId: ctx.state?.requestId,
     };
     return;
@@ -74,7 +75,20 @@ export async function list(ctx) {
 export async function getById(ctx) {
   const { id } = ctx.params;
 
-  const series = await seriesService.getSeries(id, isAdmin(ctx));
+  const admin = isAdmin(ctx);
+  const series = await seriesService.getSeries(id, admin);
+
+  // 公开请求：将成员漫画的图片 key 替换为 CDN 鉴权 URL
+  if (!admin && series.comics && series.comics.length > 0) {
+    series.comics = await Promise.all(
+      series.comics.map(async (entry) => {
+        if (entry.comic) {
+          entry.comic = await signComicImages(entry.comic, ctx.config.cos);
+        }
+        return entry;
+      }),
+    );
+  }
 
   ctx.body = series;
 }
@@ -89,8 +103,8 @@ export async function update(ctx) {
   if (!parsed.success) {
     ctx.status = 400;
     ctx.body = {
-      code: 'VALIDATION_ERROR',
-      message: parsed.error.issues.map((i) => i.message).join('；'),
+      code: "VALIDATION_ERROR",
+      message: parsed.error.issues.map((i) => i.message).join("；"),
       requestId: ctx.state?.requestId,
     };
     return;
@@ -100,8 +114,8 @@ export async function update(ctx) {
   if (Object.keys(parsed.data).length === 0) {
     ctx.status = 400;
     ctx.body = {
-      code: 'VALIDATION_ERROR',
-      message: '至少需要提供一个要更新的字段',
+      code: "VALIDATION_ERROR",
+      message: "至少需要提供一个要更新的字段",
       requestId: ctx.state?.requestId,
     };
     return;
