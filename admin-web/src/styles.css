@@ -1,3 +1,455 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 210 17% 98%;
+        /* Google 经典浅灰底色 #f8f9fa */
+        --foreground: 225 6% 13%;
+        /* 经典墨黑主文本 #202124 */
+
+        --card: 0 0% 100%;
+        /* 纯白卡片与容器 #ffffff */
+        --card-foreground: 225 6% 13%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 225 6% 13%;
+
+        --primary: 162 99% 26.5%;
+        /* Google Play 官方绿 #01875f */
+        --primary-foreground: 0 0% 100%;
+        /* 纯白前景色 */
+
+        --secondary: 138 33% 93%;
+        /* 激活胶囊背景 #e6f4ea */
+        --secondary-foreground: 162 99% 20%;
+        /* 深绿色前景色 */
+
+        --muted: 220 9% 95%;
+        /* 浅灰输入框 #f1f3f4 */
+        --muted-foreground: 213 5% 39%;
+        /* 描述中灰 #5f6368 */
+
+        --accent: 138 33% 93%;
+        --accent-foreground: 162 99% 20%;
+
+        --destructive: 4 90% 50%;
+        /* 状态报错红 */
+        --destructive-foreground: 0 0% 100%;
+
+        --border: 220 9% 87%;
+        /* 极细边框线 #dadce0 */
+        --input: 220 9% 87%;
+
+        --ring: 162 99% 26.5%;
+        --radius: 12px;
+        /* Material 3 规范圆角 */
+
+        --sidebar: #eff4f7;
+        --sidebar-foreground: #1e293b;
+    }
+
+    /* 深色主题变量 */
+    .dark {
+        --background: 226 36% 12%;
+        /* #151a28 */
+        --foreground: 226 68% 94%;
+        /* #e5ebfa */
+
+        --card: 224 30% 16%;
+        /* #1c2236 */
+        --card-foreground: 226 68% 94%;
+
+        --popover: 224 30% 16%;
+        --popover-foreground: 226 68% 94%;
+
+        --primary: 162 99% 26.5%;
+        /* #01875f 不变 */
+        --primary-foreground: 0 0% 100%;
+
+        --secondary: 224 28% 19%;
+        /* 深色次要背景 */
+        --secondary-foreground: 226 68% 94%;
+
+        --muted: 224 28% 19%;
+        /* #232a3e */
+        --muted-foreground: 222 18% 61%;
+        /* #8892b0 */
+
+        --accent: 224 30% 18%;
+        /* #1e2540 */
+        --accent-foreground: 226 68% 94%;
+
+        --destructive: 0 72% 63%;
+        /* #ef4444 深色下提亮 */
+        --destructive-foreground: 210 40% 98%;
+
+        --border: 226 32% 24%;
+        /* #2a3352 */
+        --input: 224 28% 19%;
+        /* #232a3e */
+
+        --ring: 224 40% 40%;
+
+        --sidebar: #0e111b;
+        --sidebar-foreground: #e5ebfa;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        @apply bg-background text-foreground antialiased min-h-screen;
+        background-attachment: fixed;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* ============================================
+   Material 3 阴影系统
+   ============================================ */
+@layer utilities {
+    .m3-shadow-sm {
+        box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    }
+
+    .m3-shadow-md {
+        box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+    }
+
+    .m3-shadow-lg {
+        box-shadow: 0 2px 6px 2px rgba(60, 64, 67, 0.15), 0 1px 2px 0 rgba(60, 64, 67, 0.3);
+    }
+}
+
+/* ============================================
+   骨架屏 Shimmer 闪光动画
+   ============================================ */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg,
+            #f0f0f0 25%,
+            #e0e0e0 50%,
+            #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite ease-in-out;
+    border-radius: 8px;
+}
+
+.skeleton-text {
+    height: 14px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg,
+            #f0f0f0 25%,
+            #e8e8e8 50%,
+            #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite ease-in-out;
+}
+
+.skeleton-avatar {
+    border-radius: 50%;
+    background: linear-gradient(90deg,
+            #f0f0f0 25%,
+            #e0e0e0 50%,
+            #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite ease-in-out;
+}
+
+/* 骨架屏深色模式 */
+.dark .skeleton,
+.dark .skeleton-avatar {
+    background: linear-gradient(90deg, #1c2236 25%, #232a3e 50%, #1c2236 75%);
+    background-size: 200% 100%;
+}
+
+.dark .skeleton-text {
+    background: linear-gradient(90deg, #1c2236 25%, #272f45 50%, #1c2236 75%);
+    background-size: 200% 100%;
+}
+
+/* ============================================
+   页面进入动画
+   ============================================ */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out both;
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.25s ease-out both;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.2s ease-out both;
+}
+
+/* ============================================
+   Material 3 按钮微交互
+   ============================================ */
+.btn-m3-primary {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:bg-[#00704e] hover:shadow-md;
+    @apply active:scale-[0.97] active:bg-[#005f42];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary disabled:active:scale-100;
+}
+
+.btn-m3-secondary {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:bg-accent hover:border-border;
+    @apply active:scale-[0.97] active:bg-muted;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-m3-danger {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply rounded-xl bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-600;
+    @apply border border-red-200;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:bg-red-100 hover:border-red-300;
+    @apply active:scale-[0.97];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.dark .btn-m3-danger {
+    @apply bg-red-950/50 text-red-400 border-red-800;
+    @apply hover:bg-red-950/70 hover:border-red-700;
+}
+
+/* ============================================
+   卡片微交互增强
+   ============================================ */
+.card-m3 {
+    @apply rounded-2xl border border-border bg-card p-6;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:shadow-md hover:border-border;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+}
+
+.dark .card-m3 {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.card-m3-interactive {
+    @apply card-m3 cursor-pointer;
+    @apply hover:scale-[1.005] hover:-translate-y-0.5;
+    @apply active:scale-[0.995];
+}
+
+/* ============================================
+   输入框聚焦动画
+   ============================================ */
+.input-m3 {
+    @apply w-full rounded-xl border border-border bg-muted px-4 py-2.5 text-sm text-foreground;
+    @apply placeholder:text-muted-foreground;
+    @apply transition-all duration-200 ease-out;
+    @apply focus:outline-none focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/20;
+}
+
+/* ============================================
+   Badge 状态标签
+   ============================================ */
+.badge-active {
+    @apply inline-flex items-center gap-1 rounded-full bg-[#e6f4ea] px-2.5 py-0.5 text-xs font-semibold text-[#137333];
+}
+
+.dark .badge-active {
+    @apply bg-emerald-950/50 text-emerald-400;
+}
+
+.badge-pending {
+    @apply inline-flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-semibold text-orange-700;
+}
+
+.dark .badge-pending {
+    @apply bg-orange-950/50 text-orange-400;
+}
+
+.badge-disabled {
+    @apply inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700;
+}
+
+.dark .badge-disabled {
+    @apply bg-red-950/50 text-red-400;
+}
+
+/* ============================================
+   Toast 吐司通知动画
+   ============================================ */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+.toast-enter {
+    animation: slideInRight 0.3s ease-out both;
+}
+
+.toast-exit {
+    animation: slideOutRight 0.25s ease-in both;
+}
+
+@keyframes toastSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes toastSlideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+}
+
+.toast-slide-down-enter {
+    animation: toastSlideDown 0.28s cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.toast-slide-up-exit {
+    animation: toastSlideUp 0.22s ease-in both;
+}
+
+
+/* ============================================
+   滚动条美化
+   ============================================ */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(60, 64, 67, 0.2);
+    border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(60, 64, 67, 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(200, 210, 230, 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(200, 210, 230, 0.3);
+}
+
+/* ============================================
+   弹窗遮罩淡入
+   ============================================ */
+.modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center;
+    background: rgba(32, 33, 36, 0.5);
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.2s ease-out both;
+}
+
+.modal-content {
+    animation: scaleIn 0.2s ease-out both;
+}
+
+/* ============================================
+   药丸过滤器激活态
+   ============================================ */
+.pill-filter {
+    @apply px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer;
+    @apply transition-all duration-200 ease-out;
+    @apply text-muted-foreground hover:bg-muted;
+}
+
+.pill-filter-active {
+    @apply bg-secondary text-secondary-foreground font-semibold;
+}

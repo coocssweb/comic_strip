@@ -34,4 +34,5 @@ API skill 负责工作流程，API 规范负责接口事实。新增、删除或
 - `../.agents/skills/admin-web-drawer/SKILL.md`
 - `../.agents/skills/admin-web-form-select/SKILL.md`
 - `../.agents/skills/admin-web-pagination/SKILL.md`
+- `../.agents/skills/admin-web-password/SKILL.md`
 - `../.agents/skills/admin-web-ui-primitives/SKILL.md`

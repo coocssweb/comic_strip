@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script>
-    (function () {
-      try {
-        var mode = localStorage.getItem('theme-mode') || 'system';
-        var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        var isDark = mode === 'dark' || (mode === 'system' && systemDark);
+    // (function () {
+    //   try {
+    //     var mode = localStorage.getItem('theme-mode') || 'system';
+    //     var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    //     var isDark = mode === 'dark' || (mode === 'system' && systemDark);
 
-        document.documentElement.classList.toggle('dark', isDark);
-        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-      } catch (error) {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.style.colorScheme = 'light';
-      }
-    })();
+    //     document.documentElement.classList.toggle('dark', isDark);
+    //     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    //   } catch (error) {
+    //     document.documentElement.classList.remove('dark');
+    //     document.documentElement.style.colorScheme = 'light';
+    //   }
+    // })();
   </script>
-  <title><%= htmlWebpackPlugin.options.title %></title>
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
 </head>
+
 <body class="antialiased min-h-screen">
   <div id="root"></div>
 </body>
+
 </html>
