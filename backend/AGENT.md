@@ -32,7 +32,7 @@ Repository 只做数据存取封装，不含业务判断，插入在 Service 与
 
 ## 中间件与依赖库选型
 以下功能对应的库已锁定，**禁止在 spec 未指定替代方案的情况下自行选型或手搓等效实现**：
-- 路由：`koa-router`
+- 路由：`@koa/router`
 - Body 解析：`koa-bodyparser`
 - 鉴权：`koa-jwt` 做路由保护中间件 + `jsonwebtoken`做登录签发
 - 安全头：`koa-helmet`
