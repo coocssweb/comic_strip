@@ -50,7 +50,7 @@ export default function AdminLayout() {
         {/* Logo / 品牌区 */}
         <div className={cn('flex items-center border-b border-border/50 px-4 py-4', collapsed && 'justify-center px-2')}>
           {!collapsed && (
-            <h1 className="text-sm font-extrabold text-[var(--sidebar-foreground)] truncate">四格漫画管理端</h1>
+            <h1 className="text-sm font-extrabold text-[var(--sidebar-foreground)] truncate">四格漫画</h1>
           )}
         </div>
 

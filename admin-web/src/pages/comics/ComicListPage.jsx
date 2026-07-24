@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Edit, ImageOff } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useGetComicsListQuery, useCreateComicMutation } from '@/store/api/comicsApi';
-import ComicStatusBadge from '@/components/ComicStatusBadge';
+import ComicStatusBadge from './ComicStatusBadge';
 import Pagination from '@/components/Pagination';
 import Toast from '@/components/Toast';
 import { Button } from '@/components/ui/button';

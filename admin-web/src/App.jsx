@@ -4,10 +4,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { store as defaultStore } from './store';
 import { useAuth } from './hooks/useAuth';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/login/LoginPage';
 import AdminLayout from './layouts/AdminLayout';
-import ComicListPage from './pages/ComicListPage';
-import ComicEditPage from './pages/ComicEditPage';
+import ComicListPage from './pages/comics/ComicListPage';
+import ComicEditPage from './pages/comics/ComicEditPage';
 
 /**
  * 认证引导组件

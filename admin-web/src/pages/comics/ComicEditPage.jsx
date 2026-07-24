@@ -4,7 +4,7 @@ import { ArrowLeft, X } from 'lucide-react';
 import { useGetComicByIdQuery, useUpdateComicMutation, usePublishComicMutation, useUnpublishComicMutation, useDeleteComicMutation, useRestoreComicMutation } from '@/store/api/comicsApi';
 import { seriesAPI, imageAPI } from '@/api';
 import { useComicForm } from '@/hooks/useComicForm';
-import ComicStatusBadge from '@/components/ComicStatusBadge';
+import ComicStatusBadge from './ComicStatusBadge';
 import { CoverUploader, BodyImagesUploader } from '@/components/ImageUploader';
 import FocusInput from '@/components/FocusInput';
 import { Field } from '@/components/FocusInput';

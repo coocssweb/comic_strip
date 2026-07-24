@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, KeyRound, LogOut } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import { useSessionExpiry } from '../hooks/useSessionExpiry';
-import ChangePasswordModal from '../components/ChangePasswordModal';
-import SessionExpiryWarningModal from '../components/SessionExpiryWarningModal';
-import { Button } from '../components/ui/button';
+import { useAuth } from '../../hooks/useAuth';
+import { useSessionExpiry } from '../../hooks/useSessionExpiry';
+import ChangePasswordModal from './ChangePasswordModal';
+import SessionExpiryWarningModal from './SessionExpiryWarningModal';
+import { Button } from '../../components/ui/button';
 
 export default function HomePage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);

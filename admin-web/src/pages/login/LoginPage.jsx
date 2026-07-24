@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Shield, User } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import PasswordInput from '../components/PasswordInput';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
+import { useAuth } from '../../hooks/useAuth';
+import PasswordInput from '../../components/PasswordInput';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
