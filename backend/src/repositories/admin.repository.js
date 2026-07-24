@@ -66,3 +66,49 @@ export async function incrementSessionGeneration(id, expectedGeneration) {
 export async function updatePasswordHash(id, passwordHash) {
   return Admin.findByIdAndUpdate(id, { passwordHash }, { new: true, lean: true });
 }
+/**
+ * 原子更新管理员凭据：同时写入新密码散列并递增 sessionGeneration
+ * 以当前 sessionGeneration 为 CAS 前值校验，防止并发覆盖
+ *
+ * @param {string} id - 管理员 ID
+ * @param {string} passwordHash - 新 Argon2id 密码散列
+ * @param {number} expectedGeneration - 期望的当前 sessionGeneration 值
+ * @returns {Promise<{ _id: string, username: string, sessionGeneration: number }>}
+ * @throws {AppError} CAS 校验失败（并发冲突）时抛出 409 ADMIN_CREDENTIAL_CONFLICT
+ */
+export async function updateCredentials(id, passwordHash, expectedGeneration) {
+  const result = await Admin.findOneAndUpdate(
+    {
+      _id: id,
+      sessionGeneration: expectedGeneration,
+    },
+    {
+      $set: { passwordHash },
+      $inc: { sessionGeneration: 1 },
+    },
+    { new: true, lean: true },
+  );
+
+  if (!result) {
+    throw new AppError("管理员凭据已被并发修改，请刷新后重试", 409, "ADMIN_CREDENTIAL_CONFLICT");
+  }
+
+  return result;
+}
+
+/**
+ * 统计管理员总数 — 用于 CLI 判断是否已存在管理员
+ * @returns {Promise<number>}
+ */
+export async function count() {
+  return Admin.countDocuments();
+}
+
+/**
+ * 获取唯一管理员（取第一条记录）
+ * 系统最多一个管理员，此方法用于 CLI 恢复场景
+ * @returns {Promise<object|null>}
+ */
+export async function findFirst() {
+  return Admin.findOne().lean();
+}

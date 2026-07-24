@@ -3,15 +3,25 @@
 
 import argon2 from "argon2";
 import { AppError } from "../middlewares/error-handler.middleware.js";
-import { findByUsername, findById as findAdminById } from "../repositories/admin.repository.js";
+import {
+  findByUsername,
+  findById as findAdminById,
+  updateCredentials,
+} from "../repositories/admin.repository.js";
 import {
   create as createSession,
   findById as findSessionById,
   remove as removeSession,
   extendIdleExpiresAt,
+  removeAllByAdminId,
 } from "../repositories/session.repository.js";
 import { signToken, verifyToken } from "../utils/jwt.js";
 import { generateCsrfToken } from "../utils/csrf.js";
+import {
+  validateNewPassword,
+  isPasswordUnchanged,
+  normalizePassword,
+} from "./password.service.js";
 
 // ── 会话时间常量 ──
 /** JWT 绝对过期时间（秒）：24 小时 */
@@ -277,4 +287,108 @@ export async function logout(sessionId, csrfToken, origin, expectedOrigin, logge
       sessionId,
     });
   }
+}
+
+// ── 密码修改 ──
+
+/**
+ * 修改管理员密码
+ * 验证当前密码 → 校验新密码 → CAS 原子更新凭据 → 递增 sessionGeneration 撤销全部会话
+ *
+ * @param {{
+ *   adminId: string,
+ *   sessionId: string,
+ *   currentPassword: string,
+ *   newPassword: string,
+ *   csrfToken: string,
+ *   origin: string,
+ *   sessionGeneration: number,
+ * }} params
+ * @param {string} expectedOrigin - 配置的允许来源
+ * @param {object} [logger] - 可选 logger
+ * @returns {Promise<{ username: string }>}
+ */
+export async function changePassword(params, expectedOrigin, logger) {
+  const {
+    adminId,
+    sessionId,
+    currentPassword,
+    newPassword,
+    csrfToken,
+    origin,
+    sessionGeneration,
+  } = params;
+
+  // 1. 验证 Origin 头
+  if (!origin || origin !== expectedOrigin) {
+    throw new AppError("CSRF 校验失败", 403, "CSRF_VALIDATION_FAILED");
+  }
+
+  // 2. 验证 CSRF token（与当前会话匹配）
+  let sessionRecord;
+  try {
+    sessionRecord = await findSessionById(sessionId);
+  } catch {
+    throw new AppError("服务暂时不可用", 503, "SERVICE_UNAVAILABLE");
+  }
+
+  if (!sessionRecord || sessionRecord.csrfToken !== csrfToken) {
+    throw new AppError("CSRF 校验失败", 403, "CSRF_VALIDATION_FAILED");
+  }
+
+  // 3. 查找管理员（重新读取最新的 passwordHash 和 sessionGeneration）
+  const admin = await findAdminById(adminId);
+  if (!admin) {
+    throw new AppError("认证已失效，请重新登录", 401, "ADMIN_AUTH_REQUIRED");
+  }
+
+  // 4. 验证当前密码（先验证，失败不暴露新密码校验结果）
+  let currentPasswordValid = false;
+  try {
+    currentPasswordValid = await argon2.verify(admin.passwordHash, currentPassword);
+  } catch {
+    // argon2 内部异常，同样视为验证失败
+  }
+
+  if (!currentPasswordValid) {
+    // 写入审计摘要（不含密码、不修改限速桶）
+    if (logger) {
+      logger.warn({
+        event: "admin_password_change_failed",
+        reason: "current_password_invalid",
+        adminId,
+        sessionId,
+      });
+    }
+    throw new AppError("当前密码错误", 403, "CURRENT_PASSWORD_INVALID");
+  }
+
+  // 5. 校验新密码（NFC 规范化 → 长度 → 弱密码阻止名单）
+  const normalizedNew = validateNewPassword(newPassword);
+
+  // 6. 检查规范化后新密码是否与当前密码相同
+  if (isPasswordUnchanged(normalizedNew, currentPassword)) {
+    throw new AppError("新密码不能与当前密码相同", 409, "ADMIN_CREDENTIAL_UNCHANGED");
+  }
+
+  // 7. 对规范化后的新密码进行 Argon2id 散列
+  const newHash = await argon2.hash(normalizedNew);
+
+  // 8. CAS 原子更新：写入 passwordHash + 递增 sessionGeneration
+  // 使用从会话/JWT 中读取的 sessionGeneration 作为 CAS 前值
+  await updateCredentials(adminId, newHash, sessionGeneration);
+
+  // 9. 撤销全部会话（batch delete，容错）
+  await removeAllByAdminId(adminId);
+
+  // 10. 审计日志（不含密码、JWT、CSRF token）
+  if (logger) {
+    logger.info({
+      event: "admin_password_change_success",
+      adminId,
+      previousSessionGeneration: sessionGeneration,
+    });
+  }
+
+  return { username: admin.username };
 }

@@ -2,7 +2,7 @@
 // 禁止在此层出现业务判断逻辑
 
 import { AppError } from "../middlewares/error-handler.middleware.js";
-import { login as loginService, recoverSession, logout as logoutService } from "../services/auth.service.js";
+import { login as loginService, recoverSession, logout as logoutService, changePassword as changePasswordService } from "../services/auth.service.js";
 import { verifyToken } from "../utils/jwt.js";
 
 /** Cookie 名称 */
@@ -103,6 +103,48 @@ export async function logout(ctx) {
   }
 
   // 清除 Cookie（无论 sessionId 是否存在都执行）
+  setAuthCookie(ctx, "", 0);
+
+  ctx.status = 204;
+}
+
+/**
+ * PATCH /admin/auth/password
+ * 验证当前密码后修改为新密码，成功后撤销全部会话并清除 Cookie
+ */
+export async function changePassword(ctx) {
+  const token = ctx.cookies.get(COOKIE_NAME);
+  if (!token) {
+    throw new AppError("认证已失效，请重新登录", 401, "ADMIN_AUTH_REQUIRED");
+  }
+
+  // 从 JWT 中解析 adminId、sessionId 和 sessionGeneration
+  let payload;
+  try {
+    payload = verifyToken(token, ctx.config.adminJwtSecret);
+  } catch {
+    throw new AppError("认证已失效，请重新登录", 401, "ADMIN_AUTH_REQUIRED");
+  }
+
+  const { currentPassword, newPassword } = ctx.request.body;
+  const csrfToken = ctx.get("X-CSRF-Token") || "";
+  const origin = ctx.get("Origin") || "";
+
+  await changePasswordService(
+    {
+      adminId: payload.sub,
+      sessionId: payload.sid,
+      currentPassword,
+      newPassword,
+      csrfToken,
+      origin,
+      sessionGeneration: payload.gen,
+    },
+    ctx.config.adminWebOrigin,
+    ctx.logger,
+  );
+
+  // 清除认证 Cookie，要求使用新密码重新登录
   setAuthCookie(ctx, "", 0);
 
   ctx.status = 204;
