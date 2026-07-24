@@ -1,5 +1,6 @@
-﻿import { configureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { comicsApi } from './api/comicsApi';
+import { seriesApi } from './api/seriesApi';
 import authReducer from './slices/authSlice';
 
 export function createStore(preloadedState) {
@@ -7,9 +8,10 @@ export function createStore(preloadedState) {
     reducer: {
       auth: authReducer,
       [comicsApi.reducerPath]: comicsApi.reducer,
+      [seriesApi.reducerPath]: seriesApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(comicsApi.middleware),
+      getDefaultMiddleware().concat(comicsApi.middleware, seriesApi.middleware),
     preloadedState,
   });
 }

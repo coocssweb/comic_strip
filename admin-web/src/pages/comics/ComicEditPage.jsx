@@ -1,5 +1,6 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigationGuard } from '@/hooks/useNavigationGuard';
 import { ArrowLeft, X } from 'lucide-react';
 import { useGetComicByIdQuery, useUpdateComicMutation, usePublishComicMutation, useUnpublishComicMutation, useDeleteComicMutation, useRestoreComicMutation } from '@/store/api/comicsApi';
 import { seriesAPI, imageAPI } from '@/api';
@@ -94,24 +95,31 @@ export default function ComicEditPage() {
     }
   }, [comic?.bodyImages]);
 
-  // 未保存离开确认：路由守卫 + beforeunload
-  const warnIfDirty = useCallback(() => {
-    if (form.isDirty() || form.hasImageChanges()) {
-      return true;
-    }
-    return false;
-  }, [form]);
+  // 未保存变更检测
+  const { isDirty, hasImageChanges } = form;
+  const hasUnsavedChanges = useMemo(
+    () => isDirty() || hasImageChanges(),
+    [isDirty, hasImageChanges],
+  );
 
+  // 路由导航守卫：拦截浏览器后退/前进及编程式跳转
+  useNavigationGuard({
+    when: hasUnsavedChanges,
+    title: '你有未保存的修改',
+    content: '确定要离开吗？未保存的修改将会丢失。',
+  });
+
+  // 浏览器标签页关闭/刷新拦截
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (warnIfDirty()) {
+      if (hasUnsavedChanges) {
         e.preventDefault();
         e.returnValue = '';
       }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [warnIfDirty]);
+  }, [hasUnsavedChanges]);
 
   // 状态操作 handlers
   const handlePublish = async () => {
@@ -224,15 +232,7 @@ export default function ComicEditPage() {
         <div className="flex items-center gap-4">
           <button
             type="button"
-            onClick={() => {
-              if (warnIfDirty()) {
-                if (window.confirm('你有未保存的修改，确定要离开吗？')) {
-                  navigate('/comics');
-                }
-              } else {
-                navigate('/comics');
-              }
-            }}
+            onClick={() => navigate('/comics')}
             className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -376,15 +376,7 @@ export default function ComicEditPage() {
         </Button>
         <Button
           variant="ghost"
-          onClick={() => {
-            if (warnIfDirty()) {
-              if (window.confirm('你有未保存的修改，确定要离开吗？')) {
-                navigate('/comics');
-              }
-            } else {
-              navigate('/comics');
-            }
-          }}
+          onClick={() => navigate('/comics')}
           className="text-sm font-medium text-muted-foreground"
         >
           ← 返回列表
