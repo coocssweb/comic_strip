@@ -4,6 +4,7 @@ import { Shield, User } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import PasswordInput from '../components/PasswordInput';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -80,7 +81,8 @@ export default function LoginPage() {
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground">
               <User className="h-4 w-4" />
             </span>
-            <input
+            <Input
+              variant="form"
               type="text"
               name="username"
               autoComplete="username"
@@ -88,7 +90,7 @@ export default function LoginPage() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="管理员用户名"
               disabled={isLoading}
-              className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-3.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
+              className="bg-card pl-10"
             />
           </div>
 

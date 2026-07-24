@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Dialog from './Dialog';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { Input } from './ui/input';
 
 /**
  * 统计字符串的 Unicode 码点数量（非 UTF-16 码元长度）
@@ -107,14 +108,15 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
           >
             当前密码
           </label>
-          <input
+          <Input
+            variant="form"
             id="modal-current-password"
             type="password"
             name="currentPassword"
             autoComplete="current-password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
+            className="bg-background"
             placeholder="请输入当前密码"
             disabled={isLoading}
           />
@@ -127,14 +129,15 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
           >
             新密码
           </label>
-          <input
+          <Input
+            variant="form"
             id="modal-new-password"
             type="password"
             name="newPassword"
             autoComplete="new-password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
+            className="bg-background"
             placeholder="5-28 个字符"
             disabled={isLoading}
           />
@@ -147,14 +150,15 @@ export default function ChangePasswordModal({ isOpen, onClose }) {
           >
             确认新密码
           </label>
-          <input
+          <Input
+            variant="form"
             id="modal-confirm-password"
             type="password"
             name="confirmPassword"
             autoComplete="new-password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-semibold text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
+            className="bg-background"
             placeholder="再次输入新密码"
             disabled={isLoading}
           />

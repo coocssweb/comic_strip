@@ -3,3 +3,4 @@ backend/node_modules/
 backend/.env
 backend/coverage/
 backend/npm-debug.log*
+tests/*

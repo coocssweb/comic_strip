@@ -146,7 +146,19 @@ module.exports = (_env, argv = {}) => {
       port: appConfig.port,
       historyApiFallback: true,
       hot: true,
-      open: false
+      open: false,
+      // Proxy /admin to backend when PROXY_TARGET is set (E2E tests)
+      ...(process.env.PROXY_TARGET
+        ? {
+            proxy: [
+              {
+                context: ['/admin'],
+                target: process.env.PROXY_TARGET,
+                changeOrigin: true,
+              },
+            ],
+          }
+        : {}),
     }
   };
 };
