@@ -61,6 +61,11 @@ export function loadConfig() {
     safeParse(secretSchema("ADMIN_JWT_SECRET"), "ADMIN_JWT_SECRET", errors);
     safeParse(secretSchema("SECURITY_HMAC_SECRET"), "SECURITY_HMAC_SECRET", errors);
     safeParse(originSchema, "ADMIN_WEB_ORIGIN", errors);
+    // COS 配置——非 test 环境必填
+    safeParse(z.string().min(1, "COS_SECRET_ID 不能为空"), "COS_SECRET_ID", errors);
+    safeParse(z.string().min(1, "COS_SECRET_KEY 不能为空"), "COS_SECRET_KEY", errors);
+    safeParse(z.string().min(1, "COS_BUCKET 不能为空"), "COS_BUCKET", errors);
+    safeParse(z.string().min(1, "COS_REGION 不能为空"), "COS_REGION", errors);
   }
   safeParse(logLevelSchema, "LOG_LEVEL", errors);
 
@@ -80,6 +85,13 @@ export function loadConfig() {
     securityHmacSecret: process.env.SECURITY_HMAC_SECRET ?? "",
     adminWebOrigin: process.env.ADMIN_WEB_ORIGIN ?? "",
     logLevel: process.env.LOG_LEVEL ?? "info",
+    cos: {
+      secretId: process.env.COS_SECRET_ID ?? "",
+      secretKey: process.env.COS_SECRET_KEY ?? "",
+      bucket: process.env.COS_BUCKET ?? "",
+      region: process.env.COS_REGION ?? "",
+      cdnDomain: process.env.COS_CDN_DOMAIN ?? "",
+    },
   };
 }
 

@@ -58,7 +58,7 @@ export function createApp() {
 
   // 6. Body 解析 — 限制 JSON 大小为 8 KiB（登录端点需求）
   app.use(bodyParser({
-    jsonLimit: '8kb',
+    jsonLimit: '1mb', // 从 8kb 提升到 1mb，支持图片绑定请求（含封面+正文图片 key 数组）
   }));
 
   // 7. 业务路由
