@@ -111,3 +111,38 @@ export async function update(ctx) {
 
   ctx.body = comic;
 }
+/**
+ * POST /api/v1/comics/:id/publish — 发布漫画（管理员）
+ */
+export async function publish(ctx) {
+  const { id } = ctx.params;
+  const comic = await comicService.publishComic(id);
+  ctx.body = comic;
+}
+
+/**
+ * POST /api/v1/comics/:id/unpublish — 下架漫画（管理员）
+ */
+export async function unpublish(ctx) {
+  const { id } = ctx.params;
+  const comic = await comicService.unpublishComic(id);
+  ctx.body = comic;
+}
+
+/**
+ * DELETE /api/v1/comics/:id — 软删除漫画（管理员）
+ */
+export async function remove(ctx) {
+  const { id } = ctx.params;
+  await comicService.deleteComic(id);
+  ctx.status = 204;
+}
+
+/**
+ * POST /api/v1/comics/:id/restore — 恢复已删除漫画（管理员）
+ */
+export async function restore(ctx) {
+  const { id } = ctx.params;
+  const comic = await comicService.restoreComic(id);
+  ctx.body = comic;
+}

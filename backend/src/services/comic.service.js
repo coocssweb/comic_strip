@@ -90,3 +90,92 @@ export async function updateComic(id, updates) {
 
   return comicRepo.update(id, updates);
 }
+/**
+ * 发布漫画：draft 或 unpublished 状态可发布，但必须有封面。
+ *
+ * @param {string} id - 漫画 ID
+ * @returns {Promise<object>} 发布后的漫画对象
+ * @throws {AppError} 漫画不存在（404）、状态冲突（409）、无封面（409）
+ */
+export async function publishComic(id) {
+  const comic = await comicRepo.findById(id);
+
+  if (!comic) {
+    throw new AppError('漫画不存在', 404, 'COMIC_NOT_FOUND');
+  }
+
+  // 只有 draft 或 unpublished 才能发布
+  if (comic.status !== COMIC_STATUS.DRAFT && comic.status !== COMIC_STATUS.UNPUBLISHED) {
+    throw new AppError('当前状态不允许发布', 409, 'COMIC_STATUS_CONFLICT');
+  }
+
+  // 发布前必须有封面
+  if (!comic.cover) {
+    throw new AppError('发布前必须上传封面', 409, 'COMIC_NO_COVER');
+  }
+
+  return comicRepo.updateStatus(id, COMIC_STATUS.PUBLISHED, { publishedAt: new Date() });
+}
+
+/**
+ * 下架漫画：仅 published 状态可下架。
+ *
+ * @param {string} id - 漫画 ID
+ * @returns {Promise<object>} 下架后的漫画对象
+ * @throws {AppError} 漫画不存在（404）、状态冲突（409）
+ */
+export async function unpublishComic(id) {
+  const comic = await comicRepo.findById(id);
+
+  if (!comic) {
+    throw new AppError('漫画不存在', 404, 'COMIC_NOT_FOUND');
+  }
+
+  if (comic.status !== COMIC_STATUS.PUBLISHED) {
+    throw new AppError('只有已发布的漫画才能下架', 409, 'COMIC_STATUS_CONFLICT');
+  }
+
+  return comicRepo.updateStatus(id, COMIC_STATUS.UNPUBLISHED);
+}
+
+/**
+ * 软删除漫画：draft 或 unpublished 状态可删除，published 不可删除。
+ *
+ * @param {string} id - 漫画 ID
+ * @returns {Promise<object|null>} 删除后的漫画对象
+ * @throws {AppError} 漫画不存在（404）、状态冲突（409）
+ */
+export async function deleteComic(id) {
+  const comic = await comicRepo.findById(id);
+
+  if (!comic) {
+    throw new AppError('漫画不存在', 404, 'COMIC_NOT_FOUND');
+  }
+
+  if (comic.status !== COMIC_STATUS.DRAFT && comic.status !== COMIC_STATUS.UNPUBLISHED) {
+    throw new AppError('已发布的漫画不能直接删除，请先下架', 409, 'COMIC_STATUS_CONFLICT');
+  }
+
+  return comicRepo.updateStatus(id, COMIC_STATUS.DELETED);
+}
+
+/**
+ * 恢复已删除漫画：仅 deleted 状态可恢复，恢复后为 draft。
+ *
+ * @param {string} id - 漫画 ID
+ * @returns {Promise<object>} 恢复后的漫画对象
+ * @throws {AppError} 漫画不存在（404）、状态冲突（409）
+ */
+export async function restoreComic(id) {
+  const comic = await comicRepo.findById(id);
+
+  if (!comic) {
+    throw new AppError('漫画不存在', 404, 'COMIC_NOT_FOUND');
+  }
+
+  if (comic.status !== COMIC_STATUS.DELETED) {
+    throw new AppError('只有已删除的漫画才能恢复', 409, 'COMIC_STATUS_CONFLICT');
+  }
+
+  return comicRepo.updateStatus(id, COMIC_STATUS.DRAFT, { publishedAt: null });
+}

@@ -329,6 +329,386 @@ describe('PUT /api/v1/comics/:id', () => {
   })
 })
 
+/** 漫画生命周期操作测试 */
+describe('POST /api/v1/comics/:id/publish', () => {
+  let comicId
+
+  beforeEach(async () => {
+    const comic = await Comic.create({
+      title: 'Publish Test',
+      status: COMIC_STATUS.DRAFT,
+      cover: 'covers/test-cover.jpg',
+      tags: ['test'],
+    })
+    comicId = comic._id
+  })
+
+  it('draft with cover → 200 published and publishedAt is set', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+    const body = await res.json()
+    assert.equal(body.status, COMIC_STATUS.PUBLISHED)
+    assert.ok(body.publishedAt)
+  })
+
+  it('unpublished with cover → 200 published', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.UNPUBLISHED } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+  })
+
+  it('no cover → 409 COMIC_NO_COVER', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { cover: null } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_NO_COVER')
+  })
+
+  it('already published → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.PUBLISHED } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('deleted → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.DELETED } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('unauthenticated → 401', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST',
+    })
+    assert.equal(res.status, 401)
+  })
+
+  it('non-existent comic → 404', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/ffffffff-ffff-ffff-ffff-ffffffffffff/publish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 404)
+    assert.equal((await res.json()).code, 'COMIC_NOT_FOUND')
+  })
+})
+
+describe('POST /api/v1/comics/:id/unpublish', () => {
+  let comicId
+
+  beforeEach(async () => {
+    const comic = await Comic.create({
+      title: 'Unpublish Test',
+      status: COMIC_STATUS.PUBLISHED,
+      cover: 'covers/test.jpg',
+      publishedAt: new Date(),
+    })
+    comicId = comic._id
+  })
+
+  it('published → 200 unpublished', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/unpublish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+    assert.equal((await res.json()).status, COMIC_STATUS.UNPUBLISHED)
+  })
+
+  it('draft → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.DRAFT } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/unpublish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('unpublished → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.UNPUBLISHED } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/unpublish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('deleted → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.DELETED } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/unpublish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('unauthenticated → 401', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/unpublish', {
+      method: 'POST',
+    })
+    assert.equal(res.status, 401)
+  })
+
+  it('non-existent comic → 404', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/ffffffff-ffff-ffff-ffff-ffffffffffff/unpublish', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 404)
+    assert.equal((await res.json()).code, 'COMIC_NOT_FOUND')
+  })
+})
+
+describe('DELETE /api/v1/comics/:id', () => {
+  let draftId
+  let unpublishedId
+  let publishedId
+
+  beforeEach(async () => {
+    const [draft, unpublished, published] = await Comic.create([
+      { title: 'Draft Delete', status: COMIC_STATUS.DRAFT },
+      { title: 'Unpub Delete', status: COMIC_STATUS.UNPUBLISHED },
+      { title: 'Pub Delete', status: COMIC_STATUS.PUBLISHED, cover: 'covers/test.jpg', publishedAt: new Date() },
+    ])
+    draftId = draft._id
+    unpublishedId = unpublished._id
+    publishedId = published._id
+  })
+
+  it('draft → 204 deleted', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + draftId, {
+      method: 'DELETE',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 204)
+
+    const comic = await Comic.findById(draftId).lean()
+    assert.equal(comic.status, COMIC_STATUS.DELETED)
+  })
+
+  it('unpublished → 204 deleted', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + unpublishedId, {
+      method: 'DELETE',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 204)
+
+    const comic = await Comic.findById(unpublishedId).lean()
+    assert.equal(comic.status, COMIC_STATUS.DELETED)
+  })
+
+  it('published → 409 COMIC_STATUS_CONFLICT', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + publishedId, {
+      method: 'DELETE',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('already deleted → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(draftId, { $set: { status: COMIC_STATUS.DELETED } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + draftId, {
+      method: 'DELETE',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('unauthenticated → 401', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + draftId, {
+      method: 'DELETE',
+    })
+    assert.equal(res.status, 401)
+  })
+
+  it('non-existent comic → 404', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/ffffffff-ffff-ffff-ffff-ffffffffffff', {
+      method: 'DELETE',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 404)
+    assert.equal((await res.json()).code, 'COMIC_NOT_FOUND')
+  })
+})
+
+describe('POST /api/v1/comics/:id/restore', () => {
+  let comicId
+
+  beforeEach(async () => {
+    const comic = await Comic.create({
+      title: 'Restore Test',
+      status: COMIC_STATUS.DELETED,
+      cover: 'covers/test.jpg',
+    })
+    comicId = comic._id
+  })
+
+  it('deleted → 200 draft, publishedAt is cleared', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { publishedAt: new Date('2025-01-01') } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/restore', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+    const body = await res.json()
+    assert.equal(body.status, COMIC_STATUS.DRAFT)
+    assert.equal(body.publishedAt, null)
+  })
+
+  it('draft → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.DRAFT } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/restore', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('published → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.PUBLISHED } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/restore', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('unpublished → 409 COMIC_STATUS_CONFLICT', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { status: COMIC_STATUS.UNPUBLISHED } })
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/restore', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('unauthenticated → 401', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/restore', {
+      method: 'POST',
+    })
+    assert.equal(res.status, 401)
+  })
+
+  it('non-existent comic → 404', async () => {
+    const res = await fetch(baseUrl + '/api/v1/comics/ffffffff-ffff-ffff-ffff-ffffffffffff/restore', {
+      method: 'POST',
+      headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 404)
+    assert.equal((await res.json()).code, 'COMIC_NOT_FOUND')
+  })
+})
+
+/** 端到端状态流转测试 */
+describe('comic lifecycle E2E flow', () => {
+  let comicId
+
+  beforeEach(async () => {
+    const comic = await Comic.create({
+      title: 'Lifecycle Test',
+      status: COMIC_STATUS.DRAFT,
+      cover: 'covers/e2e-cover.jpg',
+    })
+    comicId = comic._id
+  })
+
+  it('draft → publish → unpublish → delete → restore → draft', async () => {
+    // 1. 发布
+    let res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+    assert.equal((await res.json()).status, COMIC_STATUS.PUBLISHED)
+
+    // 2. 下架
+    res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/unpublish', {
+      method: 'POST', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+    assert.equal((await res.json()).status, COMIC_STATUS.UNPUBLISHED)
+
+    // 3. 删除
+    res = await fetch(baseUrl + '/api/v1/comics/' + comicId, {
+      method: 'DELETE', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 204)
+
+    // 4. 恢复
+    res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/restore', {
+      method: 'POST', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+    assert.equal((await res.json()).status, COMIC_STATUS.DRAFT)
+  })
+
+  it('draft → delete → restore → publish', async () => {
+    // draft 跳过发布，直接删除再恢复再发布
+    let res = await fetch(baseUrl + '/api/v1/comics/' + comicId, {
+      method: 'DELETE', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 204)
+
+    res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/restore', {
+      method: 'POST', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+    assert.equal((await res.json()).status, COMIC_STATUS.DRAFT)
+
+    res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 200)
+    assert.equal((await res.json()).status, COMIC_STATUS.PUBLISHED)
+  })
+
+  it('published cannot be deleted directly', async () => {
+    await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST', headers: { Cookie: adminCookie },
+    })
+
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId, {
+      method: 'DELETE', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_STATUS_CONFLICT')
+  })
+
+  it('draft without cover cannot be published', async () => {
+    await Comic.findByIdAndUpdate(comicId, { $set: { cover: null } })
+
+    const res = await fetch(baseUrl + '/api/v1/comics/' + comicId + '/publish', {
+      method: 'POST', headers: { Cookie: adminCookie },
+    })
+    assert.equal(res.status, 409)
+    assert.equal((await res.json()).code, 'COMIC_NO_COVER')
+  })
+})
+
 describe('error response format', () => {
   it('error body has code, message, requestId', async () => {
     const res = await fetch(baseUrl + '/api/v1/comics/ffffffff-ffff-ffff-ffff-ffffffffffff')

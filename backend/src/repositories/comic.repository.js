@@ -67,3 +67,17 @@ export async function update(id, updates) {
 
   return Comic.findByIdAndUpdate(id, { $set: setFields }, { new: true, lean: true });
 }
+/**
+ * 更新漫画状态（生命周期操作专用）。
+ * 仅修改 status 及可选的额外字段（如 publishedAt）。
+ * 不验证状态流转合法性——由 Service 层保证。
+ *
+ * @param {string} id - 漫画 ID
+ * @param {string} status - 目标状态
+ * @param {object} [extraFields] - 额外要更新的字段
+ * @returns {Promise<object|null>}
+ */
+export async function updateStatus(id, status, extraFields = {}) {
+  const setFields = { status, ...extraFields };
+  return Comic.findByIdAndUpdate(id, { $set: setFields }, { new: true, lean: true });
+}

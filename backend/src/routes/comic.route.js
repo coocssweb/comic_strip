@@ -21,5 +21,11 @@ export function createComicRouter(config) {
   router.post('/', adminAuth, comicController.create);
   router.put('/:id', adminAuth, comicController.update);
 
+  // 管理员接口：漫画生命周期操作（发布/下架/删除/恢复）
+  router.post('/:id/publish', adminAuth, comicController.publish);
+  router.post('/:id/unpublish', adminAuth, comicController.unpublish);
+  router.delete('/:id', adminAuth, comicController.remove);
+  router.post('/:id/restore', adminAuth, comicController.restore);
+
   return router;
 }
