@@ -1,4 +1,4 @@
-# admin-web API 规范
+﻿# admin-web API 规范
 
 ## 一、通用约定
 
@@ -139,7 +139,7 @@ export const exampleAPI = new ExampleAPI();
 
 | 资源 | 列表与新增 | 编辑与删除 | 载荷 |
 | --- | --- | --- | --- |
-| 主题标签 | `GET`、`POST /admin/tags` | `PATCH`、`DELETE /admin/tags/:tagId` | `{ name, sortOrder }` |
+| 主题标签 | `GET`、`POST /admin/tags`、`GET /admin/tags/:id` | `PATCH`、`DELETE /admin/tags/:id`、`POST /admin/tags/:id/restore`、`DELETE /admin/tags/:id/permanent` | `{ name, sortOrder }`；PATCH 额外支持 `status`（enabled/disabled/deleted）、`isRecommended`、`recommendedOrder`；GET 列表支持 `?status=&isRecommended=&page=&pageSize=&sort=` |
 | 漫画系列 | `GET`、`POST /admin/series` | `PATCH`、`DELETE /admin/series/:seriesId` | `{ name, summary, authorByline }` |
 | 漫画单话 | `GET`、`POST /admin/episodes` | `PATCH`、`DELETE /admin/episodes/:episodeId` | `{ seriesId, title, summary?, themeTagId, panels: [{ position, imageUrl, altText? }] }` |
 | 运营专题 | `GET`、`POST /admin/topics` | `GET`、`PATCH`、`DELETE /admin/topics/:topicId` | `{ title, summary?, coverImageUrl, episodeIds }` |
@@ -223,6 +223,32 @@ export const exampleAPI = new ExampleAPI();
 }
 ```
 
+
+### 标签数据结构
+
+```json
+{
+  "_id": "string (UUID v4)",
+  "name": "string (1-30 字符，启用/停用标签之间唯一)",
+  "status": "enabled | disabled | deleted",
+  "sortOrder": 0,
+  "isRecommended": false,
+  "recommendedOrder": 0,
+  "createdAt": "ISO 8601",
+  "updatedAt": "ISO 8601"
+}
+```
+
+标签状态机：
+```
+enabled ──[status: disabled]──→ disabled ──[status: enabled]──→ enabled
+   │                                │
+   └──[DELETE]──→ deleted ←──[DELETE]──┘
+                      │
+                      └──[POST /restore]──→ disabled（不自动启用，不恢复推荐资格）
+                      │
+                      └──[DELETE /permanent]──→ 物理删除
+```
 ### 连载列表（供下拉选择）
 
 | 方法 | 路径 | 说明 |

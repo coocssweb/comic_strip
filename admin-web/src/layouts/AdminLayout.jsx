@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { BookOpen, Tag, Layers, Settings, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 // 侧边栏菜单项配置
 const MENU_ITEMS = [
   { key: '/comics', label: '漫画管理', icon: BookOpen, enabled: true },
-  { key: '/tags', label: '标签管理', icon: Tag, enabled: false },
+  { key: '/tags', label: '标签管理', icon: Tag, enabled: true },
   { key: '/series', label: '连载管理', icon: Layers, enabled: true },
   { key: '/settings', label: '设置', icon: Settings, enabled: false },
 ];

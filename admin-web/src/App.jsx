@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Provider } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ import AdminLayout from './layouts/AdminLayout';
 import ComicListPage from './pages/comics/ComicListPage';
 import SeriesListPage from './pages/series/SeriesListPage';
 import SeriesEditPage from './pages/series/SeriesEditPage';
+import TagListPage from './pages/tags/TagListPage';
 import ComicEditPage from './pages/comics/ComicEditPage';
 
 /**
@@ -119,6 +120,7 @@ export default function App({ store = defaultStore }) {
             <Route path="/comics/:id" element={<ComicEditPage />} />
             <Route path="/series" element={<SeriesListPage />} />
             <Route path="/series/:id" element={<SeriesEditPage />} />
+            <Route path="/tags" element={<TagListPage />} />
           </Route>
         </Routes>
       </AuthBootstrap>

@@ -12,6 +12,7 @@ import healthRouter from './routes/health.route.js';
 import authRouter from './routes/auth.route.js';
 import { createComicRouter } from './routes/comic.route.js';
 import { createSeriesRouter } from './routes/series.route.js';
+import { createTagRouter } from './routes/tag.route.js';
 
 /**
  * ������װ�� Koa Ӧ�á�
@@ -88,6 +89,11 @@ export function createApp(customConfig) {
   const seriesRouter = createSeriesRouter(config);
   app.use(seriesRouter.routes());
   app.use(seriesRouter.allowedMethods());
+
+  // 标签路由
+  const tagRouter = createTagRouter(config);
+  app.use(tagRouter.routes());
+  app.use(tagRouter.allowedMethods());
 
   return { app, logger, config };
 }
