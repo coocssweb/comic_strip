@@ -40,7 +40,7 @@ Repository 只做数据存取封装，不含业务判断，插入在 Service 与
 - 压缩：`koa-compress`
 - 日志：`pino`（生产环境结构化日志，开发环境可用 `koa-logger`）
 - 限流：`koa-ratelimit`
-- 参数校验：`zod`（项目内统一使用，不与 `joi` 混用）
+- 参数校验：`zod`
 
 若某个功能在上表之外且 spec 未指定对应库，Agent 必须先向人确认选型，禁止直接手写实现或自行引入未经确认的第三方库。
 
