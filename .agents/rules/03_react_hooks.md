@@ -4,7 +4,7 @@ trigger: manual
 
 # React Hooks 与状态规范
 
-本规范适用于`admin-web` 中所有 React 组件、hooks 和状态逻辑。重点约束 Hooks 使用、状态设计和副作用管理；组件拆分和公共组件复用仍以各子项目 `AGENT.md` 与对应 skill 为准。从原型迁移引发的样式复制风险，见 `04_frontend_style.md` 的“公共组件与原型移植”。
+本规范适用于`admin-web` 中所有 React 组件、hooks 和状态逻辑。重点约束 Hooks 使用、状态设计和副作用管理；组件拆分和公共组件复用仍以各子项目 `AGENT.md` 与对应 skill 为准。
 
 ## 一、Hooks 基本规则
 
@@ -94,6 +94,7 @@ trigger: manual
 ### State
 
 - 是否有多个 `useState` 实际表达同一个业务流程？
+- 是否有强关联状态未使用useSetState进行合并？
 - 是否有可计算值被放进 state？
 - 是否有 props → state 同步仅依赖 `useEffect`，实际上可以直接计算？
 - 是否有不会触发渲染的数据被错误放进 state？
