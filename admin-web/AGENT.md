@@ -13,6 +13,7 @@
 - `../.agents/rules/04_frontend_style.md`
 - `../.agents/rules/05_redux_data_flow.md`
 - `../.agents/rules/06_redux_state_placement.md`
+- `../.agents/rules/08_design_tokens.md`
 
 
 ## API 规范
